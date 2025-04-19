@@ -31,6 +31,7 @@ class UsuarioAdmin(admin.ModelAdmin):
         "estado_servicio",
         "direccion",
         "instalacion",
+        "cancelacion",
     )
     inlines = [DireccionInline, UsuarioPlanInline, InstalacionInline]
     search_fields = ("documento", "nombre", "apellido", "direcciones__vereda")
@@ -66,6 +67,14 @@ class UsuarioAdmin(admin.ModelAdmin):
         if estados_servicios.exists():
             return ", ".join("Activo" for _ in estados_servicios)
         return "No activo"
+
+    def cancelacion(self, obj):
+        cancelaciones = obj.usuario_plan.filter(estado_servicio=False)
+        if cancelaciones.exists():
+            return ", ".join(
+                c.fecha_cancelacion.strftime("%Y-%m-%d") for c in cancelaciones
+            )
+        return "Sin cancelaciones"
 
 
 @admin.register(Direccion)
