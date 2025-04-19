@@ -13,6 +13,9 @@ class Plan(models.Model):
         verbose_name = "plan"
         verbose_name_plural = "agregar planes"
 
+    def __str__(self):
+        return f"{self.nombre}"
+
 
 class UsuarioPlan(models.Model):
     usuario_plan_id = models.AutoField(primary_key=True)
@@ -27,8 +30,8 @@ class UsuarioPlan(models.Model):
     estado_servicio = models.BooleanField(default=True)
 
     class Meta:
-        verbose_name = "agregar plan"
-        verbose_name_plural = "agregar planes"
+        verbose_name = "plan"
+        verbose_name_plural = "agregar planes a usuarios"
 
     def clean(self):
         if self.estado_servicio and self.fecha_cancelacion is not None:
