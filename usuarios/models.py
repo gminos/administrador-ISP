@@ -12,7 +12,7 @@ class Usuario(models.Model):
         return f"{self.documento} - {self.nombre} - {self.apellido}"
 
     class Meta:
-        verbose_name = "agregar usuario"
+        verbose_name = "usuario"
         verbose_name_plural = "agregar usuarios"
 
 
@@ -29,5 +29,5 @@ class Direccion(models.Model):
         return f"Vereda: {self.vereda} Documento: {self.usuario.documento} Nombre: {self.usuario.nombre}"
 
     class Meta:
-        verbose_name = "agregar direccion"
+        verbose_name = "direccion"
         verbose_name_plural = "agregar direcciones"
