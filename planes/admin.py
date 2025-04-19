@@ -2,11 +2,30 @@ from django.contrib import admin
 from .models import Plan, UsuarioPlan
 
 
+class EstadoServicioFilter(admin.SimpleListFilter):
+    title = "Estado del servicio"
+    parameter_name = "estado_servicio"
+
+    def lookups(self, request, model_admin):
+        return (
+            ("activo", "Activo"),
+            ("inactivo", "Inactivo"),
+        )
+
+    def queryset(self, request, queryset):
+        if self.value() == "activo":
+            return queryset.filter(estado_servicio=True)
+        if self.value() == "inactivo":
+            return queryset.filter(estado_servicio=False)
+        return queryset
+
+
 @admin.register(UsuarioPlan)
 class UsuarioPlanAdmin(admin.ModelAdmin):
     list_display = (
-        "usuario",
-        "plan",
+        "documento",
+        "nombre",
+        "apellido",
         "fecha_inico",
         "fecha_cancelacion",
         "estado_servicio",
@@ -17,6 +36,16 @@ class UsuarioPlanAdmin(admin.ModelAdmin):
         "usuario__documento",
     )
     autocomplete_fields = ["usuario"]
+    list_filter = (EstadoServicioFilter,)
+
+    def documento(self, obj):
+        return obj.usuario.documento
+
+    def nombre(self, obj):
+        return obj.usuario.nombre
+
+    def apellido(self, obj):
+        return obj.usuario.nombre
 
 
 @admin.register(Plan)
