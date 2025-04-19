@@ -57,7 +57,7 @@ class UsuarioAdmin(admin.ModelAdmin):
         "nombre",
         "apellido",
         "direcciones__vereda",
-        "usuario_plan__estado_servicio",
+        "usuario_plan__plan__nombre",
     )
     list_filter = (EstadoServicioFilter,)
 
@@ -112,12 +112,30 @@ class UsuarioAdmin(admin.ModelAdmin):
 
 @admin.register(Direccion)
 class DireccionAdmin(admin.ModelAdmin):
-    list_display = ("vereda", "descripcion", "usuario_documento")
-    search_fields = ("vereda", "usuario__documento", "usuario__nombre")
+    list_display = (
+        "documento",
+        "nombre",
+        "apellido",
+        "vereda",
+        "descripcion",
+    )
+    search_fields = (
+        "vereda",
+        "usuario__documento",
+        "usuario__nombre",
+        "usuario__apellido",
+    )
     autocomplete_fields = ["usuario"]
 
     # Mostrar el documento
     def usuario_documento(self, obj):
         return obj.usuario.documento
 
-    usuario_documento.short_description = "documento"
+    def nombre(self, obj):
+        return obj.usuario.nombre
+
+    def apellido(self, obj):
+        return obj.usuario.apellido
+
+    def documento(self, obj):
+        return obj.usuario.documento
