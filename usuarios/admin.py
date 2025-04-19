@@ -1,6 +1,12 @@
 from django.contrib import admin
 from planes.models import UsuarioPlan
+from instalaciones.models import Intalacion
 from .models import Usuario, Direccion
+
+
+class InstalacionInline(admin.TabularInline):
+    model = Intalacion
+    extra = 0
 
 
 class UsuarioPlanInline(admin.TabularInline):
@@ -24,7 +30,7 @@ class UsuarioAdmin(admin.ModelAdmin):
         "plan",
         "direccion",
     )
-    inlines = [DireccionInline, UsuarioPlanInline]
+    inlines = [DireccionInline, UsuarioPlanInline, InstalacionInline]
     search_fields = ("documento", "nombre", "apellido", "direcciones__vereda")
 
     # No editar documento pero si al momento de crear
