@@ -28,7 +28,9 @@ class UsuarioAdmin(admin.ModelAdmin):
         "apellido",
         "telefono",
         "plan",
+        "estado_servicio",
         "direccion",
+        "instalacion",
     )
     inlines = [DireccionInline, UsuarioPlanInline, InstalacionInline]
     search_fields = ("documento", "nombre", "apellido", "direcciones__vereda")
@@ -50,6 +52,20 @@ class UsuarioAdmin(admin.ModelAdmin):
         if direcciones.exists():
             return ", ".join(d.vereda for d in direcciones)
         return "Sin dirección"
+
+    def instalacion(self, obj):
+        instalaciones = obj.instalacion.all()
+        if instalaciones.exists():
+            return ", ".join(
+                i.fecha_instalacion.strftime("%Y-%m-%d") for i in instalaciones
+            )
+        return "Sin instalaciones"
+
+    def estado_servicio(self, obj):
+        estados_servicios = obj.usuario_plan.filter(estado_servicio=True)
+        if estados_servicios.exists():
+            return ", ".join("Activo" for _ in estados_servicios)
+        return "No activo"
 
 
 @admin.register(Direccion)
