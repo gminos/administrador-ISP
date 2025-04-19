@@ -1,3 +1,33 @@
 from django.db import models
+from django.core.exceptions import ValidationError
 
-# Create your models here.
+
+class UsuarioPlan(models.Model):
+    usuario_plan_id = models.AutoField(primary_key=True)
+    usuario = models.ForeignKey(
+        "usuarios.Usuario", on_delete=models.CASCADE, related_name="usuario_plan"
+    )
+    plan = models.ForeignKey(
+        "Plan", on_delete=models.CASCADE, related_name="usuario_plan"
+    )
+    fecha_inico = models.DateTimeField(auto_now_add=True)
+    fecha_cancelacion = models.DateTimeField(blank=True, null=True)
+    estado_servicio = models.BooleanField(default=True)
+
+    class Meta:
+        verbose_name = "agregar plan"
+        verbose_name_plural = "agregar planes"
+
+    def clean(self):
+        if self.estado_servicio and self.fecha_cancelacion is not None:
+            raise ValidationError(
+                "Si el servicio esta activo, no debe tener fecha de cancelacion"
+            )
+        if not self.estado_servicio and self.fecha_cancelacion is None:
+            raise ValidationError(
+                "Si el servicio esta cancelado, debe tener una fecha de cancelacion"
+            )
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        super().save(*args, **kwargs)
