@@ -11,4 +11,4 @@ class Intalacion(models.Model):
 
     class Meta:
         verbose_name = "instacion"
-        verbose_name_plural = "instalaciones"
+        verbose_name_plural = "Instalaciones"
