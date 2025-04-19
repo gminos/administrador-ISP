@@ -20,6 +20,24 @@ class DireccionInline(admin.TabularInline):
     extra = 0
 
 
+class EstadoServicioFilter(admin.SimpleListFilter):
+    title = "Estado del servicio"
+    parameter_name = "estado_servicio"
+
+    def lookups(self, request, model_admin):
+        return (
+            ("activo", "Activo"),
+            ("inactivo", "Inactivo"),
+        )
+
+    def queryset(self, request, queryset):
+        if self.value() == "activo":
+            return queryset.filter(usuario_plan__estado_servicio=True)
+        if self.value() == "inactivo":
+            return queryset.filter(usuario_plan__estado_servicio=False)
+        return queryset
+
+
 @admin.register(Usuario)
 class UsuarioAdmin(admin.ModelAdmin):
     list_display = (
@@ -34,7 +52,14 @@ class UsuarioAdmin(admin.ModelAdmin):
         "cancelacion",
     )
     inlines = [DireccionInline, UsuarioPlanInline, InstalacionInline]
-    search_fields = ("documento", "nombre", "apellido", "direcciones__vereda")
+    search_fields = (
+        "documento",
+        "nombre",
+        "apellido",
+        "direcciones__vereda",
+        "usuario_plan__estado_servicio",
+    )
+    list_filter = (EstadoServicioFilter,)
 
     # No editar documento pero si al momento de crear
     def get_readonly_fields(self, request, obj=None):
@@ -46,7 +71,7 @@ class UsuarioAdmin(admin.ModelAdmin):
         planes = obj.usuario_plan.filter(estado_servicio=True)
         if planes.exists():
             return ", ".join(str(p.plan) for p in planes)
-        return "Sin plan activo"
+        return "Sin ningun plan"
 
     def direccion(self, obj):
         direcciones = obj.direcciones.all()
@@ -63,10 +88,18 @@ class UsuarioAdmin(admin.ModelAdmin):
         return "Sin instalaciones"
 
     def estado_servicio(self, obj):
-        estados_servicios = obj.usuario_plan.filter(estado_servicio=True)
-        if estados_servicios.exists():
-            return ", ".join("Activo" for _ in estados_servicios)
-        return "No activo"
+        estados = obj.usuario_plan.values_list(
+            "estado_servicio", flat=True).distinct()
+
+        etiquetas = []
+
+        for estado in estados:
+            if estado:
+                etiquetas.append("Activo")
+            else:
+                etiquetas.append("Inactivo")
+
+        return ", ".join(etiquetas) if etiquetas else "Sin servicio"
 
     def cancelacion(self, obj):
         cancelaciones = obj.usuario_plan.filter(estado_servicio=False)
