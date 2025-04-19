@@ -49,7 +49,8 @@ class UsuarioAdmin(admin.ModelAdmin):
 @admin.register(Direccion)
 class DireccionAdmin(admin.ModelAdmin):
     list_display = ("vereda", "descripcion", "usuario_documento")
-    search_fields = ("vereda", "usuario__documento")
+    search_fields = ("vereda", "usuario__documento", "usuario__nombre")
+    autocomplete_fields = ["usuario"]
 
     # Mostrar el documento
     def usuario_documento(self, obj):
