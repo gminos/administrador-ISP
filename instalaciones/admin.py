@@ -1,3 +1,9 @@
 from django.contrib import admin
+from .models import Intalacion
 
-# Register your models here.
+
+@admin.register(Intalacion)
+class InstalacionAdmin(admin.ModelAdmin):
+    list_display = ("usuario", "fecha_instalacion", "costo")
+    search_fields = ("usuario__documento", "usuario__nombre")
+    autocomplete_fields = ["usuario"]
