@@ -11,6 +11,10 @@ class Usuario(models.Model):
     def __str__(self):
         return f"{self.documento} - {self.nombre} - {self.apellido}"
 
+    class Meta:
+        verbose_name = "agregar usuario"
+        verbose_name_plural = "agregar usuarios"
+
 
 # Tabla Direccion para llevar el control de todas las direciones posibles del usuario
 class Direccion(models.Model):
@@ -23,3 +27,7 @@ class Direccion(models.Model):
 
     def __str__(self):
         return f"Vereda: {self.vereda} Documento: {self.usuario.documento} Nombre: {self.usuario.nombre}"
+
+    class Meta:
+        verbose_name = "agregar direccion"
+        verbose_name_plural = "agregar direcciones"
