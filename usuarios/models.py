@@ -9,9 +9,7 @@ class Usuario(models.Model):
     telefono = models.CharField(max_length=10)
 
     def __str__(self):
-        return (
-            f"Nombre: {self.nombre} Apellido: {self.apellido} Telefono: {self.telefono}"
-        )
+        return f"{self.documento} - {self.nombre} - {self.apellido}"
 
 
 # Tabla Direccion para llevar el control de todas las direciones posibles del usuario
