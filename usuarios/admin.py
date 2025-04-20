@@ -127,10 +127,6 @@ class DireccionAdmin(admin.ModelAdmin):
     )
     autocomplete_fields = ["usuario"]
 
-    # Mostrar el documento
-    def usuario_documento(self, obj):
-        return obj.usuario.documento
-
     def nombre(self, obj):
         return obj.usuario.nombre
 
