@@ -45,7 +45,7 @@ class UsuarioPlanAdmin(admin.ModelAdmin):
         return obj.usuario.nombre
 
     def apellido(self, obj):
-        return obj.usuario.nombre
+        return obj.usuario.apellido
 
 
 @admin.register(Plan)
