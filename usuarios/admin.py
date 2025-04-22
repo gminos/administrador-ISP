@@ -88,8 +88,7 @@ class UsuarioAdmin(admin.ModelAdmin):
         return "Sin instalaciones"
 
     def estado_servicio(self, obj):
-        estados = obj.usuario_plan.values_list(
-            "estado_servicio", flat=True).distinct()
+        estados = obj.usuario_plan.values_list("estado_servicio", flat=True)
 
         etiquetas = []
 
