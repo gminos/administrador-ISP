@@ -34,6 +34,7 @@ class UsuarioPlanAdmin(admin.ModelAdmin):
         "estado_servicio",
         "usuario__nombre",
         "usuario__documento",
+        "usuario__apellido",
     )
     autocomplete_fields = ["usuario"]
     list_filter = (EstadoServicioFilter,)
