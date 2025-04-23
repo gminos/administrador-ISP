@@ -12,3 +12,6 @@ class Intalacion(models.Model):
     class Meta:
         verbose_name = "instacion"
         verbose_name_plural = "Instalaciones"
+
+    def __str__(self):
+        return f"Informacion de {self.usuario.nombre} {self.usuario.apellido}"

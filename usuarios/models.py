@@ -9,7 +9,7 @@ class Usuario(models.Model):
     telefono = models.CharField(max_length=10)
 
     def __str__(self):
-        return f"{self.documento} - {self.nombre} - {self.apellido}"
+        return f"{self.nombre} {self.apellido}: {self.documento}"
 
     class Meta:
         verbose_name = "usuario"
@@ -26,8 +26,8 @@ class Direccion(models.Model):
     descripcion = models.TextField(blank=True, null=True)
 
     def __str__(self):
-        return f"Vereda: {self.vereda} Documento: {self.usuario.documento} Nombre: {self.usuario.nombre}"
+        return f"Informacion {self.usuario.nombre} {self.usuario.apellido}"
 
     class Meta:
-        verbose_name = "uireccion"
+        verbose_name = "direccion"
         verbose_name_plural = "Direcciones"

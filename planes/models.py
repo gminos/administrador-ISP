@@ -5,8 +5,7 @@ from django.core.exceptions import ValidationError
 class Plan(models.Model):
     plan_id = models.AutoField(primary_key=True)
     nombre = models.CharField(max_length=20)
-    cantidad_megas = models.IntegerField(
-        help_text="Velocidad del plan en Mbps")
+    cantidad_megas = models.IntegerField(help_text="Velocidad del plan en Mbps")
     costo = models.DecimalField(max_digits=10, decimal_places=2)
 
     class Meta:
@@ -32,6 +31,9 @@ class UsuarioPlan(models.Model):
     class Meta:
         verbose_name = "plan-usuario"
         verbose_name_plural = "planes-usuarios"
+
+    def __str__(self):
+        return f"Informacion de {self.usuario.nombre} {self.usuario.apellido}"
 
     def clean(self):
         if self.estado_servicio and self.fecha_cancelacion is not None:
