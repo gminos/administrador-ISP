@@ -13,7 +13,7 @@ class Usuario(models.Model):
 
     class Meta:
         verbose_name = "usuario"
-        verbose_name_plural = "Usuarios"
+        verbose_name_plural = "Crear usuario"
 
 
 # Tabla Direccion para llevar el control de todas las direciones posibles del usuario
@@ -29,5 +29,5 @@ class Direccion(models.Model):
         return f"Informacion {self.usuario.nombre} {self.usuario.apellido}"
 
     class Meta:
-        verbose_name = "direccion"
-        verbose_name_plural = "Direcciones"
+        verbose_name = "direccion a usuario"
+        verbose_name_plural = "agregar direccion a usuario"
