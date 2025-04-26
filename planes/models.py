@@ -24,7 +24,7 @@ class UsuarioPlan(models.Model):
     plan = models.ForeignKey(
         "Plan", on_delete=models.CASCADE, related_name="usuario_plan"
     )
-    fecha_inico = models.DateTimeField(auto_now_add=True)
+    fecha_inico = models.DateTimeField()
     fecha_cancelacion = models.DateTimeField(blank=True, null=True)
     estado_servicio = models.BooleanField(default=True)
 
