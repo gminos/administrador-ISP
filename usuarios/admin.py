@@ -33,7 +33,11 @@ class UsuarioAdmin(admin.ModelAdmin):
         "instalacion",
         "cancelacion",
     )
-    inlines = [DireccionInline, UsuarioPlanInline, InstalacionInline]
+    inlines = [
+        DireccionInline,
+        InstalacionInline,
+        UsuarioPlanInline,
+    ]
     search_fields = (
         "documento",
         "nombre",
