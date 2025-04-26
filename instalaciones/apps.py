@@ -2,5 +2,6 @@ from django.apps import AppConfig
 
 
 class InstalacionesConfig(AppConfig):
-    default_auto_field = 'django.db.models.BigAutoField'
-    name = 'instalaciones'
+    default_auto_field = "django.db.models.BigAutoField"
+    name = "instalaciones"
+    verbose_name = "gestiona instalaciones"
