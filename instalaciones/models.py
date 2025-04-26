@@ -10,8 +10,8 @@ class Intalacion(models.Model):
     costo = models.DecimalField(max_digits=10, decimal_places=2)
 
     class Meta:
-        verbose_name = "instacion a usuario"
-        verbose_name_plural = "agregar instalacion a usuario"
+        verbose_name = "instalacion a cliente"
+        verbose_name_plural = "agregar instalacion a cliente"
 
     def __str__(self):
         return f"Informacion de {self.usuario.nombre} {self.usuario.apellido}"
