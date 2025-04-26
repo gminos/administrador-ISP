@@ -26,6 +26,7 @@ class UsuarioPlanAdmin(admin.ModelAdmin):
         "documento",
         "nombre",
         "apellido",
+        "plan",
         "fecha_inico",
         "fecha_cancelacion",
         "estado_servicio",
@@ -38,12 +39,11 @@ class UsuarioPlanAdmin(admin.ModelAdmin):
     )
     autocomplete_fields = ["usuario"]
     list_filter = (EstadoServicioFilter,)
-    exclude = ("usuario",)
+    exclude = ("usuario", "plan")
 
-    def get_readonly_fields(self, request, obj=None):
-        if obj:
-            return ("plan",)
-        return ()
+    def plan(self, obj):
+        plan = obj.usuario_plan.nombre
+        return plan
 
     def documento(self, obj):
         return obj.usuario.documento
