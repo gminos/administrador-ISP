@@ -10,7 +10,7 @@ class Plan(models.Model):
 
     class Meta:
         verbose_name = "plan"
-        verbose_name_plural = "planes"
+        verbose_name_plural = "crear plan"
 
     def __str__(self):
         return f"{self.nombre}"
@@ -29,8 +29,8 @@ class UsuarioPlan(models.Model):
     estado_servicio = models.BooleanField(default=True)
 
     class Meta:
-        verbose_name = "plan-usuario"
-        verbose_name_plural = "planes-usuarios"
+        verbose_name = "plan a usuario"
+        verbose_name_plural = "agregar plan a usuario"
 
     def __str__(self):
         return f"Informacion de {self.usuario.nombre} {self.usuario.apellido}"
