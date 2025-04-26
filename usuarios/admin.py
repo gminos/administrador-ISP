@@ -20,24 +20,6 @@ class DireccionInline(admin.TabularInline):
     extra = 0
 
 
-class EstadoServicioFilter(admin.SimpleListFilter):
-    title = "Estado del servicio"
-    parameter_name = "estado_servicio"
-
-    def lookups(self, request, model_admin):
-        return (
-            ("activo", "Activo"),
-            ("inactivo", "Inactivo"),
-        )
-
-    def queryset(self, request, queryset):
-        if self.value() == "activo":
-            return queryset.filter(usuario_plan__estado_servicio=True)
-        if self.value() == "inactivo":
-            return queryset.filter(usuario_plan__estado_servicio=False)
-        return queryset
-
-
 @admin.register(Usuario)
 class UsuarioAdmin(admin.ModelAdmin):
     list_display = (
@@ -59,7 +41,6 @@ class UsuarioAdmin(admin.ModelAdmin):
         "direcciones__vereda",
         "usuario_plan__plan__nombre",
     )
-    list_filter = (EstadoServicioFilter,)
 
     # No editar documento pero si al momento de crear
     def get_readonly_fields(self, request, obj=None):
