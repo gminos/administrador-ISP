@@ -106,11 +106,7 @@ class DireccionAdmin(admin.ModelAdmin):
         "usuario__apellido",
     )
     autocomplete_fields = ["usuario"]
-
-    def get_readonly_fields(self, request, obj=None):
-        if obj:
-            return ("usuario",)
-        return ()
+    exclude = ("usuario",)
 
     def nombre(self, obj):
         return obj.usuario.nombre

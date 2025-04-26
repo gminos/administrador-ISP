@@ -38,10 +38,11 @@ class UsuarioPlanAdmin(admin.ModelAdmin):
     )
     autocomplete_fields = ["usuario"]
     list_filter = (EstadoServicioFilter,)
+    exclude = ("usuario",)
 
     def get_readonly_fields(self, request, obj=None):
         if obj:
-            return ("plan", "usuario")
+            return ("plan",)
         return ()
 
     def documento(self, obj):
