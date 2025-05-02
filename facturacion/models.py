@@ -8,3 +8,18 @@ class Factura(models.Model):
     )
     fecha_emision = models.DateTimeField(blank=True, null=True)
     monto_total = models.DecimalField(max_digits=10, decimal_places=2)
+
+
+class DetalleFactura(models.Model):
+    TIPO_DETALLE_CHOICES = [
+        ("mensualidad", "Mensualidad"),
+        ("instalación", "Instalación"),
+        ("reconexión", "Reconexión"),
+    ]
+    detalle_factura_id = models.AutoField(primary_key=True)
+    factura = models.ForeignKey(
+        "Factura", on_delete=models.CASCADE, related_name="factura"
+    )
+    tipo_detalle = models.CharField(
+        max_length=20, choices=TIPO_DETALLE_CHOICES)
+    monto = models.DecimalField(max_digits=10, decimal_places=2)
