@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     "usuarios",
     "planes",
     "instalaciones",
+    "facturacion",
 ]
 
 MIDDLEWARE = [
