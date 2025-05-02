@@ -28,11 +28,6 @@ class UsuarioAdmin(admin.ModelAdmin):
         "nombre",
         "apellido",
         "telefono",
-        "plan",
-        "estado_servicio",
-        "direccion",
-        "instalacion",
-        "cancelacion",
     )
     inlines = [
         DireccionInline,
@@ -43,8 +38,6 @@ class UsuarioAdmin(admin.ModelAdmin):
         "documento",
         "nombre",
         "apellido",
-        "direcciones__vereda",
-        "usuario_plan__plan__nombre",
     )
 
     # No editar documento pero si al momento de crear
@@ -52,47 +45,6 @@ class UsuarioAdmin(admin.ModelAdmin):
         if obj:
             return ("documento",)
         return ()
-
-    def plan(self, obj):
-        planes = obj.usuario_plan.filter(estado_servicio=True)
-        if planes.exists():
-            return ", ".join(str(p.plan) for p in planes)
-        return "Sin ningun plan"
-
-    def direccion(self, obj):
-        direcciones = obj.direcciones.all()
-        if direcciones.exists():
-            return ", ".join(d.vereda for d in direcciones)
-        return "Sin dirección"
-
-    def instalacion(self, obj):
-        instalaciones = obj.instalacion.all()
-        if instalaciones.exists():
-            return ", ".join(
-                i.fecha_instalacion.strftime("%Y-%m-%d") for i in instalaciones
-            )
-        return "Sin instalaciones"
-
-    def estado_servicio(self, obj):
-        estados = obj.usuario_plan.values_list("estado_servicio", flat=True)
-
-        etiquetas = []
-
-        for estado in estados:
-            if estado:
-                etiquetas.append("Activo")
-            else:
-                etiquetas.append("Inactivo")
-
-        return ", ".join(etiquetas) if etiquetas else "Sin servicio"
-
-    def cancelacion(self, obj):
-        cancelaciones = obj.usuario_plan.filter(estado_servicio=False)
-        if cancelaciones.exists():
-            return ", ".join(
-                c.fecha_cancelacion.strftime("%Y-%m-%d") for c in cancelaciones
-            )
-        return "Sin cancelaciones"
 
 
 @admin.register(Direccion)
