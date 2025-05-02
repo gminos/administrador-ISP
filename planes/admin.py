@@ -1,3 +1,4 @@
+from django import forms
 from django.contrib import admin
 from .models import Plan, UsuarioPlan
 
@@ -39,7 +40,14 @@ class UsuarioPlanAdmin(admin.ModelAdmin):
     )
     autocomplete_fields = ["usuario"]
     list_filter = (EstadoServicioFilter,)
-    exclude = ("usuario", "plan")
+
+    def get_form(self, request, obj=None, **kwargs):
+        form = super().get_form(request, obj, **kwargs)
+        if obj:
+            form.base_fields["fecha_inico"].widget = forms.HiddenInput()
+            form.base_fields["usuario"].widget = forms.HiddenInput()
+            form.base_fields["plan"].widget = forms.HiddenInput()
+        return form
 
     def plan(self, obj):
         plan = obj.usuario_plan.nombre

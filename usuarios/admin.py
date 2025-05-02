@@ -1,3 +1,4 @@
+from django import forms
 from django.contrib import admin
 from planes.models import UsuarioPlan
 from instalaciones.models import Intalacion
@@ -110,7 +111,12 @@ class DireccionAdmin(admin.ModelAdmin):
         "usuario__apellido",
     )
     autocomplete_fields = ["usuario"]
-    exclude = ("usuario",)
+
+    def get_form(self, request, obj=None, **kwargs):
+        form = super().get_form(request, obj, **kwargs)
+        if obj:
+            form.base_fields["usuario"].widget = forms.HiddenInput()
+        return form
 
     def nombre(self, obj):
         return obj.usuario.nombre
