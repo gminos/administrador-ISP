@@ -35,5 +35,7 @@ class Pago(models.Model):
     )
     monto_pagado = models.DecimalField(max_digits=10, decimal_places=2)
     metodo = models.CharField(max_length=15, choices=METODO_CHOICES)
-    estado = models.CharField(max_length=10, choices=ESTADO_CHOICES)
+    estado = models.CharField(
+        max_length=10, choices=ESTADO_CHOICES, default="pendiente"
+    )
     fecha_pago = models.DateTimeField(auto_now_add=True)
