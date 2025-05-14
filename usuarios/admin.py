@@ -24,7 +24,6 @@ class DireccionInline(admin.TabularInline):
 @admin.register(Usuario)
 class UsuarioAdmin(admin.ModelAdmin):
     list_display = (
-        "documento",
         "nombre",
         "apellido",
         "telefono",
@@ -35,22 +34,14 @@ class UsuarioAdmin(admin.ModelAdmin):
         UsuarioPlanInline,
     ]
     search_fields = (
-        "documento",
         "nombre",
         "apellido",
     )
-
-    # No editar documento pero si al momento de crear
-    def get_readonly_fields(self, request, obj=None):
-        if obj:
-            return ("documento",)
-        return ()
 
 
 @admin.register(Direccion)
 class DireccionAdmin(admin.ModelAdmin):
     list_display = (
-        "documento",
         "nombre",
         "apellido",
         "vereda",
@@ -58,7 +49,6 @@ class DireccionAdmin(admin.ModelAdmin):
     )
     search_fields = (
         "vereda",
-        "usuario__documento",
         "usuario__nombre",
         "usuario__apellido",
     )
@@ -75,6 +65,3 @@ class DireccionAdmin(admin.ModelAdmin):
 
     def apellido(self, obj):
         return obj.usuario.apellido
-
-    def documento(self, obj):
-        return obj.usuario.documento
