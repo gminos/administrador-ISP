@@ -24,7 +24,6 @@ class EstadoServicioFilter(admin.SimpleListFilter):
 @admin.register(UsuarioPlan)
 class UsuarioPlanAdmin(admin.ModelAdmin):
     list_display = (
-        "documento",
         "nombre",
         "apellido",
         "plan",
@@ -35,7 +34,6 @@ class UsuarioPlanAdmin(admin.ModelAdmin):
     search_fields = (
         "estado_servicio",
         "usuario__nombre",
-        "usuario__documento",
         "usuario__apellido",
     )
     autocomplete_fields = ["usuario"]
@@ -52,9 +50,6 @@ class UsuarioPlanAdmin(admin.ModelAdmin):
     def plan(self, obj):
         plan = obj.usuario_plan.nombre
         return plan
-
-    def documento(self, obj):
-        return obj.usuario.documento
 
     def nombre(self, obj):
         return obj.usuario.nombre
