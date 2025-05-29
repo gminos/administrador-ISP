@@ -47,8 +47,7 @@ class UsuarioPlanAdmin(admin.ModelAdmin):
         return form
 
     def plan(self, obj):
-        plan = obj.usuario_plan.nombre
-        return plan
+        return obj.plan.nombre
 
     def nombre(self, obj):
         return obj.usuario.nombre
