@@ -1,5 +1,3 @@
-# arint_conexiones_admin
-
 ## Descripción
 
 Este proyecto personal es una práctica con el framework Django, enfocada en el uso y aprovechamiento del panel administrativo que Django ofrece por defecto. Está diseñado para gestionar información relacionada con usuarios, planes adquiridos y su creación, así como instalaciones, todo aplicado a empresas que brindan servicios de internet.
