@@ -1,6 +1,7 @@
 from django import forms
 from django.contrib import admin
 from .models import Intalacion
+from base.admin import admin_site
 
 
 @admin.register(Intalacion)
@@ -20,3 +21,6 @@ class InstalacionAdmin(admin.ModelAdmin):
 
     def apellido(self, obj):
         return obj.usuario.apellido
+
+
+admin_site.register(Intalacion, InstalacionAdmin)
