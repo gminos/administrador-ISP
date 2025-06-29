@@ -1,6 +1,7 @@
 from django import forms
 from django.contrib import admin
 from .models import Plan, UsuarioPlan
+from base.admin import admin_site
 
 
 class EstadoServicioFilter(admin.SimpleListFilter):
@@ -59,3 +60,7 @@ class UsuarioPlanAdmin(admin.ModelAdmin):
 @admin.register(Plan)
 class PlanAdmin(admin.ModelAdmin):
     list_display = ("nombre", "cantidad_megas", "costo")
+
+
+admin_site.register(Plan, PlanAdmin)
+admin_site.register(UsuarioPlan, UsuarioPlanAdmin)
