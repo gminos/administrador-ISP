@@ -3,6 +3,7 @@ from django.contrib import admin
 from planes.models import UsuarioPlan
 from instalaciones.models import Intalacion
 from .models import Usuario, Direccion
+from base.admin import admin_site
 
 
 class InstalacionInline(admin.TabularInline):
@@ -65,3 +66,6 @@ class DireccionAdmin(admin.ModelAdmin):
 
     def apellido(self, obj):
         return obj.usuario.apellido
+
+admin_site.register(Usuario, UsuarioAdmin)
+admin_site.register(Direccion, DireccionAdmin)
