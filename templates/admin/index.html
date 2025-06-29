@@ -1,0 +1,14 @@
+{% extends "admin/index.html" %}
+
+{% block content %}
+  {{ block.super }}
+  <style>
+    a.addlink,
+    a.changelink {
+      display: none !important;
+    }
+
+  </style>
+{% endblock %}
+
+{% block sidebar %}{% endblock %}
