@@ -12,9 +12,9 @@ class AdminPersonalizado(AdminSite):
         app_dict = self._build_app_dict(request)
         orden = [
             'facturación',
-            'gestiona clientes y direcciones',
+            'gestiona clientes',
             'gestiona instalaciones',
-            'Crea planes / asigna a clientes',
+            'gestiona planes',
             'Autenticación y autorización',
         ]
         return sorted(
