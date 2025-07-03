@@ -23,6 +23,7 @@ class EstadoServicioFilter(admin.SimpleListFilter):
 
 @admin.register(UsuarioPlan)
 class UsuarioPlanAdmin(admin.ModelAdmin):
+    actions = None
     list_display = (
         "nombre",
         "apellido",
@@ -59,8 +60,9 @@ class UsuarioPlanAdmin(admin.ModelAdmin):
 
 @admin.register(Plan)
 class PlanAdmin(admin.ModelAdmin):
+    actions = None
     list_display = ("nombre", "cantidad_megas", "costo")
 
 
 admin_site.register(Plan, PlanAdmin)
-admin_site.register(UsuarioPlan, UsuarioPlanAdmin)
+# admin_site.register(UsuarioPlan, UsuarioPlanAdmin)
