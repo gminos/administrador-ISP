@@ -11,7 +11,7 @@ class Plan(models.Model):
 
     class Meta:
         verbose_name = "plan"
-        verbose_name_plural = "crear plan"
+        verbose_name_plural = "Agrega o modifica planes"
 
     def __str__(self):
         return f"{self.nombre}"

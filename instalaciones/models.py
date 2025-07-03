@@ -11,7 +11,7 @@ class Intalacion(models.Model):
 
     class Meta:
         verbose_name = "instalacion a cliente"
-        verbose_name_plural = "agregar instalacion a cliente"
+        verbose_name_plural = "informacion de instalaciones"
 
     def __str__(self):
         return f"Informacion de {self.usuario.nombre} {self.usuario.apellido}"
