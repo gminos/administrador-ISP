@@ -6,6 +6,7 @@ from base.admin import admin_site
 
 @admin.register(Intalacion)
 class InstalacionAdmin(admin.ModelAdmin):
+    actions = None
     list_display = ("nombre", "apellido", "fecha_instalacion", "costo")
     search_fields = ("usuario__nombre", "usuario__apellido")
     autocomplete_fields = ["usuario"]
