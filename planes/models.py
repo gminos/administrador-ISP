@@ -1,5 +1,4 @@
 from django.db import models
-# from django.core.exceptions import ValidationError
 
 
 class Plan(models.Model):
@@ -15,37 +14,3 @@ class Plan(models.Model):
 
     def __str__(self):
         return f"{self.nombre}"
-
-
-# class UsuarioPlan(models.Model):
-#     usuario_plan_id = models.AutoField(primary_key=True)
-#     usuario = models.ForeignKey(
-#         "usuarios.Usuario", on_delete=models.CASCADE, related_name="usuario_plan"
-#     )
-#     plan = models.ForeignKey(
-#         "Plan", on_delete=models.CASCADE, related_name="usuario_plan"
-#     )
-#     fecha_inico = models.DateTimeField()
-#     fecha_cancelacion = models.DateTimeField(blank=True, null=True)
-#     estado_servicio = models.BooleanField(default=True)
-#
-#     class Meta:
-#         verbose_name = "plan a cliente"
-#         verbose_name_plural = "agregar plan a cliente"
-#
-#     def __str__(self):
-#         return f"Informacion de {self.usuario.nombre} {self.usuario.apellido}"
-#
-#     def clean(self):
-#         if self.estado_servicio and self.fecha_cancelacion is not None:
-#             raise ValidationError(
-#                 "Si el servicio esta activo, no debe tener fecha de cancelacion"
-#             )
-#         if not self.estado_servicio and self.fecha_cancelacion is None:
-#             raise ValidationError(
-#                 "Si el servicio esta cancelado, debe tener una fecha de cancelacion"
-#             )
-#
-#     def save(self, *args, **kwargs):
-#         self.full_clean()
-#         super().save(*args, **kwargs)
