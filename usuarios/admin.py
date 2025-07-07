@@ -13,8 +13,7 @@ class InstalacionInline(admin.TabularInline):
 class UsuarioAdmin(admin.ModelAdmin):
     actions = None
     list_display = (
-        "nombre",
-        "apellido",
+        "cliente",
         "vereda",
         "telefono",
     )
@@ -26,6 +25,9 @@ class UsuarioAdmin(admin.ModelAdmin):
         "apellido",
         "vereda"
     )
+
+    def cliente(self, obj):
+        return f"{obj.nombre} {obj.apellido}"
 
 
 admin_site.register(Usuario, UsuarioAdmin)
