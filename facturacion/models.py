@@ -1,13 +1,26 @@
 from django.db import models
 
+MESES = [
+    "", "enero", "febrero", "marzo", "abril", "mayo", "junio",
+    "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"
+]
+
 
 class Factura(models.Model):
     factura_id = models.AutoField(primary_key=True)
     usuario = models.ForeignKey(
         "usuarios.Usuario", on_delete=models.CASCADE, related_name="usuario"
     )
-    fecha_emision = models.DateTimeField(blank=True, null=True)
-    monto_total = models.DecimalField(max_digits=10, decimal_places=2)
+    codigo = models.IntegerField(null=True)
+    periodo_inicio = models.DateField(null=True)
+    periodo_final = models.DateField(null=True)
+    monto_a_pagar = models.DecimalField(
+        max_digits=10, decimal_places=2, null=True)
+
+    def __str__(self):
+        inicio = MESES[self.periodo_inicio.month]
+        final = MESES[self.periodo_final.month]
+        return f"{self.usuario} :: {inicio.upper()} hasta {final.upper()}"
 
 
 class DetalleFactura(models.Model):
@@ -28,7 +41,7 @@ class DetalleFactura(models.Model):
 class Pago(models.Model):
     METODO_CHOICES = [("transferencia", "Transferencia"),
                       ("efectivo", "Efectivo")]
-    ESTADO_CHOICES = [("cancelado", "Cancelado"), ("pendiente", "Pendiente")]
+    ESTADO_CHOICES = [("pagado", "Pagado"), ("pendiente", "Pendiente")]
     pago_id = models.AutoField(primary_key=True)
     factura = models.ForeignKey(
         "Factura", on_delete=models.CASCADE, related_name="pagos"
