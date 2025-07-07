@@ -7,7 +7,11 @@ from base.admin import admin_site
 @admin.register(Intalacion)
 class InstalacionAdmin(admin.ModelAdmin):
     actions = None
-    list_display = ("nombre", "apellido", "fecha_instalacion", "costo")
+    list_display = (
+        "cliente",
+        "fecha_instalacion",
+        "costo"
+    )
     search_fields = ("usuario__nombre", "usuario__apellido")
     autocomplete_fields = ["usuario"]
 
@@ -17,11 +21,8 @@ class InstalacionAdmin(admin.ModelAdmin):
             form.base_fields["usuario"].widget = forms.HiddenInput()
         return form
 
-    def nombre(self, obj):
-        return obj.usuario.nombre
-
-    def apellido(self, obj):
-        return obj.usuario.apellido
+    def cliente(self, obj):
+        return obj.usuario
 
 
 admin_site.register(Intalacion, InstalacionAdmin)
