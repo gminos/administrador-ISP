@@ -11,7 +11,7 @@ class AdminPersonalizado(AdminSite):
     def get_app_list(self, request, app_label=None):
         app_dict = self._build_app_dict(request)
         orden = [
-            'facturación',
+            'gestiona facturas y pagos',
             'gestiona clientes',
             'gestiona instalaciones',
             'gestiona planes',
