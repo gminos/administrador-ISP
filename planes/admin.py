@@ -61,7 +61,11 @@ class EstadoServicioFilter(admin.SimpleListFilter):
 @admin.register(Plan)
 class PlanAdmin(admin.ModelAdmin):
     actions = None
-    list_display = ("nombre", "cantidad_megas", "costo")
+    list_display = ("nombre", "cantidad_megas", "monto_formateado")
+
+    def monto_formateado(self, obj):
+        return f"{obj.costo:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+    monto_formateado.short_description = 'Valor'
 
 
 admin_site.register(Plan, PlanAdmin)

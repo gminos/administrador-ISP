@@ -10,7 +10,7 @@ class InstalacionAdmin(admin.ModelAdmin):
     list_display = (
         "cliente",
         "fecha_instalacion",
-        "costo"
+        "monto_formateado"
     )
     search_fields = ("usuario__nombre", "usuario__apellido")
     autocomplete_fields = ["usuario"]
@@ -23,6 +23,10 @@ class InstalacionAdmin(admin.ModelAdmin):
 
     def cliente(self, obj):
         return obj.usuario
+
+    def monto_formateado(self, obj):
+        return f"{obj.costo:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+    monto_formateado.short_description = 'Valor'
 
 
 admin_site.register(Intalacion, InstalacionAdmin)
