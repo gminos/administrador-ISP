@@ -17,6 +17,7 @@ class Intalacion(models.Model):
         null=True,
         related_name='instalaciones'
     )
+    servicio_activo = models.BooleanField(default=True, null=True)
 
     class Meta:
         verbose_name = "instalacion a cliente"
