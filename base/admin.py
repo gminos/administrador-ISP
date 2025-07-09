@@ -4,8 +4,8 @@ from django.contrib.auth.admin import UserAdmin, GroupAdmin
 
 
 class AdminPersonalizado(AdminSite):
-    site_header = "Administración de Arint Conexiones"
-    index_title = "Panel de Administración"
+    site_header = "ADMINISTRACIÓN ARINT CONEXIONES"
+    index_title = None
     site_title = "ISP Admin"
 
     def get_app_list(self, request, app_label=None):
