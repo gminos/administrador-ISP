@@ -32,6 +32,7 @@ class FacturaAdmin(admin.ModelAdmin):
                      "codigo", "periodo_inicio")
     autocomplete_fields = ["usuario"]
     inlines = [PagoInline]
+    list_filter = (MesFiltro,)
 
     def cliente(self, obj):
         return obj.usuario
