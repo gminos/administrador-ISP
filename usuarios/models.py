@@ -5,7 +5,7 @@ class Usuario(models.Model):
     usuario_id = models.AutoField(primary_key=True)
     nombre = models.CharField(max_length=20)
     apellido = models.CharField(max_length=20)
-    telefono = models.CharField(max_length=10)
+    telefono = models.CharField(max_length=10, blank=True)
     vereda = models.CharField(max_length=20, null=True)
 
     def __str__(self):
