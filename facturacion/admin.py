@@ -6,6 +6,7 @@ from django.utils.html import format_html
 
 class PagoInline(admin.TabularInline):
     model = Pago
+    verbose_name_plural = "Gestiona pagos"
     extra = 0
 
 
