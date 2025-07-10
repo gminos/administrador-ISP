@@ -11,8 +11,10 @@ class Command(BaseCommand):
     def handle(self, *args, **kwargs):
         hoy = date.today()
         periodo_inicio = date(hoy.year, hoy.month, 1)
-        ultimo_dia = calendar.monthrange(hoy.year, hoy.month)[1]
-        periodo_final = date(hoy.year, hoy.month, ultimo_dia)
+        ultimo_dia_del_mes = calendar.monthrange(hoy.year, hoy.month)[1]
+        dia_final = 30 if ultimo_dia_del_mes >= 30 else ultimo_dia_del_mes
+        periodo_final = date(hoy.year, hoy.month, dia_final)
+        reconexion = date(hoy.year, hoy.month + 1, 5)
 
         for usuario in Usuario.objects.all():
             if Factura.objects.filter(usuario=usuario, periodo_inicio=periodo_inicio).exists():
@@ -32,6 +34,7 @@ class Command(BaseCommand):
                 codigo=hoy.month,
                 periodo_inicio=periodo_inicio,
                 periodo_final=periodo_final,
+                fecha_reconexion=reconexion,
                 monto_a_pagar=monto
             )
 
