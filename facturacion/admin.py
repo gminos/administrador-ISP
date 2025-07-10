@@ -10,6 +10,19 @@ class PagoInline(admin.TabularInline):
     extra = 0
 
 
+class MesFiltro(SimpleListFilter):
+    title = 'Mes de facturación'
+    parameter_name = 'mes'
+
+    def lookups(self, request, model_admin):
+        return [(str(i), MESES[i].capitalize()) for i in range(1, 13)]
+
+    def queryset(self, request, queryset):
+        if self.value():
+            return queryset.filter(periodo_inicio__month=self.value())
+        return queryset
+
+
 @admin.register(Factura)
 class FacturaAdmin(admin.ModelAdmin):
     # actions = None
