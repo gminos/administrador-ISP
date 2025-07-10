@@ -7,7 +7,8 @@ MESES = [
 
 METODO_CHOICES = [("transferencia", "Transferencia"),
                   ("efectivo", "Efectivo"), ("no aplica", "No aplica")]
-ESTADO_CHOICES = [("pagado", "Pagado"), ("pendiente", "Pendiente")]
+ESTADO_CHOICES = [("pagado", "Pagado"),
+                  ("pendiente", "Pendiente"), ("se acumula", "Se acumula")]
 TIPO_PAGOS_CHOICES = [("mensualidad", "Mensualidad"),
                       ("reconexion", "Reconexion")]
 
