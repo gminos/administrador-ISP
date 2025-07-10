@@ -1,7 +1,13 @@
 from django.contrib import admin
-from .models import Factura, Pago, DetalleFactura
+from .models import Factura, Pago
 from base.admin import admin_site
 from django.utils.html import format_html
+from django.contrib.admin import SimpleListFilter
+
+MESES = [
+    "", "enero", "febrero", "marzo", "abril", "mayo", "junio",
+    "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"
+]
 
 
 class PagoInline(admin.TabularInline):
@@ -26,10 +32,9 @@ class MesFiltro(SimpleListFilter):
 @admin.register(Factura)
 class FacturaAdmin(admin.ModelAdmin):
     # actions = None
-    list_display = ("cliente", "codigo", "periodo_inicio",
-                    "periodo_final", "monto_formateado", "estado_pago")
-    search_fields = ("usuario__nombre", "usuario__apellido", "usuario__vereda",
-                     "codigo", "periodo_inicio")
+    list_display = ("cliente", "usuario_vereda", "codigo_factura", "periodo_facturado",
+                    "fecha_reconexion_formateada", "monto_formateado", "estado_pago", "fecha_pago")
+    search_fields = ("usuario__nombre", "usuario__apellido")
     autocomplete_fields = ["usuario"]
     inlines = [PagoInline]
     list_filter = (MesFiltro,)
@@ -40,23 +45,54 @@ class FacturaAdmin(admin.ModelAdmin):
     def estado_pago(self, obj):
         pago = obj.pagos.first()
         if pago:
-            color = "green" if pago.estado == "pagado" else "orange"
-            return format_html('<span style="color:{};">{}</span>', color, pago.estado.capitalize())
-        return format_html('<span style="color:orange;">Pendiente</span>')
+            color = "green" if pago.estado == "pagado" else "red"
+        return format_html('<span style="color:{};">{}</span>', color, pago.estado.capitalize())
 
     estado_pago.short_description = "Estado del pago"
     estado_pago.admin_order_field = 'pagos__estado_pago'
 
     def monto_formateado(self, obj):
         return f"{obj.monto_a_pagar:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+
     monto_formateado.short_description = 'Valor a pagar'
     monto_formateado.admin_order_field = 'monto_a_pagar'
 
+    def fecha_pago(self, obj):
+        pago = obj.pagos.filter(tipo_pago="mensualidad",
+                                estado="pagado").first()
+        if pago:
+            fecha = pago.fecha_pago
+            dia = fecha.day
+            mes = MESES[fecha.month]
+            return f"{dia} de {mes}"
+        return "Sin pago registrado"
 
-@admin.register(DetalleFactura)
-class DetallePagoAdmin(admin.ModelAdmin):
-    actions = None
-    list_display = ("factura",)
+    fecha_pago.short_description = "fecha de pago"
 
+    def usuario_vereda(self, obj):
+        return obj.usuario.vereda
+
+    usuario_vereda.short_description = "vereda"
+
+    def periodo_facturado(self, obj):
+        dia_inicio = obj.periodo_inicio.day
+        dia_final = obj.periodo_final.day
+        mes = MESES[obj.periodo_final.month].capitalize()
+        return f"{dia_inicio} ~ {dia_final} {mes}"
+
+    periodo_facturado.short_description = "Período facturado"
+
+    def fecha_reconexion_formateada(self, obj):
+        dia_reconexion = obj.fecha_reconexion.day
+        mes_reconexion = MESES[obj.fecha_reconexion.month].capitalize()
+        return f"{dia_reconexion} ~ {mes_reconexion}"
+
+    fecha_reconexion_formateada.short_description = "fecha reconexion"
+
+
+# @admin.register(DetalleFactura)
+# class DetallePagoAdmin(admin.ModelAdmin):
+#     actions = None
+#     list_display = ("factura",)
 
 admin_site.register(Factura, FacturaAdmin)
