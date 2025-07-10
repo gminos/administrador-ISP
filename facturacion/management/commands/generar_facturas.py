@@ -2,6 +2,7 @@ from django.core.management.base import BaseCommand
 from facturacion.models import Factura
 from usuarios.models import Usuario
 from datetime import date
+import calendar
 
 
 class Command(BaseCommand):
@@ -10,7 +11,8 @@ class Command(BaseCommand):
     def handle(self, *args, **kwargs):
         hoy = date.today()
         periodo_inicio = date(hoy.year, hoy.month, 1)
-        periodo_final = date(hoy.year, hoy.month, 30)
+        ultimo_dia = calendar.monthrange(hoy.year, hoy.month)[1]
+        periodo_final = date(hoy.year, hoy.month, ultimo_dia)
 
         for usuario in Usuario.objects.all():
             if Factura.objects.filter(usuario=usuario, periodo_inicio=periodo_inicio).exists():
@@ -18,12 +20,21 @@ class Command(BaseCommand):
                     f"Ya existe factura para {usuario}"))
                 continue
 
+            instalaciones_activas = usuario.instalacion.filter(
+                servicio_activo=True)
+            monto = sum(
+                inst.plan.costo for inst in instalaciones_activas
+                if inst.plan and inst.plan.costo
+            )
+
             factura = Factura.objects.create(
                 usuario=usuario,
                 codigo=hoy.month,
                 periodo_inicio=periodo_inicio,
                 periodo_final=periodo_final,
-                monto_a_pagar=60000
+                monto_a_pagar=monto
             )
 
-            self.stdout.write(self.style.SUCCESS(f"Factura creada para {usuario} - ID: {factura.factura_id}"))
+            self.stdout.write(self.style.SUCCESS(
+                f"Factura creada para {usuario} - ID: {factura.factura_id}"
+            ))
