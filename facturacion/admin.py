@@ -49,7 +49,6 @@ class FacturaAdmin(admin.ModelAdmin):
         return format_html('<span style="color:{};">{}</span>', color, pago.estado.capitalize())
 
     estado_pago.short_description = "Estado del pago"
-    estado_pago.admin_order_field = 'pagos__estado_pago'
 
     def monto_formateado(self, obj):
         return f"{obj.monto_a_pagar:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
