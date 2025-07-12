@@ -31,7 +31,7 @@ class MesFiltro(SimpleListFilter):
 
 @admin.register(Factura)
 class FacturaAdmin(admin.ModelAdmin):
-    # actions = None
+    actions = None
     list_display = ("cliente", "usuario_vereda", "codigo_factura", "periodo_facturado",
                     "fecha_reconexion_formateada", "monto_formateado", "estado_pago", "fecha_pago")
     search_fields = ("usuario__nombre", "usuario__apellido")
