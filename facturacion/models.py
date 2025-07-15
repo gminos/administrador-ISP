@@ -26,9 +26,10 @@ class Factura(models.Model):
         max_digits=10, decimal_places=2, null=True)
 
     def __str__(self):
-        inicio = MESES[self.periodo_inicio.month]
-        final = MESES[self.periodo_final.month]
-        return f"{self.usuario} :: {inicio.upper()} hasta {final.upper()}"
+        dia_inicio = self.periodo_inicio.day
+        dia_final = self.periodo_final.day
+        mes = MESES[self.periodo_final.month].capitalize()
+        return f"Periodo facturado: {dia_inicio} ~ {dia_final} {mes}"
 
     class Meta:
         verbose_name = "factura"
@@ -64,3 +65,6 @@ class Pago(models.Model):
         max_length=10, choices=ESTADO_CHOICES, default="pendiente"
     )
     fecha_pago = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return ''
