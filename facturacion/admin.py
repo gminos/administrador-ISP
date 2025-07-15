@@ -89,9 +89,4 @@ class FacturaAdmin(admin.ModelAdmin):
     fecha_reconexion_formateada.short_description = "fecha reconexion"
 
 
-# @admin.register(DetalleFactura)
-# class DetallePagoAdmin(admin.ModelAdmin):
-#     actions = None
-#     list_display = ("factura",)
-
 admin_site.register(Factura, FacturaAdmin)
