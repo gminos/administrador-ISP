@@ -46,7 +46,11 @@ class FacturaAdmin(admin.ModelAdmin):
         pago = obj.pagos.first()
         if pago:
             color = "green" if pago.estado == "pagado" else "red"
-        return format_html('<span style="color:{};">{}</span>', color, pago.estado.capitalize())
+            estado = pago.estado.capitalize()
+        else:
+            color = "red"
+            estado = "Pendiente"
+        return format_html('<span style="color:{};">{}</span>', color, estado)
 
     estado_pago.short_description = "Estado del pago"
 
