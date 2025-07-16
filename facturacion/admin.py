@@ -40,7 +40,8 @@ class FacturaAdmin(admin.ModelAdmin):
     list_filter = (MesFiltro,)
 
     def cliente(self, obj):
-        return obj.usuario
+        return f'{obj.usuario.nombre} {obj.usuario.apellido}'
+    cliente.short_description = "cliente"
 
     def estado_pago(self, obj):
         pago = obj.pagos.first()
@@ -57,7 +58,7 @@ class FacturaAdmin(admin.ModelAdmin):
     def monto_formateado(self, obj):
         return f"{obj.monto_a_pagar:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
 
-    monto_formateado.short_description = 'Valor a pagar'
+    monto_formateado.short_description = 'valor a pagar'
     monto_formateado.admin_order_field = 'monto_a_pagar'
 
     def fecha_pago(self, obj):
@@ -83,7 +84,7 @@ class FacturaAdmin(admin.ModelAdmin):
         mes = MESES[obj.periodo_final.month].capitalize()
         return f"{dia_inicio} ~ {dia_final} {mes}"
 
-    periodo_facturado.short_description = "Período facturado"
+    periodo_facturado.short_description = "periodo facturado"
 
     def fecha_reconexion_formateada(self, obj):
         dia_reconexion = obj.fecha_reconexion.day
