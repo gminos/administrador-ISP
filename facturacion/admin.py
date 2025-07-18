@@ -68,7 +68,8 @@ class FacturaAdmin(admin.ModelAdmin):
             fecha = pago.fecha_pago
             dia = fecha.day
             mes = MESES[fecha.month]
-            return f"{dia} de {mes}"
+            year = fecha.year
+            return f"{dia} de {mes} - {year}"
         return "Sin pago registrado"
 
     fecha_pago.short_description = "fecha de pago"
