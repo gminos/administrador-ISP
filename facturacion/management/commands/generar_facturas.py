@@ -20,12 +20,12 @@ class Command(BaseCommand):
         periodo_final = date(hoy.year, hoy.month, dia_final)
 
         mes_reconexion = hoy.month + 1 if hoy.month < 12 else 1
-        año_reconexion = hoy.year if hoy.month < 12 else hoy.year + 1
-        fecha_reconexion = date(año_reconexion, mes_reconexion, 5)
+        year_reconexion = hoy.year if hoy.month < 12 else hoy.year + 1
+        fecha_reconexion = date(year_reconexion, mes_reconexion, 5)
 
         numero_periodo = (hoy.year - YEAR_INICIO) * 12 + \
             (hoy.month - MES_INICIO) + 1
-        codigo_generado = f"ART-{numero_periodo:03d}"
+        codigo_generado = f"ART-{numero_periodo:04d}"
 
         for usuario in Usuario.objects.all():
             if Factura.objects.filter(usuario=usuario, periodo_inicio=periodo_inicio).exists():
