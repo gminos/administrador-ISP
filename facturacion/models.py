@@ -49,7 +49,7 @@ class Pago(models.Model):
     estado = models.CharField(
         max_length=10, choices=ESTADO_CHOICES, default="pendiente"
     )
-    fecha_pago = models.DateTimeField(auto_now_add=True)
+    fecha_pago = models.DateField(null=True, blank=True)
 
     def __str__(self):
         return ''
