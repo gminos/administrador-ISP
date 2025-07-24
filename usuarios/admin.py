@@ -12,7 +12,7 @@ class InstalacionInline(admin.TabularInline):
 @admin.register(Usuario)
 class UsuarioAdmin(admin.ModelAdmin):
     actions = None
-    ordering = ("nombre",)
+    ordering = ("vereda", "nombre",)
     list_display = (
         "cliente",
         "vereda",
