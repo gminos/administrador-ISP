@@ -38,6 +38,7 @@ class FacturaAdmin(admin.ModelAdmin):
     autocomplete_fields = ["usuario"]
     inlines = [PagoInline]
     list_filter = (MesFiltro,)
+    ordering = ("usuario__nombre",)
 
     def cliente(self, obj):
         return f'{obj.usuario.nombre} {obj.usuario.apellido}'
