@@ -45,9 +45,10 @@ class Command(BaseCommand):
             ).exclude(periodo_inicio=periodo_inicio)
 
             deuda_anterior = 0
+
             for factura in facturas_pendientes:
                 pagos_pendientes = factura.pagos.filter(
-                    estado="se acumula")
+                    estado="pendiente")
                 deuda_anterior += sum(pago.monto_pagado for pago in pagos_pendientes)
 
             monto_total = monto_actual + deuda_anterior
