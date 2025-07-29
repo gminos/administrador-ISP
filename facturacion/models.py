@@ -66,7 +66,7 @@ class Pago(models.Model):
 
         if self.estado == "pendiente" and self.fecha_pago is not None:
             raise ValidationError({
-                "fecha_pago": "No puede existir una fecha pago si esta estado es 'pendiente'."
+                "fecha_pago": "No puede existir una fecha pago si el estado es 'pendiente'."
             })
 
     def __str__(self):
