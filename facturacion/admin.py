@@ -91,7 +91,7 @@ class FacturaAdmin(admin.ModelAdmin):
     def fecha_reconexion_formateada(self, obj):
         dia_reconexion = obj.fecha_reconexion.day
         mes_reconexion = MESES[obj.fecha_reconexion.month].capitalize()
-        return f"{dia_reconexion} ~ {mes_reconexion}"
+        return f"{dia_reconexion} {mes_reconexion}"
 
     fecha_reconexion_formateada.short_description = "fecha reconexion"
 
