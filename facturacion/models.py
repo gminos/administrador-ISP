@@ -1,4 +1,5 @@
 from django.db import models
+from django.core.exceptions import ValidationError
 
 MESES = [
     "", "enero", "febrero", "marzo", "abril", "mayo", "junio",
@@ -50,6 +51,18 @@ class Pago(models.Model):
         max_length=10, choices=ESTADO_CHOICES, default="pendiente"
     )
     fecha_pago = models.DateField(null=True, blank=True)
+
+    def clean(self):
+        super().clean()
+        if self.estado == "pagado" and self.fecha_pago is None:
+            raise ValidationError({
+                "fecha_pago": "Debe proporcionar una fecha de pago si el estado es 'pagado'."
+            })
+
+        if self.estado == "pagado" and self.metodo_pago == "no aplica":
+            raise ValidationError({
+                "metodo_pago": "No puedes dejar este metodo"
+            })
 
     def __str__(self):
         return ''
