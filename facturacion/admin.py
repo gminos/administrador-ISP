@@ -45,7 +45,7 @@ class FacturaAdmin(admin.ModelAdmin):
     cliente.short_description = "cliente"
 
     def estado_pago(self, obj):
-        pago = obj.pagos.first()
+        pago = obj.pagos.filter(tipo_pago="mensualidad").first()
         if pago:
             color = "green" if pago.estado == "pagado" else "red"
             estado = pago.estado.capitalize()
