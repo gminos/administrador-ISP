@@ -61,7 +61,12 @@ class Pago(models.Model):
 
         if self.estado == "pagado" and self.metodo_pago == "no aplica":
             raise ValidationError({
-                "metodo_pago": "No puedes dejar este metodo"
+                "metodo_pago": "No puedes dejar este metodo de pago."
+            })
+
+        if self.estado == "pendiente" and self.fecha_pago is not None:
+            raise ValidationError({
+                "fecha_pago": "No puede existir una fecha pago si esta estado es 'pendiente'."
             })
 
     def __str__(self):
