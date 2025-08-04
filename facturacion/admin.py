@@ -36,8 +36,8 @@ class MesFiltro(SimpleListFilter):
 @admin.register(Factura)
 class FacturaAdmin(admin.ModelAdmin):
     actions = None
-    list_display = ("cliente", "usuario_vereda", "codigo_factura", "periodo_facturado",
-                    "fecha_reconexion_formateada", "monto_formateado", "estado_pago", "fecha_pago", "descargar_pdf")
+    list_display = ("cliente", "usuario_vereda", "estado_pago", "codigo_factura", "periodo_facturado",
+                    "fecha_reconexion_formateada", "monto_formateado", "fecha_pago", "descargar_pdf")
     search_fields = ("usuario__nombre", "usuario__apellido")
     autocomplete_fields = ["usuario"]
     inlines = [PagoInline]
