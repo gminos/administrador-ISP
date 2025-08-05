@@ -3,64 +3,108 @@
 <head>
     <meta charset="UTF-8">
     <style>
-        body {
-            font-family: sans-serif;
-            margin: 40px;
+        @page {
+            size: A4;
+            margin: 0;
         }
 
-        h1 {
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            color: #000;
+            position: relative;
+        }
+
+        .contenedor {
+            padding: 80px 60px 40px 60px;
+        }
+
+        h1, h2, h3, p {
+            margin: 0;
+        }
+
+        .datos-usuario {
+            margin-top: 120px;
+            margin-left: 150px;
+            font-size: 18px;
+        }
+
+        .plan {
+            margin-top: 30px;
+            margin-left: 150px;
+            font-size: 16px;
+        }
+
+        .fechas {
+            margin-top: 30px;
+            font-size: 14px;
             text-align: center;
         }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-
-        th, td {
-            border: 1px solid #000;
-            padding: 8px;
-            text-align: left;
-        }
-
         .total {
+            margin-top: 50px;
+            text-align: center;
+            font-size: 20px;
             font-weight: bold;
         }
+
+        .metodos {
+            margin-top: 40px;
+            font-size: 14px;
+            text-align: center;
+        }
+
+        .logo {
+            position: absolute;
+            top: 40px;
+            left: 60px;
+            width: 120px;
+        }
+
+        .info-empresa {
+            position: absolute;
+            bottom: 20px;
+            font-size: 10px;
+            text-align: center;
+            width: 100%;
+        }
+
     </style>
 </head>
 <body>
-<h1>Factura</h1>
-<p><strong>Usuario:</strong> {{ factura.usuario.nombre }} {{ factura.usuario.apellido }}</p>
-<p><strong>Periodo:</strong> {{ factura.periodo_inicio }} - {{ factura.periodo_final }}</p>
-<p><strong>Monto a pagar:</strong> ${{ factura.monto_a_pagar }}</p>
+<div class="contenedor">
 
-<h2>Pagos</h2>
-<table>
-    <thead>
-    <tr>
-        <th>Tipo</th>
-        <th>Método</th>
-        <th>Monto</th>
-        <th>Estado</th>
-        <th>Fecha de pago</th>
-    </tr>
-    </thead>
-    <tbody>
-    {% for pago in factura.pagos.all %}
-        <tr>
-            <td>{{ pago.get_tipo_pago_display }}</td>
-            <td>{{ pago.get_metodo_pago_display }}</td>
-            <td>${{ pago.monto_pagado }}</td>
-            <td>{{ pago.estado }}</td>
-            <td>{{ pago.fecha_pago|default:"-" }}</td>
-        </tr>
-    {% empty %}
-        <tr>
-            <td colspan="5">Sin pagos registrados.</td>
-        </tr>
-    {% endfor %}
-    </tbody>
-</table>
+    <div class="datos-usuario">
+        <strong>{{ factura.usuario.nombre }} {{ factura.usuario.apellido }}</strong><br>
+        {{ factura.usuario.vereda }}
+    </div>
+
+    <div class="plan">
+        <p><strong>Plan contratado:</strong> {{ factura.usuario.informacion_plan.nombre }}</p>
+        <p><strong>Velocidad:</strong> {{ factura.usuario.informacion_plan.cantidad_megas }} Mb</p>
+    </div>
+
+    <div class="fechas">
+        <p><strong>Periodo de facturación:</strong> {{ factura.periodo_inicio|date:"j" }} al {{ factura.periodo_final|date:"j F \\d\\e Y" }}</p>
+        <p><strong>Fecha límite de pago:</strong> {{ factura.periodo_final }}</p>
+        <p><strong>Fecha límite de corte:</strong> {{ factura.fecha_reconexion }}</p>
+    </div>
+
+    <div class="total">
+        TOTAL A PAGAR: ${{ factura.monto_a_pagar|floatformat:0 }}
+    </div>
+
+    <div class="metodos">
+        <p><strong>MÉTODOS DE PAGO</strong></p>
+        <p><b>Efectivo</b></p>
+        <p><b>Nequi:</b> 3027470993</p>
+        <p><b>Daviplata:</b> 31737914791</p>
+    </div>
+
+    <div class="info-empresa">
+        Whatsapp: 3107877514 • arintconexiones@gmail.com • ARINT conexiones, el mejor internet rural
+    </div>
+</div>
 </body>
 </html>

@@ -1,3 +1,4 @@
+from pathlib import Path
 from django.contrib import admin
 from .models import Factura, Pago
 from base.admin import admin_site
@@ -7,6 +8,7 @@ from django.urls import path
 from django.template.loader import render_to_string
 from django.http import HttpResponse
 from weasyprint import HTML
+from django.conf import settings
 
 MESES = [
     "", "enero", "febrero", "marzo", "abril", "mayo", "junio",
@@ -36,8 +38,17 @@ class MesFiltro(SimpleListFilter):
 @admin.register(Factura)
 class FacturaAdmin(admin.ModelAdmin):
     actions = None
-    list_display = ("cliente", "usuario_vereda", "estado_pago", "codigo_factura", "periodo_facturado",
-                    "fecha_reconexion_formateada", "monto_formateado", "fecha_pago", "descargar_pdf")
+    list_display = (
+        "cliente",
+        "usuario_vereda",
+        "estado_pago",
+        "fecha_pago",
+        "monto_formateado",
+        "descargar_pdf",
+        "codigo_factura",
+        "periodo_facturado",
+        "fecha_reconexion_formateada",
+    )
     search_fields = ("usuario__nombre", "usuario__apellido")
     autocomplete_fields = ["usuario"]
     inlines = [PagoInline]
@@ -112,12 +123,18 @@ class FacturaAdmin(admin.ModelAdmin):
 
     def generar_pdf(self, request, factura_id):
         factura = Factura.objects.get(pk=factura_id)
-        html_string = render_to_string(
-            'facturas/factura_pdf.html', {'factura': factura})
+
+        html_string = render_to_string('facturas/factura_pdf.html', {
+            'factura': factura,
+        })
 
         response = HttpResponse(content_type='application/pdf')
-        response['Content-Disposition'] = f'filename=factura_{factura_id}.pdf'
-        HTML(string=html_string).write_pdf(response)
+        response['Content-Disposition'] = f'filename=factura_{
+            factura.usuario.nombre}_{factura.usuario.apellido}.pdf'
+
+        base_url = (Path(settings.STATIC_ROOT)).as_uri()
+
+        HTML(string=html_string, base_url=base_url).write_pdf(response)
 
         return response
 
