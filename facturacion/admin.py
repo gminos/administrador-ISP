@@ -1,14 +1,8 @@
-from pathlib import Path
 from django.contrib import admin
 from .models import Factura, Pago
 from base.admin import admin_site
 from django.utils.html import format_html
 from django.contrib.admin import SimpleListFilter
-from django.urls import path
-from django.template.loader import render_to_string
-from django.http import HttpResponse
-from weasyprint import HTML
-from django.conf import settings
 
 MESES = [
     "", "enero", "febrero", "marzo", "abril", "mayo", "junio",
@@ -44,8 +38,6 @@ class FacturaAdmin(admin.ModelAdmin):
         "estado_pago",
         "fecha_pago",
         "monto_formateado",
-        "descargar_pdf",
-        "codigo_factura",
         "periodo_facturado",
         "fecha_reconexion_formateada",
     )
@@ -109,43 +101,6 @@ class FacturaAdmin(admin.ModelAdmin):
         return f"{dia_reconexion} {mes_reconexion}"
 
     fecha_reconexion_formateada.short_description = "fecha reconexion"
-
-    def get_urls(self):
-        urls = super().get_urls()
-        custom_urls = [
-            path(
-                '<int:factura_id>/pdf/',
-                self.admin_site.admin_view(self.generar_pdf),
-                name='factura-pdf',
-            ),
-        ]
-        return custom_urls + urls
-
-    def generar_pdf(self, request, factura_id):
-        factura = Factura.objects.get(pk=factura_id)
-
-        html_string = render_to_string('facturas/factura_pdf.html', {
-            'factura': factura,
-        })
-
-        response = HttpResponse(content_type='application/pdf')
-        response['Content-Disposition'] = f'filename=factura_{
-            factura.usuario.nombre}_{factura.usuario.apellido}.pdf'
-
-        base_url = (Path(settings.STATIC_ROOT)).as_uri()
-
-        HTML(string=html_string, base_url=base_url).write_pdf(response)
-
-        return response
-
-    def descargar_pdf(self, obj):
-        return format_html(
-            '<a class="link" href="{}">Descargar PDF</a>',
-            f'{obj.factura_id}/pdf/'
-        )
-
-    descargar_pdf.short_description = 'PDF'
-    descargar_pdf.allow_tags = True
 
 
 admin_site.register(Factura, FacturaAdmin)

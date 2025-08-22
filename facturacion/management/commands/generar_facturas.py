@@ -4,9 +4,6 @@ from usuarios.models import Usuario
 from datetime import date
 import calendar
 
-YEAR_INICIO = 2025
-MES_INICIO = 7
-
 
 class Command(BaseCommand):
     help = 'Genera facturas del mes actual para todos los usuarios'
@@ -23,10 +20,6 @@ class Command(BaseCommand):
         year_reconexion = hoy.year if hoy.month < 12 else hoy.year + 1
         fecha_reconexion = date(year_reconexion, mes_reconexion, 5)
 
-        numero_periodo = (hoy.year - YEAR_INICIO) * 12 + \
-            (hoy.month - MES_INICIO) + 1
-        codigo_generado = f"ART-{numero_periodo:04d}"
-
         for usuario in Usuario.objects.all():
             if Factura.objects.filter(usuario=usuario, periodo_inicio=periodo_inicio).exists():
                 self.stdout.write(self.style.WARNING(
@@ -35,36 +28,22 @@ class Command(BaseCommand):
 
             instalaciones_activas = usuario.instalacion.filter(
                 servicio_activo=True)
-            monto_actual = sum(
+            monto_a_pagar = sum(
                 inst.plan.costo for inst in instalaciones_activas
                 if inst.plan and inst.plan.costo
             )
 
-            facturas_pendientes = Factura.objects.filter(
-                usuario=usuario
-            ).exclude(periodo_inicio=periodo_inicio)
-
-            deuda_anterior = 0
-
-            for factura in facturas_pendientes:
-                pagos_pendientes = factura.pagos.filter(
-                    estado="pendiente")
-                deuda_anterior += sum(pago.monto_pagado for pago in pagos_pendientes)
-
-            monto_total = monto_actual + deuda_anterior
-
             factura = Factura.objects.create(
                 usuario=usuario,
-                codigo_factura=codigo_generado,
                 periodo_inicio=periodo_inicio,
                 periodo_final=periodo_final,
                 fecha_reconexion=fecha_reconexion,
-                monto_a_pagar=monto_total,
+                monto_a_pagar=monto_a_pagar,
             )
 
             Pago.objects.create(
                 factura=factura,
-                monto_pagado=monto_total,
+                monto_pagado=monto_a_pagar,
                 metodo_pago="no aplica",
                 estado="pendiente"
             )

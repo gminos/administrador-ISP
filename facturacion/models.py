@@ -19,7 +19,6 @@ class Factura(models.Model):
     usuario = models.ForeignKey(
         "usuarios.Usuario", on_delete=models.CASCADE, related_name="factura"
     )
-    codigo_factura = models.CharField(null=True)
     periodo_inicio = models.DateField(null=True)
     periodo_final = models.DateField(null=True)
     fecha_reconexion = models.DateField(null=True)
@@ -34,7 +33,7 @@ class Factura(models.Model):
 
     class Meta:
         verbose_name = "factura"
-        verbose_name_plural = "Administra facturas y pagos"
+        verbose_name_plural = "Agrega o modifica pagos"
 
 
 class Pago(models.Model):
