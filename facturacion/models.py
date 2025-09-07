@@ -32,7 +32,7 @@ class Factura(models.Model):
         return f"Periodo facturado: {dia_inicio} ~ {dia_final} {mes}"
 
     class Meta:
-        verbose_name = "factura"
+        verbose_name = "pago"
         verbose_name_plural = "Agrega o modifica pagos"
 
 
