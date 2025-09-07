@@ -3,6 +3,7 @@ from .models import Factura, Pago
 from base.admin import admin_site
 from django.utils.html import format_html
 from django.contrib.admin import SimpleListFilter
+from django.db.models import Sum
 
 MESES = [
     "", "enero", "febrero", "marzo", "abril", "mayo", "junio",
@@ -37,7 +38,7 @@ class FacturaAdmin(admin.ModelAdmin):
         "usuario_vereda",
         "estado_pago",
         "fecha_pago",
-        "monto_formateado",
+        "total_pagado",
         "periodo_facturado",
         "fecha_reconexion_formateada",
     )
@@ -63,11 +64,16 @@ class FacturaAdmin(admin.ModelAdmin):
 
     estado_pago.short_description = "Estado del pago"
 
-    def monto_formateado(self, obj):
-        return f"{obj.monto_a_pagar:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
 
-    monto_formateado.short_description = 'valor a pagar'
-    monto_formateado.admin_order_field = 'monto_a_pagar'
+    def total_pagado(self, obj):
+        total = obj.pagos.filter(estado="pagado").aggregate(
+        Sum("monto_pagado")
+        )["monto_pagado__sum"] or 0
+
+        return "{:,.2f}".format(total).replace(",", "X").replace(".", ",").replace("X", ".")
+
+    total_pagado.short_description = "total pagado"
+
 
     def fecha_pago(self, obj):
         pago = obj.pagos.filter(tipo_pago="mensualidad",

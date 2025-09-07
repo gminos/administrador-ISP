@@ -22,8 +22,6 @@ class Factura(models.Model):
     periodo_inicio = models.DateField(null=True)
     periodo_final = models.DateField(null=True)
     fecha_reconexion = models.DateField(null=True)
-    monto_a_pagar = models.DecimalField(
-        max_digits=10, decimal_places=2, null=True)
 
     def __str__(self):
         dia_inicio = self.periodo_inicio.day
