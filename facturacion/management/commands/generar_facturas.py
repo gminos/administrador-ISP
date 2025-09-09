@@ -6,7 +6,7 @@ import calendar
 
 
 class Command(BaseCommand):
-    help = 'Genera facturas del mes actual para todos los usuarios'
+    help = 'Genera pagos del mes actual para todos los usuarios cuyo servicio se encuentre activo'
 
     def handle(self, *args, **kwargs):
         hoy = date.today()
@@ -22,12 +22,18 @@ class Command(BaseCommand):
 
         for usuario in Usuario.objects.all():
             if Factura.objects.filter(usuario=usuario, periodo_inicio=periodo_inicio).exists():
-                self.stdout.write(self.style.WARNING(
-                    f"Ya existe factura para {usuario}"))
+                self.stdout.write(self.style.WARNING(f"Ya existe factura para {usuario}"))
+                continue
+
+            ultima_instalacion = usuario.instalacion.order_by('-instalacion_id').first()
+
+            if ultima_instalacion and not ultima_instalacion.servicio_activo:
+                self.stdout.write(self.style.WARNING(f"Servicio inactivo para {usuario}"))
                 continue
 
             instalaciones_activas = usuario.instalacion.filter(
                 servicio_activo=True)
+
             monto_a_pagar = sum(
                 inst.plan.costo for inst in instalaciones_activas
                 if inst.plan and inst.plan.costo
@@ -38,7 +44,6 @@ class Command(BaseCommand):
                 periodo_inicio=periodo_inicio,
                 periodo_final=periodo_final,
                 fecha_reconexion=fecha_reconexion,
-                monto_a_pagar=monto_a_pagar,
             )
 
             Pago.objects.create(
@@ -49,5 +54,5 @@ class Command(BaseCommand):
             )
 
             self.stdout.write(self.style.SUCCESS(
-                f"Factura creada para {usuario} - ID: {factura.factura_id}"
+                f"Pago generado para {usuario}"
             ))
