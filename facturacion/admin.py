@@ -48,10 +48,11 @@ class FacturaAdmin(admin.ModelAdmin):
     list_filter = (MesFiltro,)
     ordering = ("usuario__vereda", "usuario__nombre",)
 
+    @admin.display(description="cliente")
     def cliente(self, obj):
         return f'{obj.usuario.nombre} {obj.usuario.apellido}'
-    cliente.short_description = "cliente"
 
+    @admin.display(description="estado del pago")
     def estado_pago(self, obj):
         pago = obj.pagos.filter(tipo_pago="mensualidad").first()
         if pago:
@@ -62,22 +63,16 @@ class FacturaAdmin(admin.ModelAdmin):
             estado = "Pendiente"
         return format_html('<span style="color:{};">{}</span>', color, estado)
 
-    estado_pago.short_description = "Estado del pago"
-
-
+    @admin.display(description="total pagado")
     def total_pagado(self, obj):
         total = obj.pagos.filter(estado="pagado").aggregate(
         Sum("monto_pagado")
         )["monto_pagado__sum"] or 0
-
         return "{:,.2f}".format(total).replace(",", "X").replace(".", ",").replace("X", ".")
 
-    total_pagado.short_description = "total pagado"
-
-
+    @admin.display(description="fecha de pago")
     def fecha_pago(self, obj):
-        pago = obj.pagos.filter(tipo_pago="mensualidad",
-                                estado="pagado").first()
+        pago = obj.pagos.filter(tipo_pago="mensualidad", estado="pagado").first()
         if pago:
             fecha = pago.fecha_pago
             dia = fecha.day
@@ -86,27 +81,22 @@ class FacturaAdmin(admin.ModelAdmin):
             return f"{dia} de {mes} - {year}"
         return "Sin pago registrado"
 
-    fecha_pago.short_description = "fecha de pago"
-
+    @admin.display(description="vereda")
     def usuario_vereda(self, obj):
         return obj.usuario.vereda
 
-    usuario_vereda.short_description = "vereda"
-
+    @admin.display(description="periodo facturado")
     def periodo_facturado(self, obj):
         dia_inicio = obj.periodo_inicio.day
         dia_final = obj.periodo_final.day
         mes = MESES[obj.periodo_final.month].capitalize()
         return f"{dia_inicio} ~ {dia_final} {mes}"
 
-    periodo_facturado.short_description = "periodo facturado"
-
+    @admin.display(description="fecha reconexion")
     def fecha_reconexion_formateada(self, obj):
         dia_reconexion = obj.fecha_reconexion.day
         mes_reconexion = MESES[obj.fecha_reconexion.month].capitalize()
         return f"{dia_reconexion} {mes_reconexion}"
-
-    fecha_reconexion_formateada.short_description = "fecha reconexion"
 
 
 admin_site.register(Factura, FacturaAdmin)
