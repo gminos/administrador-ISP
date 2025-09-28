@@ -11,10 +11,6 @@ class Usuario(models.Model):
     def __str__(self):
         return f"{self.nombre} {self.apellido}"
 
-    @property
-    def informacion_plan(self):
-        return self.instalacion.filter(servicio_activo=True).first().plan
-
     class Meta:
         verbose_name = "cliente"
         verbose_name_plural = "Agrega o modifica clientes"
