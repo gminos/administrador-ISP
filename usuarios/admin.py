@@ -12,23 +12,30 @@ class InstalacionInline(admin.TabularInline):
 @admin.register(Usuario)
 class UsuarioAdmin(admin.ModelAdmin):
     actions = None
-    ordering = ("vereda", "nombre",)
+    ordering = ("vereda","nombre",)
     list_display = (
         "cliente",
-        "vereda",
-        "telefono",
+        "vereda_cliente",
+        "telefono_cliente",
     )
-    inlines = [
-        InstalacionInline,
-    ]
+    inlines = [InstalacionInline,]
     search_fields = (
         "nombre",
         "apellido",
         "vereda"
     )
 
+    @admin.display(description="cliente")
     def cliente(self, obj):
         return f"{obj.nombre} {obj.apellido}"
+
+    @admin.display(description="vereda")
+    def vereda_cliente(self, obj):
+        return f"{obj.vereda}"
+
+    @admin.display(description="telefono")
+    def telefono_cliente(self, obj):
+        return f"{obj.telefono}"
 
 
 admin_site.register(Usuario, UsuarioAdmin)
