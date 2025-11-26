@@ -1,10 +1,6 @@
 from django.db import models
 from django.core.exceptions import ValidationError
-
-MESES = [
-    "", "enero", "febrero", "marzo", "abril", "mayo", "junio",
-    "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"
-]
+from django.utils.formats import date_format
 
 METODO_CHOICES = [("transferencia", "Transferencia"),
                   ("efectivo", "Efectivo"), ("no aplica", "No aplica")]
@@ -24,9 +20,11 @@ class Factura(models.Model):
     fecha_reconexion = models.DateField(null=True)
 
     def __str__(self):
+        if not self.periodo_final:
+            return f"Factura {self.factura_id}"
         dia_inicio = self.periodo_inicio.day
         dia_final = self.periodo_final.day
-        mes = MESES[self.periodo_final.month].capitalize()
+        mes = date_format(self.periodo_final, "F").capitalize()
         return f"Periodo facturado: {dia_inicio} ~ {dia_final} {mes}"
 
     class Meta:

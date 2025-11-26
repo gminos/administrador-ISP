@@ -4,11 +4,8 @@ from base.admin import admin_site
 from django.utils.html import format_html
 from django.contrib.admin import SimpleListFilter
 from django.db.models import Sum
-
-MESES = [
-    "", "enero", "febrero", "marzo", "abril", "mayo", "junio",
-    "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"
-]
+from django.utils.formats import date_format
+from datetime import date
 
 
 class PagoInline(admin.TabularInline):
@@ -22,7 +19,7 @@ class MesFiltro(SimpleListFilter):
     parameter_name = 'mes'
 
     def lookups(self, request, model_admin):
-        return [(str(i), MESES[i].capitalize()) for i in range(1, 13)]
+        return [(str(i), date_format(date(2023, i, 1), "F").capitalize()) for i in range(1, 13)]
 
     def queryset(self, request, queryset):
         if self.value():
@@ -77,7 +74,7 @@ class FacturaAdmin(admin.ModelAdmin):
         if pago:
             fecha = pago.fecha_pago
             dia = fecha.day
-            mes = MESES[fecha.month]
+            mes = date_format(fecha, "F")
             year = fecha.year
             return f"{dia} de {mes} - {year}"
         return "Sin pago registrado"
@@ -88,15 +85,19 @@ class FacturaAdmin(admin.ModelAdmin):
 
     @admin.display(description="periodo facturado")
     def periodo_facturado(self, obj):
+        if not obj.periodo_final:
+            return "-"
         dia_inicio = obj.periodo_inicio.day
         dia_final = obj.periodo_final.day
-        mes = MESES[obj.periodo_final.month].capitalize()
+        mes = date_format(obj.periodo_final, "F").capitalize()
         return f"{dia_inicio} ~ {dia_final} {mes}"
 
     @admin.display(description="fecha reconexion")
     def fecha_reconexion_formateada(self, obj):
+        if not obj.fecha_reconexion:
+            return "-"
         dia_reconexion = obj.fecha_reconexion.day
-        mes_reconexion = MESES[obj.fecha_reconexion.month].capitalize()
+        mes_reconexion = date_format(obj.fecha_reconexion, "F").capitalize()
         return f"{dia_reconexion} {mes_reconexion}"
 
 
