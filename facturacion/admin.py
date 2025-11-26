@@ -35,22 +35,23 @@ class FacturaAdmin(admin.ModelAdmin):
     actions = None
     list_display = (
         "cliente",
-        "usuario_vereda",
+        "cliente_vereda",
         "estado_pago",
         "fecha_pago",
         "total_pagado",
         "periodo_facturado",
         "fecha_reconexion_formateada",
     )
-    search_fields = ("usuario__nombre", "usuario__apellido")
-    autocomplete_fields = ["usuario"]
+    search_fields = ("cliente__nombre", "cliente__apellido")
+    autocomplete_fields = ["cliente"]
     inlines = [PagoInline]
     list_filter = (MesFiltro,)
-    ordering = ("usuario__vereda", "usuario__nombre",)
+    ordering = ("periodo_inicio__month","cliente__vereda", "cliente__nombre",)
+    list_per_page = 60
 
     @admin.display(description="cliente")
     def cliente(self, obj):
-        return f'{obj.usuario.nombre} {obj.usuario.apellido}'
+        return f'{obj.cliente.nombre} {obj.cliente.apellido}'
 
     @admin.display(description="estado del pago")
     def estado_pago(self, obj):
@@ -82,8 +83,8 @@ class FacturaAdmin(admin.ModelAdmin):
         return "Sin pago registrado"
 
     @admin.display(description="vereda")
-    def usuario_vereda(self, obj):
-        return obj.usuario.vereda
+    def cliente_vereda(self, obj):
+        return obj.cliente.vereda
 
     @admin.display(description="periodo facturado")
     def periodo_facturado(self, obj):

@@ -1,6 +1,6 @@
 from django.contrib import admin
 from instalaciones.models import Intalacion
-from .models import Usuario
+from .models import Cliente
 from base.admin import admin_site
 
 
@@ -9,8 +9,8 @@ class InstalacionInline(admin.TabularInline):
     extra = 0
 
 
-@admin.register(Usuario)
-class UsuarioAdmin(admin.ModelAdmin):
+@admin.register(Cliente)
+class ClienteAdmin(admin.ModelAdmin):
     actions = None
     ordering = ("vereda","nombre",)
     list_display = (
@@ -38,4 +38,4 @@ class UsuarioAdmin(admin.ModelAdmin):
         return f"{obj.telefono}"
 
 
-admin_site.register(Usuario, UsuarioAdmin)
+admin_site.register(Cliente, ClienteAdmin)

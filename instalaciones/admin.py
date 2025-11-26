@@ -13,18 +13,18 @@ class InstalacionAdmin(admin.ModelAdmin):
         "fecha_instalacion_cliente",
         "monto_formateado"
     )
-    search_fields = ("usuario__nombre", "usuario__apellido")
-    autocomplete_fields = ["usuario"]
+    search_fields = ("cliente__nombre", "cliente__apellido")
+    autocomplete_fields = ["cliente"]
 
     def get_form(self, request, obj=None, change=False ,**kwargs):
         form = super().get_form(request, obj, change=change,**kwargs)
         if obj:
-            form.base_fields["usuario"].widget = forms.HiddenInput()
+            form.base_fields["cliente"].widget = forms.HiddenInput()
         return form
 
     @admin.display(description="nombre cliente")
     def cliente(self, obj):
-        return obj.usuario
+        return obj.cliente
 
     @admin.display(description="monto formateado")
     def monto_formateado(self, obj):

@@ -3,8 +3,8 @@ from django.db import models
 
 class Intalacion(models.Model):
     instalacion_id = models.AutoField(primary_key=True)
-    usuario = models.ForeignKey(
-        "usuarios.Usuario",
+    cliente = models.ForeignKey(
+        "clientes.Cliente",
         null=True,
         on_delete=models.SET_NULL,
         related_name="instalacion"
@@ -24,4 +24,4 @@ class Intalacion(models.Model):
         verbose_name_plural = "informacion de instalaciones"
 
     def __str__(self):
-        return f"Informacion de {self.usuario.nombre} {self.usuario.apellido}"
+        return f"Informacion de {self.cliente.nombre} {self.cliente.apellido}"

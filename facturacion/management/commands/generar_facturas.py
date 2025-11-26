@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
 from facturacion.models import Factura, Pago
-from usuarios.models import Usuario
+from clientes.models import Cliente
 from datetime import date
 import calendar
 
@@ -20,18 +20,18 @@ class Command(BaseCommand):
         year_reconexion = hoy.year if hoy.month < 12 else hoy.year + 1
         fecha_reconexion = date(year_reconexion, mes_reconexion, 5)
 
-        for usuario in Usuario.objects.all():
-            if Factura.objects.filter(usuario=usuario, periodo_inicio=periodo_inicio).exists():
-                self.stdout.write(self.style.WARNING(f"Ya existe factura para {usuario}"))
+        for cliente in Cliente.objects.all():
+            if Factura.objects.filter(cliente=cliente, periodo_inicio=periodo_inicio).exists():
+                self.stdout.write(self.style.WARNING(f"Ya existe factura para {cliente}"))
                 continue
 
-            ultima_instalacion = usuario.instalacion.order_by('-instalacion_id').first()
+            ultima_instalacion = cliente.instalacion.order_by('-instalacion_id').first()
 
             if ultima_instalacion and not ultima_instalacion.servicio_activo:
-                self.stdout.write(self.style.WARNING(f"Servicio inactivo para {usuario}"))
+                self.stdout.write(self.style.WARNING(f"Servicio inactivo para {cliente}"))
                 continue
 
-            instalaciones_activas = usuario.instalacion.filter(
+            instalaciones_activas = cliente.instalacion.filter(
                 servicio_activo=True)
 
             monto_a_pagar = sum(
@@ -40,7 +40,7 @@ class Command(BaseCommand):
             )
 
             factura = Factura.objects.create(
-                usuario=usuario,
+                cliente=cliente,
                 periodo_inicio=periodo_inicio,
                 periodo_final=periodo_final,
                 fecha_reconexion=fecha_reconexion,
@@ -54,5 +54,5 @@ class Command(BaseCommand):
             )
 
             self.stdout.write(self.style.SUCCESS(
-                f"Pago generado para {usuario}"
+                f"Pago generado para {cliente}"
             ))

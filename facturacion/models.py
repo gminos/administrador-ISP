@@ -16,8 +16,8 @@ TIPO_PAGOS_CHOICES = [("mensualidad", "Mensualidad"),
 
 class Factura(models.Model):
     factura_id = models.AutoField(primary_key=True)
-    usuario = models.ForeignKey(
-        "usuarios.Usuario", on_delete=models.CASCADE, related_name="factura"
+    cliente = models.ForeignKey(
+        "clientes.Cliente", on_delete=models.CASCADE, related_name="factura"
     )
     periodo_inicio = models.DateField(null=True)
     periodo_final = models.DateField(null=True)
