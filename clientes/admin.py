@@ -1,16 +1,29 @@
 from django.contrib import admin
+from unfold.admin import ModelAdmin
 from instalaciones.models import Intalacion
 from .models import Cliente
 from base.admin import admin_site
+from django.db import models
+from unfold.widgets import UnfoldAdminSplitDateTimeWidget, UnfoldAdminTextInputWidget, UnfoldAdminSelectWidget
 
 
 class InstalacionInline(admin.TabularInline):
     model = Intalacion
     extra = 0
+    formfield_overrides = {
+        models.DateTimeField: {"widget": UnfoldAdminSplitDateTimeWidget},
+        models.DecimalField: {"widget": UnfoldAdminTextInputWidget},
+    }
+
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name == "plan":
+            kwargs["widget"] = UnfoldAdminSelectWidget(attrs={"style": "width: 100%;"})
+            return db_field.formfield(**kwargs)
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
 
 @admin.register(Cliente)
-class ClienteAdmin(admin.ModelAdmin):
+class ClienteAdmin(ModelAdmin):
     actions = None
     ordering = ("vereda","nombre",)
     list_display = (

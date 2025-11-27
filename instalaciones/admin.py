@@ -1,12 +1,18 @@
 from django import forms
 from django.contrib import admin
+from unfold.admin import ModelAdmin
 from .models import Intalacion
 from base.admin import admin_site
 from django.utils import timezone
 from django.utils.formats import date_format
+from django.db import models
+from unfold.widgets import UnfoldAdminSplitDateTimeWidget
 
 @admin.register(Intalacion)
-class InstalacionAdmin(admin.ModelAdmin):
+class InstalacionAdmin(ModelAdmin):
+    formfield_overrides = {
+        models.DateTimeField: {"widget": UnfoldAdminSplitDateTimeWidget},
+    }
     actions = None
     list_display = (
         "cliente",

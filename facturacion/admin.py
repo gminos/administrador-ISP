@@ -1,34 +1,29 @@
 from django.contrib import admin
+from unfold.admin import ModelAdmin
 from .models import Factura, Pago
 from base.admin import admin_site
 from django.utils.html import format_html
-from django.contrib.admin import SimpleListFilter
 from django.db.models import Sum
 from django.utils.formats import date_format
 from datetime import date
+from django.db import models
+from unfold.widgets import UnfoldAdminDateWidget, UnfoldAdminSingleDateWidget
 
 
 class PagoInline(admin.TabularInline):
     model = Pago
     verbose_name_plural = "Gestiona pagos"
     extra = 0
-
-
-class MesFiltro(SimpleListFilter):
-    title = 'Mes de facturación'
-    parameter_name = 'mes'
-
-    def lookups(self, request, model_admin):
-        return [(str(i), date_format(date(2023, i, 1), "F").capitalize()) for i in range(1, 13)]
-
-    def queryset(self, request, queryset):
-        if self.value():
-            return queryset.filter(periodo_inicio__month=self.value())
-        return queryset
-
+    formfield_overrides = {
+        models.DateField: {"widget": UnfoldAdminDateWidget},
+    }
+    
 
 @admin.register(Factura)
-class FacturaAdmin(admin.ModelAdmin):
+class FacturaAdmin(ModelAdmin):
+    formfield_overrides = {
+        models.DateField: {"widget": UnfoldAdminDateWidget},
+    }
     actions = None
     list_display = (
         "cliente",
@@ -42,7 +37,7 @@ class FacturaAdmin(admin.ModelAdmin):
     search_fields = ("cliente__nombre", "cliente__apellido")
     autocomplete_fields = ["cliente"]
     inlines = [PagoInline]
-    list_filter = (MesFiltro,)
+    date_hierarchy = "periodo_inicio"
     ordering = ("periodo_inicio__month","cliente__vereda", "cliente__nombre",)
     list_per_page = 60
 

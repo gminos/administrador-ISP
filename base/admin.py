@@ -1,12 +1,14 @@
-from django.contrib.admin import AdminSite
+from unfold.sites import UnfoldAdminSite
 from django.contrib.auth.models import User, Group
 from django.contrib.auth.admin import UserAdmin, GroupAdmin
+from base.views import dashboard_callback
 
 
-class AdminPersonalizado(AdminSite):
+class AdminPersonalizado(UnfoldAdminSite):
     site_header = "ADMINISTRACIÓN ARINT CONEXIONES"
-    index_title = None
+    index_title = "Dashboard"
     site_title = "ISP Admin"
+    dashboard_callback = dashboard_callback
 
     def get_app_list(self, request, app_label=None):
         app_dict = self._build_app_dict(request)

@@ -1,14 +1,206 @@
 {% extends "admin/index.html" %}
+{% load i18n %}
 
 {% block content %}
-  {{ block.super }}
-  <style>
-    a.addlink,
-    a.changelink {
-      display: none !important;
-    }
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+    <div
+        class="bg-white dark:bg-base-800 rounded-default border border-base-200 dark:border-base-700 shadow-sm flex flex-col">
+        <div class="p-6 flex-grow">
+            <div class="flex justify-between items-start mb-6">
+                <div>
+                    <h3 class="text-base-500 dark:text-base-400 text-sm font-medium uppercase tracking-wider mb-2">
+                        {{ kpi_data.recaudo.title }}
+                    </h3>
+                    <div class="flex items-baseline">
+                        <p class="text-3xl font-bold text-base-900 dark:text-base-100">
+                            {{ kpi_data.recaudo.metric }}
+                        </p>
+                    </div>
+                    <div class="mt-2 flex items-center text-sm text-base-500 dark:text-base-400">
+                        {{ kpi_data.recaudo.footer }}
+                    </div>
+                </div>
+            </div>
+            <div class="relative h-64 w-full">
+                <canvas id="revenueChart"></canvas>
+            </div>
+        </div>
+        <a href="{% url 'admin:facturacion_factura_changelist' %}"
+            class="block p-4 border-t border-base-200 dark:border-base-700 hover:bg-base-50 dark:hover:bg-base-700 transition-colors rounded-b-default group">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h4 class="text-base-900 dark:text-base-100 font-semibold">Gestión de Pagos</h4>
+                    <p class="text-sm text-base-500 dark:text-base-400">Ver todos los registros de pagos</p>
+                </div>
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                    stroke="currentColor" class="w-5 h-5 text-base-400 group-hover:text-primary-600 transition-colors">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
+                </svg>
+            </div>
+        </a>
+    </div>
 
-  </style>
+    <div
+        class="bg-white dark:bg-base-800 rounded-default border border-base-200 dark:border-base-700 shadow-sm flex flex-col">
+        <div class="p-6 flex-grow">
+            <div class="flex justify-between items-start mb-6">
+                <div class="flex gap-8">
+                    <div>
+                        <h3 class="text-base-500 dark:text-base-400 text-sm font-medium uppercase tracking-wider mb-2">
+                            {{ kpi_data.instalaciones.title }}
+                        </h3>
+                        <div class="flex items-baseline">
+                            <p class="text-3xl font-bold text-base-900 dark:text-base-100">
+                                {{ kpi_data.instalaciones.metric }}
+                            </p>
+                        </div>
+                        <div class="mt-2 flex items-center text-sm text-base-500 dark:text-base-400">
+                            {{ kpi_data.instalaciones.footer }}
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="text-base-500 dark:text-base-400 text-sm font-medium uppercase tracking-wider mb-2">
+                            {{ kpi_data.clientes.title }}
+                        </h3>
+                        <div class="flex items-baseline">
+                            <p class="text-3xl font-bold text-base-900 dark:text-base-100">
+                                {{ kpi_data.clientes.metric }}
+                            </p>
+                        </div>
+                        <div class="mt-2 flex items-center text-sm text-base-500 dark:text-base-400">
+                            {{ kpi_data.clientes.footer }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="relative h-64 w-full">
+                <canvas id="installationsChart"></canvas>
+            </div>
+        </div>
+        <a href="{% url 'admin:instalaciones_intalacion_changelist' %}"
+            class="block p-4 border-t border-base-200 dark:border-base-700 hover:bg-base-50 dark:hover:bg-base-700 transition-colors rounded-b-default group">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h4 class="text-base-900 dark:text-base-100 font-semibold">Instalaciones</h4>
+                    <p class="text-sm text-base-500 dark:text-base-400">Gestionar instalaciones y servicios</p>
+                </div>
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                    stroke="currentColor" class="w-5 h-5 text-base-400 group-hover:text-primary-600 transition-colors">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
+                </svg>
+            </div>
+        </a>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 gap-6 mb-8">
+    <div
+        class="bg-white dark:bg-base-800 rounded-default border border-base-200 dark:border-base-700 shadow-sm flex flex-col">
+        <div class="p-6 flex-grow">
+            <h3 class="text-base-900 dark:text-base-100 text-lg font-semibold mb-4">Ingresos por Instalación</h3>
+            <div class="relative h-64 w-full">
+                <canvas id="instRevenueChart"></canvas>
+            </div>
+        </div>
+        <a href="{% url 'admin:instalaciones_intalacion_changelist' %}"
+            class="block p-4 border-t border-base-200 dark:border-base-700 hover:bg-base-50 dark:hover:bg-base-700 transition-colors rounded-b-default group">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h4 class="text-base-900 dark:text-base-100 font-semibold">Detalle de Instalaciones</h4>
+                    <p class="text-sm text-base-500 dark:text-base-400">Ver costos y detalles de instalación</p>
+                </div>
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                    stroke="currentColor" class="w-5 h-5 text-base-400 group-hover:text-primary-600 transition-colors">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
+                </svg>
+            </div>
+        </a>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const isDark = document.documentElement.classList.contains('dark');
+        const gridColor = isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)';
+        const tickColor = isDark ? '#9ca3af' : '#4b5563';
+
+        const commonOptions = {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                        color: gridColor
+                    },
+                    ticks: {
+                        color: tickColor
+                    }
+                },
+                x: {
+                    grid: {
+                        display: false
+                    },
+                    ticks: {
+                        color: tickColor
+                    }
+                }
+            }
+        };
+
+        new Chart(document.getElementById('revenueChart').getContext('2d'), {
+            type: 'line',
+            data: {
+                labels: {{ chart_labels| safe }},
+        datasets: [{
+            label: 'Ingresos',
+            data: {{ chart_data| safe }},
+        borderColor: '#9333ea',
+        backgroundColor: 'rgba(147, 51, 234, 0.1)',
+        borderWidth: 2,
+        fill: true,
+        tension: 0.4
+                    }]
+                },
+        options: commonOptions
+            });
+
+    new Chart(document.getElementById('installationsChart').getContext('2d'), {
+        type: 'bar',
+        data: {
+            labels: {{ inst_labels| safe }},
+        datasets: [{
+            label: 'Instalaciones',
+            data: {{ inst_count| safe }},
+        backgroundColor: '#3b82f6',
+        borderRadius: 4
+                    }]
+                },
+        options: commonOptions
+            });
+
+    new Chart(document.getElementById('instRevenueChart').getContext('2d'), {
+        type: 'line',
+        data: {
+            labels: {{ inst_labels| safe }},
+        datasets: [{
+            label: 'Ingresos Instalación',
+            data: {{ inst_revenue| safe }},
+        borderColor: '#10b981',
+        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+        borderWidth: 2,
+        fill: true,
+        tension: 0.4
+                    }]
+                },
+        options: commonOptions
+            });
+        });
+</script>
 {% endblock %}
-
-{% block sidebar %}{% endblock %}

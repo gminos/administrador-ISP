@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 from pathlib import Path
 from dotenv import load_dotenv
+from django.templatetags.static import static
 import os
 
 load_dotenv()
@@ -34,6 +35,12 @@ ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS", "").split(",")
 # Application definition
 
 INSTALLED_APPS = [
+    "unfold",
+    "unfold.contrib.filters",
+    "unfold.contrib.forms",
+    "unfold.contrib.import_export",
+    "unfold.contrib.guardian",
+    "unfold.contrib.simple_history",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -122,10 +129,83 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
-STATIC_URL = "static/"
+STATIC_URL = "/static/"
 STATIC_ROOT = '/app/staticfiles'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+from django.urls import reverse_lazy
+from django.utils.translation import gettext_lazy as _
+
+UNFOLD = {
+    "SITE_TITLE": "Arint Conexiones",
+    "SITE_HEADER": "Arint Conexiones",
+    "SITE_URL": "/",
+    "SITE_ICON": {
+        "light": lambda request: static("images/logo-light.svg"),
+        "dark": lambda request: static("images/logo-dark.svg"),
+    },
+    "DASHBOARD_CALLBACK": "base.views.dashboard_callback",
+    "SIDEBAR": {
+        "show_search": False,
+        "show_all_applications": False,
+        "navigation": [
+            {
+                "title": _("Navegación"),
+                "separator": True,
+                "items": [
+                    {
+                        "title": _("Dashboard"),
+                        "icon": "dashboard",
+                        "link": reverse_lazy("admin:index"),
+                    },
+                ],
+            },
+            {
+                "title": _("Gestión"),
+                "separator": True,
+                "items": [
+                    {
+                        "title": _("Clientes"),
+                        "icon": "people",
+                        "link": reverse_lazy("admin:clientes_cliente_changelist"),
+                    },
+                    {
+                        "title": _("Instalaciones"),
+                        "icon": "router",
+                        "link": reverse_lazy("admin:instalaciones_intalacion_changelist"),
+                    },
+                    {
+                        "title": _("Planes"),
+                        "icon": "layers",
+                        "link": reverse_lazy("admin:planes_plan_changelist"),
+                    },
+                    {
+                        "title": _("Facturas"),
+                        "icon": "receipt_long",
+                        "link": reverse_lazy("admin:facturacion_factura_changelist"),
+                    },
+                ],
+            },
+            {
+                "title": _("Administración"),
+                "separator": True,
+                "items": [
+                    {
+                        "title": _("Usuarios"),
+                        "icon": "person",
+                        "link": reverse_lazy("admin:auth_user_changelist"),
+                    },
+                    {
+                        "title": _("Grupos"),
+                        "icon": "group",
+                        "link": reverse_lazy("admin:auth_group_changelist"),
+                    },
+                ],
+            },
+        ],
+    },
+}

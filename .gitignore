@@ -13,3 +13,5 @@ wheels/
 .idea
 
 staticfiles/
+scripts
+base/fixtures/
