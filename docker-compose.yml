@@ -16,7 +16,7 @@ services:
     ports:
       - "127.0.0.1:8000:8000"
     environment:
-      DB_HOST: db
+      POSTGRES_HOST: db
     depends_on:
       - db
     restart: always
@@ -26,10 +26,6 @@ services:
     container_name: postgres_db
     env_file:
       - .env
-    environment:
-      POSTGRES_DB: ${DB_NAME}
-      POSTGRES_USER: ${DB_USER}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
     ports:
       - "127.0.0.1:5432:5432"
     volumes:
