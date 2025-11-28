@@ -1,7 +1,7 @@
 from django.contrib import admin
 from unfold.admin import ModelAdmin
 from instalaciones.models import Intalacion
-from .models import Cliente
+from clientes.models import Cliente
 from base.admin import admin_site
 from django.db import models
 from unfold.widgets import UnfoldAdminSplitDateTimeWidget, UnfoldAdminTextInputWidget, UnfoldAdminSelectWidget

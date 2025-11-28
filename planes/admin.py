@@ -1,7 +1,6 @@
-# from django import forms
 from django.contrib import admin
 from unfold.admin import ModelAdmin
-from .models import Plan
+from planes.models import Plan
 from base.admin import admin_site
 
 

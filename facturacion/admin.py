@@ -1,6 +1,6 @@
 from django.contrib import admin
 from unfold.admin import ModelAdmin
-from .models import Factura, Pago
+from facturacion.models import Factura, Pago
 from base.admin import admin_site
 from django.utils.html import format_html
 from django.db.models import Sum
