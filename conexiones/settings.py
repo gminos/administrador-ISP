@@ -49,11 +49,11 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "clientes",
-    "planes",
-    "instalaciones",
-    "facturacion",
-    "base",
+    "clientes.apps.ClientesConfig",
+    "planes.apps.PlanesConfig",
+    "instalaciones.apps.InstalacionesConfig",
+    "facturacion.apps.FacturacionConfig",
+    "base.apps.BaseConfig",
 ]
 
 MIDDLEWARE = [
