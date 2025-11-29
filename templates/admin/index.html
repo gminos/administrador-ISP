@@ -2,22 +2,62 @@
 {% load i18n %}
 
 {% block content %}
+<div class="mb-8">
+    <div class="bg-white dark:bg-base-800 rounded-default border border-base-200 dark:border-base-700 shadow-sm p-6">
+        <div class="flex justify-between items-end mb-2">
+            <div>
+                <h3 class="text-base-900 dark:text-base-100 text-lg font-semibold">Objetivo de {{ meta_data.total }}
+                    servicios</h3>
+            </div>
+            <div class="text-right">
+                <span class="text-3xl font-bold text-primary-600 dark:text-primary-400">{{ meta_data.progreso }}%</span>
+                <p class="text-xs text-base-500 dark:text-base-400">Completado</p>
+            </div>
+        </div>
+        <div class="w-full bg-base-200 dark:bg-base-700 rounded-full h-4 mb-2 overflow-hidden">
+            <div class="bg-primary-600 dark:bg-primary-500 h-4 rounded-full transition-all duration-1000 ease-out relative"
+                style="width: {{ meta_data.progreso }}%">
+            </div>
+        </div>
+        <div class="flex justify-between text-xs text-base-500 dark:text-base-400 font-medium">
+            <span>{{ meta_data.actual }} Servicios actuales</span>
+            <span>Faltan {{ meta_data.falta }}</span>
+        </div>
+    </div>
+</div>
+
 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+    <!-- Revenue Chart (Existing) -->
     <div
         class="bg-white dark:bg-base-800 rounded-default border border-base-200 dark:border-base-700 shadow-sm flex flex-col">
-        <div class="p-6 flex-grow">
-            <div class="flex justify-between items-start mb-6">
-                <div>
-                    <h3 class="text-base-500 dark:text-base-400 text-sm font-medium uppercase tracking-wider mb-2">
+        <div class="px-6 pt-6 pb-2 flex-grow">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-start mb-6">
+                <div class="text-center md:text-left">
+                    <h3
+                        class="text-base-500 dark:text-base-400 text-sm font-medium tracking-wider mb-2 h-10 flex items-center justify-center md:justify-start">
                         {{ kpi_data.recaudo.title }}
                     </h3>
-                    <div class="flex items-baseline">
-                        <p class="text-3xl font-bold text-base-900 dark:text-base-100">
+                    <div class="flex items-baseline justify-center md:justify-start">
+                        <p class="text-3xl font-bold text-green-600 dark:text-green-400">
                             {{ kpi_data.recaudo.metric }}
                         </p>
                     </div>
-                    <div class="mt-2 flex items-center text-sm text-base-500 dark:text-base-400">
+                    <div
+                        class="mt-2 flex items-center justify-center md:justify-start text-sm text-base-500 dark:text-base-400">
                         {{ kpi_data.recaudo.footer }}
+                    </div>
+                </div>
+                <div class="text-center md:text-right">
+                    <h3
+                        class="text-base-500 dark:text-base-400 text-sm font-medium tracking-wider mb-2 h-10 flex items-center justify-center md:justify-end">
+                        {{ kpi_data.deuda.title }}
+                    </h3>
+                    <p class="text-3xl font-bold text-red-600 dark:text-red-400">
+                        {{ kpi_data.deuda.metric }}
+                    </p>
+                    <div
+                        class="mt-2 flex items-center justify-center md:justify-end text-sm text-base-500 dark:text-base-400">
+                        {{ kpi_data.deuda.footer }}
                     </div>
                 </div>
             </div>
@@ -25,96 +65,117 @@
                 <canvas id="revenueChart"></canvas>
             </div>
         </div>
-        <a href="{% url 'admin:facturacion_factura_changelist' %}"
-            class="block p-4 border-t border-base-200 dark:border-base-700 hover:bg-base-50 dark:hover:bg-base-700 transition-colors rounded-b-default group">
-            <div class="flex items-center justify-between">
-                <div>
-                    <h4 class="text-base-900 dark:text-base-100 font-semibold">Gestión de Pagos</h4>
-                    <p class="text-sm text-base-500 dark:text-base-400">Ver todos los registros de pagos</p>
-                </div>
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                    stroke="currentColor" class="w-5 h-5 text-base-400 group-hover:text-primary-600 transition-colors">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
-                </svg>
-            </div>
-        </a>
+
     </div>
 
+    <!-- Installation Revenue (Moved here) -->
     <div
         class="bg-white dark:bg-base-800 rounded-default border border-base-200 dark:border-base-700 shadow-sm flex flex-col">
-        <div class="p-6 flex-grow">
-            <div class="flex justify-between items-start mb-6">
-                <div class="flex gap-8">
-                    <div>
-                        <h3 class="text-base-500 dark:text-base-400 text-sm font-medium uppercase tracking-wider mb-2">
-                            {{ kpi_data.instalaciones.title }}
-                        </h3>
-                        <div class="flex items-baseline">
-                            <p class="text-3xl font-bold text-base-900 dark:text-base-100">
-                                {{ kpi_data.instalaciones.metric }}
-                            </p>
-                        </div>
-                        <div class="mt-2 flex items-center text-sm text-base-500 dark:text-base-400">
-                            {{ kpi_data.instalaciones.footer }}
-                        </div>
+        <div class="px-6 pt-6 pb-2 flex-grow">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-start mb-6">
+                <div class="text-center md:text-left">
+                    <h3
+                        class="text-base-500 dark:text-base-400 text-sm font-medium tracking-wider mb-2 h-10 flex items-center justify-center md:justify-start">
+                        {{ kpi_data.inst_revenue.title }}
+                    </h3>
+                    <div class="flex items-baseline justify-center md:justify-start">
+                        <p class="text-3xl font-bold text-green-600 dark:text-green-400">
+                            {{ kpi_data.inst_revenue.metric }}
+                        </p>
                     </div>
-                    <div>
-                        <h3 class="text-base-500 dark:text-base-400 text-sm font-medium uppercase tracking-wider mb-2">
-                            {{ kpi_data.clientes.title }}
-                        </h3>
-                        <div class="flex items-baseline">
-                            <p class="text-3xl font-bold text-base-900 dark:text-base-100">
-                                {{ kpi_data.clientes.metric }}
-                            </p>
-                        </div>
-                        <div class="mt-2 flex items-center text-sm text-base-500 dark:text-base-400">
-                            {{ kpi_data.clientes.footer }}
-                        </div>
+                    <div
+                        class="mt-2 flex items-center justify-center md:justify-start text-sm text-base-500 dark:text-base-400">
+                        {{ kpi_data.inst_revenue.footer }}
+                    </div>
+                </div>
+                <div class="text-center md:text-right">
+                    <h3
+                        class="text-base-500 dark:text-base-400 text-sm font-medium tracking-wider mb-2 h-10 flex items-center justify-center md:justify-end">
+                        {{ kpi_data.inst_revenue.year_title }}
+                    </h3>
+                    <p class="text-3xl font-bold text-blue-600 dark:text-blue-400">
+                        {{ kpi_data.inst_revenue.year_metric }}
+                    </p>
+                    <div
+                        class="mt-2 flex items-center justify-center md:justify-end text-sm text-base-500 dark:text-base-400">
+                        {{ kpi_data.inst_revenue.year_footer }}
                     </div>
                 </div>
             </div>
-            <div class="relative h-64 w-full">
-                <canvas id="installationsChart"></canvas>
-            </div>
-        </div>
-        <a href="{% url 'admin:instalaciones_intalacion_changelist' %}"
-            class="block p-4 border-t border-base-200 dark:border-base-700 hover:bg-base-50 dark:hover:bg-base-700 transition-colors rounded-b-default group">
-            <div class="flex items-center justify-between">
-                <div>
-                    <h4 class="text-base-900 dark:text-base-100 font-semibold">Instalaciones</h4>
-                    <p class="text-sm text-base-500 dark:text-base-400">Gestionar instalaciones y servicios</p>
-                </div>
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                    stroke="currentColor" class="w-5 h-5 text-base-400 group-hover:text-primary-600 transition-colors">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
-                </svg>
-            </div>
-        </a>
-    </div>
-</div>
-
-<div class="grid grid-cols-1 gap-6 mb-8">
-    <div
-        class="bg-white dark:bg-base-800 rounded-default border border-base-200 dark:border-base-700 shadow-sm flex flex-col">
-        <div class="p-6 flex-grow">
-            <h3 class="text-base-900 dark:text-base-100 text-lg font-semibold mb-4">Ingresos por Instalación</h3>
             <div class="relative h-64 w-full">
                 <canvas id="instRevenueChart"></canvas>
             </div>
         </div>
-        <a href="{% url 'admin:instalaciones_intalacion_changelist' %}"
-            class="block p-4 border-t border-base-200 dark:border-base-700 hover:bg-base-50 dark:hover:bg-base-700 transition-colors rounded-b-default group">
-            <div class="flex items-center justify-between">
-                <div>
-                    <h4 class="text-base-900 dark:text-base-100 font-semibold">Detalle de Instalaciones</h4>
-                    <p class="text-sm text-base-500 dark:text-base-400">Ver costos y detalles de instalación</p>
+
+    </div>
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+    <!-- Installations Count (Moved here) -->
+    <div
+        class="bg-white dark:bg-base-800 rounded-default border border-base-200 dark:border-base-700 shadow-sm flex flex-col">
+        <div class="px-6 pt-6 pb-2 flex-grow flex flex-col">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-start mb-6">
+                <div class="text-center md:text-left">
+                    <h3
+                        class="text-base-500 dark:text-base-400 text-sm font-medium tracking-wider mb-2 h-10 flex items-center justify-center md:justify-start">
+                        {{ kpi_data.instalaciones.title }}
+                    </h3>
+                    <div class="flex items-baseline justify-center md:justify-start">
+                        <p class="text-3xl font-bold text-green-600 dark:text-green-400">
+                            {{ kpi_data.instalaciones.metric }}
+                        </p>
+                    </div>
+                    <div
+                        class="mt-2 flex items-center justify-center md:justify-start text-sm text-base-500 dark:text-base-400">
+                        {{ kpi_data.instalaciones.footer }}
+                    </div>
                 </div>
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                    stroke="currentColor" class="w-5 h-5 text-base-400 group-hover:text-primary-600 transition-colors">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
-                </svg>
+                <div class="text-center md:text-right">
+                    <h3
+                        class="text-base-500 dark:text-base-400 text-sm font-medium tracking-wider mb-2 h-10 flex items-center justify-center md:justify-end">
+                        {{ kpi_data.instalaciones.year_title }}
+                    </h3>
+                    <p class="text-3xl font-bold text-blue-600 dark:text-blue-400">
+                        {{ kpi_data.instalaciones.year_metric }}
+                    </p>
+                    <div
+                        class="mt-2 flex items-center justify-center md:justify-end text-sm text-base-500 dark:text-base-400">
+                        {{ kpi_data.instalaciones.year_footer }}
+                    </div>
+                </div>
             </div>
-        </a>
+            <div class="relative h-64 w-full mt-auto">
+                <canvas id="installationsChart"></canvas>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Plans Distribution -->
+    <div class="bg-white dark:bg-base-800 rounded-default border border-base-200 dark:border-base-700 shadow-sm p-6">
+        <h3 class="text-base-900 dark:text-base-100 text-lg font-semibold mb-4">Distribución de planes</h3>
+        <div class="relative h-64 w-full">
+            <canvas id="plansChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+    <!-- Payment Methods (Moved here) -->
+    <div class="bg-white dark:bg-base-800 rounded-default border border-base-200 dark:border-base-700 shadow-sm p-6">
+        <h3 class="text-base-900 dark:text-base-100 text-lg font-semibold mb-4">Ingresos por método de pago</h3>
+        <div class="relative h-64 w-full">
+            <canvas id="paymentMethodChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Veredas -->
+    <div class="bg-white dark:bg-base-800 rounded-default border border-base-200 dark:border-base-700 shadow-sm p-6">
+        <h3 class="text-base-900 dark:text-base-100 text-lg font-semibold mb-4">Instalaciones por vereda</h3>
+        <div class="relative h-64 w-full">
+            <canvas id="veredasChart"></canvas>
+        </div>
     </div>
 </div>
 
@@ -145,10 +206,28 @@
                 },
                 x: {
                     grid: {
-                        display: false
+                        display: true,
+                        drawOnChartArea: false,
+                        drawBorder: true,
+                        color: gridColor
                     },
                     ticks: {
                         color: tickColor
+                    }
+                }
+            }
+        };
+
+        const pieOptions = {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        color: tickColor,
+                        usePointStyle: true,
+                        padding: 20
                     }
                 }
             }
@@ -165,7 +244,10 @@
         backgroundColor: 'rgba(147, 51, 234, 0.1)',
         borderWidth: 2,
         fill: true,
-        tension: 0.4
+        tension: 0.4,
+        pointRadius: 6,
+        pointHoverRadius: 10,
+        pointHitRadius: 30
                     }]
                 },
         options: commonOptions
@@ -179,10 +261,48 @@
             label: 'Instalaciones',
             data: {{ inst_count| safe }},
         backgroundColor: '#3b82f6',
-        borderRadius: 4
+        borderRadius: {
+            topLeft: 4,
+            topRight: 4,
+            bottomLeft: 0,
+            bottomRight: 0
+        },
+        borderSkipped: false
                     }]
                 },
-        options: commonOptions
+        options: {
+        ...commonOptions,
+        barPercentage: 0.7,
+        categoryPercentage: 0.8
+    }
+            });
+
+    new Chart(document.getElementById('paymentMethodChart').getContext('2d'), {
+        type: 'pie',
+        data: {
+            labels: {{ payment_method_labels| safe }},
+        datasets: [{
+            data: {{ payment_method_data| safe }},
+        backgroundColor: ['#3b82f6', '#10b981', '#f59e0b'],
+        hoverBackgroundColor: ['#3b82f6', '#10b981', '#f59e0b'],
+        borderWidth: 0
+                    }]
+                },
+        options: pieOptions
+            });
+
+    new Chart(document.getElementById('plansChart').getContext('2d'), {
+        type: 'pie',
+        data: {
+            labels: {{ plans_labels| safe }},
+        datasets: [{
+            data: {{ plans_data| safe }},
+        backgroundColor: ['#3b82f6', '#8b5cf6', '#10b981', '#f59e0b', '#ef4444', '#06b6d4'],
+        hoverBackgroundColor: ['#3b82f6', '#8b5cf6', '#10b981', '#f59e0b', '#ef4444', '#06b6d4'],
+        borderWidth: 0
+                    }]
+                },
+        options: pieOptions
             });
 
     new Chart(document.getElementById('instRevenueChart').getContext('2d'), {
@@ -196,10 +316,42 @@
         backgroundColor: 'rgba(16, 185, 129, 0.1)',
         borderWidth: 2,
         fill: true,
-        tension: 0.4
+        tension: 0.4,
+        pointRadius: 6,
+        pointHoverRadius: 10,
+        pointHitRadius: 30
                     }]
                 },
         options: commonOptions
+            });
+
+    new Chart(document.getElementById('veredasChart').getContext('2d'), {
+        type: 'pie',
+        data: {
+            labels: {{ veredas_labels| safe }},
+        datasets: [{
+            label: 'Instalaciones',
+            data: {{ veredas_data| safe }},
+        backgroundColor: [
+            '#3b82f6', // Blue
+            '#8b5cf6', // Purple
+            '#10b981', // Green
+            '#f59e0b', // Amber
+            '#ef4444', // Red
+            '#06b6d4'  // Cyan
+        ],
+        hoverBackgroundColor: [
+            '#3b82f6',
+            '#8b5cf6',
+            '#10b981',
+            '#f59e0b',
+            '#ef4444',
+            '#06b6d4'
+        ],
+        borderWidth: 0
+                    }]
+                },
+        options: pieOptions
             });
         });
 </script>
