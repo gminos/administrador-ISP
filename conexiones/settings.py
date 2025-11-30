@@ -147,6 +147,12 @@ UNFOLD = {
         "light": lambda request: static("images/logo-light.svg"),
         "dark": lambda request: static("images/logo-dark.svg"),
     },
+    "SITE_FAVICONS": [
+        {
+            "rel": "icon",
+            "href": lambda request: static("images/logo-light.svg"),
+        },
+    ],
     "DASHBOARD_CALLBACK": "base.views.dashboard_callback",
     "SIDEBAR": {
         "show_search": False,
