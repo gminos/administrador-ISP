@@ -1,4 +1,4 @@
-{% load i18n admin_extras %}
+{% load admin_extras %}
 
 {% if show %}
 <div class="mb-4">
@@ -11,19 +11,36 @@
                 class="flex group items-center hover:text-primary-600 dark:hover:text-primary-500">
                 <span
                     class="material-symbols-outlined md-16 mr-2 text-base-400 group-hover:text-primary-600 dark:group-hover:text-primary-500">arrow_back</span>
-                {{ back.title }}
+                {% with year=back.link|get_year_from_link %}
+                {% if year %}
+                {{ year }}
+                {% else %}
+                {{ back.title|clean_date_title }}
+                {% endif %}
+                {% endwith %}
             </a>
         </li>
+        {% if request.GET.periodo_inicio__month and not request.GET.periodo_inicio__day %}
+        <li class="px-2 flex items-center">
+            <span class="text-base-500 font-normal select-none cursor-default"
+                onclick="event.preventDefault(); event.stopPropagation();" style="cursor: default; user-select: none;">
+                {{ request.GET.periodo_inicio__month|es_month_name }}
+            </span>
+        </li>
+        {% endif %}
         {% endif %}
         {% endblock %}
+
         {% block date-hierarchy-choices %}
-        {% if not back.title|is_year %}
+        {% if not request.GET.periodo_inicio__month %}
         {% for choice in choices %}
         <li class="px-2">
             {% if choice.link %}
             <a href="{{ choice.link }}" class="hover:text-primary-600 dark:hover:text-primary-500">
                 {% endif %}
-                {{ choice.title|clean_month }}
+
+                {{ choice.title|clean_date_title }}
+
                 {% if choice.link %}
             </a>
             {% endif %}
