@@ -9,7 +9,8 @@ from django.db.models.functions import TruncMonth
 
 def dashboard_callback(request, context):
     total_clientes = Cliente.objects.count()
-    total_instalaciones = Intalacion.objects.filter(servicio_activo=True).count()
+    total_instalaciones = Intalacion.objects.count()
+    total_servicios_activos = Intalacion.objects.filter(servicio_activo=True).count()
     
     total_recaudado = Pago.objects.filter(estado="pagado").aggregate(
         total=Sum("monto_pagado")
@@ -30,8 +31,8 @@ def dashboard_callback(request, context):
     ).count()
 
     META_SERVICIOS = 100
-    progreso_meta = min((total_instalaciones / META_SERVICIOS) * 100, 100)
-    falta_meta = max(META_SERVICIOS - total_instalaciones, 0)
+    progreso_meta = min((total_servicios_activos / META_SERVICIOS) * 100, 100)
+    falta_meta = max(META_SERVICIOS - total_servicios_activos, 0)
     
     last_12_months = timezone.now() - timedelta(days=365)
     pagos_por_mes = Pago.objects.filter(
@@ -94,30 +95,30 @@ def dashboard_callback(request, context):
                 "footer": "Registrados en el sistema",
             },
             "instalaciones": {
-                "title": "Instalaciones totales",
+                "title": "Total de instalaciones",
                 "metric": total_instalaciones,
-                "footer": "Acumulado de instalaciones",
-                "year_title": "Instalaciones por año",
+                "footer": "",
+                "year_title": "Instalaciones en año actual",
                 "year_metric": instalaciones_anio,
-                "year_footer": "Año actual",
+                "year_footer": "",
             },
             "recaudo": {
-                "title": "Total recaudado",
+                "title": "Total en pagos confirmados",
                 "metric": f"${total_recaudado:,.2f}",
-                "footer": "Pagos confirmados",
+                "footer": "",
             },
             "deuda": {
-                "title": "Total pendiente",
+                "title": "Total en pagos pendientes",
                 "metric": f"${deuda_total:,.2f}",
-                "footer": "Pagos pendientes",
+                "footer": "",
             },
             "inst_revenue": {
-                "title": "Total ingresos instalación",
+                "title": "Total en instalaciones",
                 "metric": f"${total_inst_revenue:,.2f}",
-                "footer": "Acumulado histórico",
+                "footer": "",
+                "year_title": "Total en año actual",
                 "year_metric": f"${total_inst_revenue_year:,.2f}",
-                "year_title": "Ingresos por año",
-                "year_footer": "Año actual",
+                "year_footer": "",
             },
 
         },
@@ -125,7 +126,7 @@ def dashboard_callback(request, context):
             "progreso": f"{progreso_meta:.1f}",
             "falta": falta_meta,
             "total": META_SERVICIOS,
-            "actual": total_instalaciones
+            "actual": total_servicios_activos
         },
         "chart_labels": labels,
         "chart_data": data,

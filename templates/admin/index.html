@@ -31,6 +31,7 @@
     <div
         class="bg-white dark:bg-base-800 rounded-default border border-base-200 dark:border-base-700 shadow-sm flex flex-col">
         <div class="px-6 pt-6 pb-2 flex-grow">
+            <h3 class="text-base-900 dark:text-base-100 text-lg font-semibold mb-4">Evolución de Pagos</h3>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-start mb-6">
                 <div class="text-center md:text-left">
                     <h3
@@ -42,10 +43,6 @@
                             {{ kpi_data.recaudo.metric }}
                         </p>
                     </div>
-                    <div
-                        class="mt-2 flex items-center justify-center md:justify-start text-sm text-base-500 dark:text-base-400">
-                        {{ kpi_data.recaudo.footer }}
-                    </div>
                 </div>
                 <div class="text-center md:text-right">
                     <h3
@@ -55,10 +52,6 @@
                     <p class="text-3xl font-bold text-red-600 dark:text-red-400">
                         {{ kpi_data.deuda.metric }}
                     </p>
-                    <div
-                        class="mt-2 flex items-center justify-center md:justify-end text-sm text-base-500 dark:text-base-400">
-                        {{ kpi_data.deuda.footer }}
-                    </div>
                 </div>
             </div>
             <div class="relative h-64 w-full">
@@ -72,6 +65,7 @@
     <div
         class="bg-white dark:bg-base-800 rounded-default border border-base-200 dark:border-base-700 shadow-sm flex flex-col">
         <div class="px-6 pt-6 pb-2 flex-grow">
+            <h3 class="text-base-900 dark:text-base-100 text-lg font-semibold mb-4">Ingresos por Instalaciones</h3>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-start mb-6">
                 <div class="text-center md:text-left">
                     <h3
@@ -83,10 +77,6 @@
                             {{ kpi_data.inst_revenue.metric }}
                         </p>
                     </div>
-                    <div
-                        class="mt-2 flex items-center justify-center md:justify-start text-sm text-base-500 dark:text-base-400">
-                        {{ kpi_data.inst_revenue.footer }}
-                    </div>
                 </div>
                 <div class="text-center md:text-right">
                     <h3
@@ -96,10 +86,6 @@
                     <p class="text-3xl font-bold text-blue-600 dark:text-blue-400">
                         {{ kpi_data.inst_revenue.year_metric }}
                     </p>
-                    <div
-                        class="mt-2 flex items-center justify-center md:justify-end text-sm text-base-500 dark:text-base-400">
-                        {{ kpi_data.inst_revenue.year_footer }}
-                    </div>
                 </div>
             </div>
             <div class="relative h-64 w-full">
@@ -115,6 +101,7 @@
     <div
         class="bg-white dark:bg-base-800 rounded-default border border-base-200 dark:border-base-700 shadow-sm flex flex-col">
         <div class="px-6 pt-6 pb-2 flex-grow flex flex-col">
+            <h3 class="text-base-900 dark:text-base-100 text-lg font-semibold mb-4">Crecimiento de Instalaciones</h3>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-start mb-6">
                 <div class="text-center md:text-left">
                     <h3
@@ -126,10 +113,6 @@
                             {{ kpi_data.instalaciones.metric }}
                         </p>
                     </div>
-                    <div
-                        class="mt-2 flex items-center justify-center md:justify-start text-sm text-base-500 dark:text-base-400">
-                        {{ kpi_data.instalaciones.footer }}
-                    </div>
                 </div>
                 <div class="text-center md:text-right">
                     <h3
@@ -139,10 +122,6 @@
                     <p class="text-3xl font-bold text-blue-600 dark:text-blue-400">
                         {{ kpi_data.instalaciones.year_metric }}
                     </p>
-                    <div
-                        class="mt-2 flex items-center justify-center md:justify-end text-sm text-base-500 dark:text-base-400">
-                        {{ kpi_data.instalaciones.year_footer }}
-                    </div>
                 </div>
             </div>
             <div class="relative h-64 w-full mt-auto">
