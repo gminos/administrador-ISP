@@ -29,7 +29,7 @@ class Factura(models.Model):
 
     class Meta:
         verbose_name = "pago"
-        verbose_name_plural = "Agrega o modifica pagos"
+        verbose_name_plural = "pagos"
 
 
 class Pago(models.Model):

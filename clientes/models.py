@@ -13,4 +13,4 @@ class Cliente(models.Model):
 
     class Meta:
         verbose_name = "cliente"
-        verbose_name_plural = "Agrega o modifica clientes"
+        verbose_name_plural = "clientes"
