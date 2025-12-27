@@ -36,10 +36,10 @@ def dashboard_callback(request, context):
     
     last_12_months = timezone.now() - timedelta(days=365)
     pagos_por_mes = Pago.objects.filter(
-        fecha_pago__gte=last_12_months,
+        factura__periodo_final__gte=last_12_months,
         estado="pagado"
     ).annotate(
-        month=TruncMonth('fecha_pago')
+        month=TruncMonth('factura__periodo_final')
     ).values('month').annotate(
         total=Sum('monto_pagado')
     ).order_by('month')
