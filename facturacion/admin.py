@@ -40,7 +40,7 @@ class FacturaAdmin(ModelAdmin):
     inlines = [PagoInline]
     date_hierarchy = "periodo_inicio"
     ordering = ("periodo_inicio__month","cliente__vereda", "cliente__nombre",)
-    list_per_page = 60
+    list_per_page = 70
 
     def get_queryset(self, request):
         return super().get_queryset(request).prefetch_related("pagos")
