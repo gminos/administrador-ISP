@@ -24,6 +24,7 @@ class FacturaAdmin(ModelAdmin):
     formfield_overrides = {
         models.DateField: {"widget": UnfoldAdminDateWidget},
     }
+    list_select_related = ["cliente"]
     actions = None
     list_display = (
         "cliente",
@@ -41,13 +42,18 @@ class FacturaAdmin(ModelAdmin):
     ordering = ("periodo_inicio__month","cliente__vereda", "cliente__nombre",)
     list_per_page = 60
 
+    def get_queryset(self, request):
+        return super().get_queryset(request).prefetch_related("pagos")
+
     @admin.display(description="cliente")
     def cliente(self, obj):
         return f'{obj.cliente.nombre} {obj.cliente.apellido}'
 
     @admin.display(description="estado del pago")
     def estado_pago(self, obj):
-        pago = obj.pagos.filter(tipo_pago="mensualidad").first()
+        pagos_mensualidad = [p for p in obj.pagos.all() if p.tipo_pago == "mensualidad"]
+        pago = pagos_mensualidad[0] if pagos_mensualidad else None
+        
         if pago:
             color = "green" if pago.estado == "pagado" else "red"
             estado = pago.estado.capitalize()
@@ -58,14 +64,14 @@ class FacturaAdmin(ModelAdmin):
 
     @admin.display(description="total pagado")
     def total_pagado(self, obj):
-        total = obj.pagos.filter(estado="pagado").aggregate(
-        Sum("monto_pagado")
-        )["monto_pagado__sum"] or 0
+        total = sum(p.monto_pagado for p in obj.pagos.all() if p.estado == "pagado")
         return "{:,.2f}".format(total).replace(",", "X").replace(".", ",").replace("X", ".")
 
     @admin.display(description="fecha de pago")
     def fecha_pago(self, obj):
-        pago = obj.pagos.filter(tipo_pago="mensualidad", estado="pagado").first()
+        pagos_pagados = [p for p in obj.pagos.all() if p.tipo_pago == "mensualidad" and p.estado == "pagado"]
+        pago = pagos_pagados[0] if pagos_pagados else None
+        
         if pago:
             fecha = pago.fecha_pago
             dia = fecha.day

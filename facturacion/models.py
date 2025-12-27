@@ -15,7 +15,7 @@ class Factura(models.Model):
     cliente = models.ForeignKey(
         "clientes.Cliente", on_delete=models.CASCADE, related_name="factura"
     )
-    periodo_inicio = models.DateField(null=True)
+    periodo_inicio = models.DateField(null=True, db_index=True)
     periodo_final = models.DateField(null=True)
     fecha_reconexion = models.DateField(null=True)
 
