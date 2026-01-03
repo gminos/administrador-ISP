@@ -7,7 +7,8 @@
         {% block date-hierarchy-toplinks %}
         {% block date-hierarchy-back %}
         {% if back %}
-        {% if many_years or request.GET.periodo_inicio__month %}
+        {% with back_year=back.link|get_year_from_link %}
+        {% if many_years or back_year %}
         <li class="date-back px-2">
             <a href="{{ back.link }}"
                 class="flex group items-center hover:text-primary-600 dark:hover:text-primary-500">
@@ -31,6 +32,7 @@
             </span>
         </li>
         {% endif %}
+        {% endwith %}
         {% endif %}
         {% endblock %}
 
