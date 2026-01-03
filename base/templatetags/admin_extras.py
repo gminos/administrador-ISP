@@ -1,5 +1,7 @@
 from django import template
 import calendar
+import logging
+from base.admin import admin_site
 
 register = template.Library()
 
@@ -35,3 +37,29 @@ def get_year_from_link(link):
         return year if year else ""
     except Exception:
         return ""
+
+@register.simple_tag(takes_context=True)
+def has_multiple_years(context):
+    # Try to get request from context dict or attribute
+    request = context.get('request')
+    if not request and hasattr(context, 'request'):
+        request = context.request
+        
+    if not request:
+        return True # Without request we cannot filter
+    
+    path = request.path
+    for model, model_admin in admin_site._registry.items():
+        meta = model._meta
+        # Check standard admin path structure: /app/model/
+        url_part = f"/{meta.app_label}/{meta.model_name}/"
+        if url_part in path:
+            date_field = getattr(model_admin, 'date_hierarchy', None)
+            if date_field:
+                try:
+                    qs = model_admin.get_queryset(request)
+                    dates_qs = qs.dates(date_field, 'year')
+                    return dates_qs.count() > 1
+                except Exception:
+                    pass
+    return True
