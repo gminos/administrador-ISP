@@ -22,17 +22,17 @@ class Command(BaseCommand):
 
         for cliente in Cliente.objects.all():
             if Factura.objects.filter(cliente=cliente, periodo_inicio=periodo_inicio).exists():
-                self.stdout.write(self.style.WARNING(f"Ya existe factura para {cliente}"))
-                continue
-
-            ultima_instalacion = cliente.instalacion.order_by('-instalacion_id').first()
-
-            if ultima_instalacion and not ultima_instalacion.servicio_activo:
-                self.stdout.write(self.style.WARNING(f"Servicio inactivo para {cliente}"))
+                self.stdout.write(self.style.WARNING(
+                    f"Ya existe factura para {cliente}"))
                 continue
 
             instalaciones_activas = cliente.instalacion.filter(
                 servicio_activo=True)
+
+            if not instalaciones_activas.exists():
+                self.stdout.write(self.style.WARNING(
+                    f"No hay servicios activos para {cliente}"))
+                continue
 
             monto_a_pagar = sum(
                 inst.plan.costo for inst in instalaciones_activas
