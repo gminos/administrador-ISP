@@ -38,7 +38,7 @@ class FacturaAdmin(ModelAdmin):
     search_fields = ("cliente__nombre", "cliente__apellido")
     autocomplete_fields = ["cliente"]
     inlines = [PagoInline]
-    date_hierarchy = "periodo_inicio"
+    date_hierarchy = "periodo_final"
     ordering = ("periodo_inicio__month","cliente__vereda", "cliente__nombre",)
     list_per_page = 70
 
