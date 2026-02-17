@@ -12,7 +12,7 @@ services:
       - ./templates:/app/templates
       - ./base:/app/base
     env_file:
-      - .env
+      - .env.dev
     ports:
       - "8000:8000"
     environment:
@@ -24,7 +24,7 @@ services:
     image: postgres:17.5
     container_name: postgres_dev
     env_file:
-      - .env
+      - .env.dev
     environment:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}

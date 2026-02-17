@@ -9,18 +9,6 @@ wheels/
 # Virtual environments
 .venv
 .env
+.env.dev
 .vscode
 .idea
-
-staticfiles/
-scripts
-base/fixtures/
-
-backend/base/fixtures/backup_datos_*.json
-
-# Build outputs
-dist/
-build/
-.astro/
-
-node_modules/
