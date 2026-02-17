@@ -89,9 +89,10 @@ class FacturaAdmin(ModelAdmin):
         if not obj.periodo_final:
             return "-"
         dia_inicio = obj.periodo_inicio.day
+        mes_inicio = date_format(obj.periodo_inicio, "F").capitalize()
         dia_final = obj.periodo_final.day
-        mes = date_format(obj.periodo_final, "F").capitalize()
-        return f"{dia_inicio} ~ {dia_final} {mes}"
+        mes_final = date_format(obj.periodo_final, "F").capitalize()
+        return f"{dia_inicio} {mes_inicio} ~ {dia_final} {mes_final}"
 
     @admin.display(description="fecha reconexion")
     def fecha_reconexion_formateada(self, obj):
