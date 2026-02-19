@@ -1,14 +1,14 @@
 from django import forms
 from django.contrib import admin
 from unfold.admin import ModelAdmin
-from .models import Intalacion
+from .models import Instalacion
 from base.admin import admin_site
 from django.utils import timezone
 from django.utils.formats import date_format
 from django.db import models
 from unfold.widgets import UnfoldAdminSplitDateTimeWidget
 
-@admin.register(Intalacion)
+@admin.register(Instalacion)
 class InstalacionAdmin(ModelAdmin):
     formfield_overrides = {
         models.DateTimeField: {"widget": UnfoldAdminSplitDateTimeWidget},
@@ -46,4 +46,4 @@ class InstalacionAdmin(ModelAdmin):
         )
 
 
-admin_site.register(Intalacion, InstalacionAdmin)
+admin_site.register(Instalacion, InstalacionAdmin)

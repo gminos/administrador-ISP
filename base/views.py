@@ -1,7 +1,7 @@
 from django.utils.translation import gettext_lazy as _
 from clientes.models import Cliente
 from facturacion.models import Factura, Pago
-from instalaciones.models import Intalacion
+from instalaciones.models import Instalacion
 from django.db.models import Sum
 from django.utils import timezone
 from datetime import timedelta
@@ -9,23 +9,23 @@ from django.db.models.functions import TruncMonth
 
 def dashboard_callback(request, context):
     total_clientes = Cliente.objects.count()
-    total_instalaciones = Intalacion.objects.count()
-    total_servicios_activos = Intalacion.objects.filter(servicio_activo=True).count()
+    total_instalaciones = Instalacion.objects.count()
+    total_servicios_activos = Instalacion.objects.filter(servicio_activo=True).count()
     
     total_recaudado = Pago.objects.filter(estado="pagado").aggregate(
         total=Sum("monto_pagado")
     )["total"] or 0
 
-    total_inst_revenue = Intalacion.objects.aggregate(
+    total_inst_revenue = Instalacion.objects.aggregate(
         total=Sum("costo")
     )["total"] or 0
 
     current_year = timezone.now().year
-    total_inst_revenue_year = Intalacion.objects.filter(
+    total_inst_revenue_year = Instalacion.objects.filter(
         fecha_instalacion__year=current_year
     ).aggregate(total=Sum("costo"))["total"] or 0
 
-    instalaciones_anio = Intalacion.objects.filter(
+    instalaciones_anio = Instalacion.objects.filter(
         fecha_instalacion__year=current_year,
         servicio_activo=True
     ).count()
@@ -53,7 +53,7 @@ def dashboard_callback(request, context):
 
     from django.db.models import Count
     
-    instalaciones_por_mes = Intalacion.objects.filter(
+    instalaciones_por_mes = Instalacion.objects.filter(
         fecha_instalacion__gte=last_12_months
     ).annotate(
         month=TruncMonth('fecha_instalacion')
@@ -79,11 +79,11 @@ def dashboard_callback(request, context):
     ingresos_metodo_labels = [item["metodo_pago"].capitalize() for item in ingresos_metodo_qs]
     ingresos_metodo_data = [float(item["total"]) for item in ingresos_metodo_qs]
 
-    planes_dist_qs = Intalacion.objects.filter(servicio_activo=True).values("plan__nombre").annotate(total=Count("instalacion_id"))
+    planes_dist_qs = Instalacion.objects.filter(servicio_activo=True).values("plan__nombre").annotate(total=Count("instalacion_id"))
     planes_labels = [item["plan__nombre"] for item in planes_dist_qs]
     planes_data = [item["total"] for item in planes_dist_qs]
 
-    veredas_dist_qs = Intalacion.objects.filter(servicio_activo=True).values("cliente__vereda").annotate(total=Count("instalacion_id"))
+    veredas_dist_qs = Instalacion.objects.filter(servicio_activo=True).values("cliente__vereda").annotate(total=Count("instalacion_id"))
     veredas_labels = [item["cliente__vereda"] for item in veredas_dist_qs if item["cliente__vereda"]]
     veredas_data = [item["total"] for item in veredas_dist_qs if item["cliente__vereda"]]
 

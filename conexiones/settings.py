@@ -183,7 +183,7 @@ UNFOLD = {
                     {
                         "title": _("Instalaciones"),
                         "icon": "router",
-                        "link": reverse_lazy("admin:instalaciones_intalacion_changelist"),
+                        "link": reverse_lazy("admin:instalaciones_instalacion_changelist"),
                         "permission": lambda request: request.user.has_perm("instalaciones.view_intalacion"),
                     },
                     {

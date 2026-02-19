@@ -1,6 +1,6 @@
 from django.contrib import admin
 from unfold.admin import ModelAdmin
-from instalaciones.models import Intalacion
+from instalaciones.models import Instalacion
 from clientes.models import Cliente
 from base.admin import admin_site
 from django.db import models
@@ -8,7 +8,7 @@ from unfold.widgets import UnfoldAdminSplitDateTimeWidget, UnfoldAdminTextInputW
 
 
 class InstalacionInline(admin.TabularInline):
-    model = Intalacion
+    model = Instalacion
     extra = 0
     formfield_overrides = {
         models.DateTimeField: {"widget": UnfoldAdminSplitDateTimeWidget},
