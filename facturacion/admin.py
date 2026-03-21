@@ -1,11 +1,14 @@
 from django.contrib import admin
 from unfold.admin import ModelAdmin
 from facturacion.models import Factura, Pago
+from clientes.models import Cliente
 from base.admin import admin_site
 from django.utils.html import format_html
 from django.utils.formats import date_format
 from django.db import models
 from unfold.widgets import UnfoldAdminDateWidget
+from unfold.contrib.filters.admin import RadioFilter
+from django.core.validators import EMPTY_VALUES
 
 
 class PagoInline(admin.TabularInline):
@@ -15,6 +18,41 @@ class PagoInline(admin.TabularInline):
     formfield_overrides = {
         models.DateField: {"widget": UnfoldAdminDateWidget},
     }
+
+
+class EstadoPagoFilter(RadioFilter):
+    title = "estado del pago"
+    parameter_name = "estado_pago"
+    all_option = None
+
+    def lookups(self, request, model_admin):
+        return (
+            ("pagado", "Pagado"),
+            ("pendiente", "Pendiente"),
+        )
+
+    def queryset(self, request, queryset):
+        if self.value() not in EMPTY_VALUES:
+            if self.value() == "pagado":
+                return queryset.filter(pagos__tipo_pago="mensualidad", pagos__estado="pagado")
+            if self.value() == "pendiente":
+                return queryset.exclude(pagos__tipo_pago="mensualidad", pagos__estado="pagado")
+        return queryset
+
+
+class VeredaFilter(RadioFilter):
+    title = "ubicacion"
+    parameter_name = "clientes_vereda"
+
+    def lookups(self, request, model_admin):
+        veredas = Cliente.objects.values_list('vereda', flat=True).distinct().order_by('vereda')
+        return [(v, v) for v in veredas if v]
+
+    def queryset(self, request, queryset):
+        if self.value() not in EMPTY_VALUES:
+            if self.value():
+                return queryset.filter(cliente__vereda=self.value())
+        return queryset
 
 
 @admin.register(Factura)
@@ -39,7 +77,9 @@ class FacturaAdmin(ModelAdmin):
     date_hierarchy = "periodo_final"
     ordering = ("periodo_inicio__month","cliente__vereda", "cliente__nombre",)
     list_per_page = 100
-    list_filter = ["pagos__estado","cliente__vereda"]
+    list_filter = [EstadoPagoFilter, VeredaFilter,]
+    list_filter_submit = True
+    show_facets = admin.ShowFacets.NEVER
 
 
     def get_queryset(self, request):
