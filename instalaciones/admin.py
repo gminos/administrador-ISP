@@ -16,8 +16,9 @@ class InstalacionAdmin(ModelAdmin):
     actions = None
     list_display = (
         "cliente",
+        "vereda",
         "fecha_instalacion_cliente",
-        "monto_formateado"
+        "valor_pagado"
     )
     search_fields = ("cliente__nombre", "cliente__apellido")
     autocomplete_fields = ["cliente"]
@@ -32,8 +33,12 @@ class InstalacionAdmin(ModelAdmin):
     def cliente(self, obj):
         return obj.cliente
 
-    @admin.display(description="monto formateado")
-    def monto_formateado(self, obj):
+    @admin.display(description="vereda")
+    def vereda(self, obj):
+        return obj.cliente.vereda
+
+    @admin.display(description="valor pagado")
+    def valor_pagado(self, obj):
         return f"{obj.costo:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
 
     @admin.display(description="fecha de instalacion")
