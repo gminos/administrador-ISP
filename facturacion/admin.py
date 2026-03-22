@@ -1,5 +1,5 @@
 from django.contrib import admin
-from unfold.admin import ModelAdmin
+from unfold.admin import ModelAdmin, StackedInline
 from facturacion.models import Factura, Pago
 from clientes.models import Cliente
 from base.admin import admin_site
@@ -11,13 +11,10 @@ from unfold.contrib.filters.admin import RadioFilter
 from django.core.validators import EMPTY_VALUES
 
 
-class PagoInline(admin.TabularInline):
+class PagoInline(StackedInline):
     model = Pago
     verbose_name_plural = "Gestiona pagos"
     extra = 0
-    formfield_overrides = {
-        models.DateField: {"widget": UnfoldAdminDateWidget},
-    }
 
 
 class EstadoPagoFilter(RadioFilter):
