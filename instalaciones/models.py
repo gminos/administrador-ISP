@@ -19,10 +19,8 @@ class Instalacion(models.Model):
     servicio_activo = models.BooleanField(default=True, null=True)
 
     class Meta:
-        verbose_name = "instalacion a cliente"
+        verbose_name = "instalacion"
         verbose_name_plural = "instalaciones"
 
     def __str__(self):
-        if self.cliente:
-            return f"Informacion de {self.cliente.nombre} {self.cliente.apellido}"
-        return f"Instalacion {self.instalacion_id} sin cliente asignado"
+        return f"{self.cliente.nombre} {self.cliente.apellido}"
