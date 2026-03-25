@@ -1,6 +1,11 @@
 from django.db import models
 
 
+class CicloFacturacionChoices(models.IntegerChoices):
+    QUINCENA = 15, "Quincenal"
+    MENSUAL = 30, "Mensual"
+
+
 class Instalacion(models.Model):
     instalacion_id = models.AutoField(primary_key=True)
     cliente = models.ForeignKey(
@@ -16,7 +21,8 @@ class Instalacion(models.Model):
         null=True,
         related_name='instalaciones'
     )
-    servicio_activo = models.BooleanField(default=True, null=True)
+    servicio_activo = models.BooleanField(default=True)
+    ciclo_facturacion = models.IntegerField(choices=CicloFacturacionChoices.choices, default=CicloFacturacionChoices.MENSUAL)
 
     class Meta:
         verbose_name = "instalacion"
