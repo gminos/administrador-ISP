@@ -26,7 +26,7 @@ class Command(BaseCommand):
                     f"Ya existe factura para {cliente}"))
                 continue
 
-            instalaciones_activas = cliente.instalacion.filter(
+            instalaciones_activas = cliente.instalaciones.filter(
                 servicio_activo=True)
 
             if not instalaciones_activas.exists():
