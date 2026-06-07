@@ -11,12 +11,16 @@ TIPO_PAGOS_CHOICES = [("mensualidad", "Mensualidad"),
 
 
 class Factura(models.Model):
-    cliente = models.ForeignKey(
-        "clientes.Cliente", on_delete=models.CASCADE, related_name="factura"
+    instalacion = models.ForeignKey(
+        "instalaciones.Instalacion", on_delete=models.CASCADE
     )
     periodo_inicio = models.DateField(null=True, db_index=True)
     periodo_final = models.DateField(null=True)
     fecha_reconexion = models.DateField(null=True)
+
+    @property
+    def cliente(self):
+        return self.instalacion.cliente
 
     def __str__(self):
         if not self.periodo_final:

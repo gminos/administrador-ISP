@@ -39,7 +39,7 @@ class EstadoPagoFilter(RadioFilter):
 
 class VeredaFilter(RadioFilter):
     title = "ubicacion"
-    parameter_name = "clientes_vereda"
+    parameter_name = "instalacion__cliente__vereda"
 
     def lookups(self, request, model_admin):
         veredas = Cliente.objects.values_list('vereda', flat=True).distinct().order_by('vereda')
@@ -48,7 +48,7 @@ class VeredaFilter(RadioFilter):
     def queryset(self, request, queryset):
         if self.value() not in EMPTY_VALUES:
             if self.value():
-                return queryset.filter(cliente__vereda=self.value())
+                return queryset.filter(instalacion__cliente__vereda=self.value())
         return queryset
 
 
@@ -57,7 +57,7 @@ class FacturaAdmin(ModelAdmin):
     formfield_overrides = {
         models.DateField: {"widget": UnfoldAdminDateWidget},
     }
-    list_select_related = ["cliente"]
+    list_select_related = ["instalacion","instalacion__cliente"]
     actions = None
     list_display = (
         "cliente",
@@ -68,11 +68,11 @@ class FacturaAdmin(ModelAdmin):
         "periodo_facturado",
         "fecha_reconexion_formateada",
     )
-    search_fields = ("cliente__nombre", "cliente__apellido")
-    autocomplete_fields = ["cliente"]
+    search_fields = ("instalacion__cliente__nombre", "instalacion__cliente__apellido")
+    autocomplete_fields = ["instalacion"]
     inlines = [PagoInline]
     date_hierarchy = "periodo_final"
-    ordering = ("periodo_inicio__month","cliente__vereda", "cliente__nombre",)
+    ordering = ("periodo_inicio__month","instalacion__cliente__vereda", "instalacion__cliente__nombre",)
     list_per_page = 100
     list_filter = [EstadoPagoFilter, VeredaFilter,]
     list_filter_submit = True
