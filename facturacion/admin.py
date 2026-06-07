@@ -31,9 +31,9 @@ class EstadoPagoFilter(RadioFilter):
     def queryset(self, request, queryset):
         if self.value() not in EMPTY_VALUES:
             if self.value() == "pagado":
-                return queryset.filter(pagos__tipo_pago="mensualidad", pagos__estado="pagado")
+                return queryset.filter(estado="pagado")
             if self.value() == "pendiente":
-                return queryset.exclude(pagos__tipo_pago="mensualidad", pagos__estado="pagado")
+                return queryset.filter(estado="pendiente")
         return queryset
 
 
@@ -88,31 +88,23 @@ class FacturaAdmin(ModelAdmin):
 
     @admin.display(description="estado del pago")
     def estado_pago(self, obj):
-        pagos_mensualidad = [p for p in obj.pagos.all() if p.tipo_pago == "mensualidad"]
-        pago = pagos_mensualidad[0] if pagos_mensualidad else None
-
-        if pago:
-            color = "green" if pago.estado == "pagado" else "red"
-            estado = pago.estado.capitalize()
-        else:
-            color = "red"
-            estado = "Pendiente"
+        color = "green" if obj.estado == "pagado" else "red"
+        estado = obj.estado.capitalize()
 
         return format_html('<span style="color:{};">{}</span>', color, estado)
 
     @admin.display(description="total pagado")
     def total_pagado(self, obj):
-        total = sum(p.monto_pagado for p in obj.pagos.all() if p.estado == "pagado")
+        total = sum(p.monto_pagado for p in obj.pagos.all())
 
         return "{:,.2f}".format(total).replace(",", "X").replace(".", ",").replace("X", ".")
 
     @admin.display(description="fecha de pago")
     def fecha_pago(self, obj):
-        pagos_pagados = [p for p in obj.pagos.all() if p.tipo_pago == "mensualidad" and p.estado == "pagado"]
-        pago = pagos_pagados[0] if pagos_pagados else None
+        pagos = [p for p in obj.pagos.all() if p.fecha_pago]
 
-        if pago:
-            fecha = pago.fecha_pago
+        if pagos:
+            fecha = max(p.fecha_pago for p in pagos)
             dia = fecha.day
             mes = date_format(fecha, "F")
             year = fecha.year

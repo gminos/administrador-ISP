@@ -12,8 +12,8 @@ def dashboard_callback(request, context):
     total_instalaciones = Instalacion.objects.count()
     total_servicios_activos = Instalacion.objects.filter(servicio_activo=True).count()
     
-    total_recaudado = Pago.objects.filter(estado="pagado").aggregate(
-        total=Sum("monto_pagado")
+    total_recaudado = Factura.objects.filter(estado="pagado").aggregate(
+        total=Sum("monto_total")
     )["total"] or 0
 
     total_inst_revenue = Instalacion.objects.aggregate(
@@ -35,13 +35,13 @@ def dashboard_callback(request, context):
     falta_meta = max(META_SERVICIOS - total_servicios_activos, 0)
     
     last_12_months = timezone.now() - timedelta(days=365)
-    pagos_por_mes = Pago.objects.filter(
-        factura__periodo_final__gte=last_12_months,
+    pagos_por_mes = Factura.objects.filter(
+        periodo_final__gte=last_12_months,
         estado="pagado"
     ).annotate(
-        month=TruncMonth('factura__periodo_final')
+        month=TruncMonth('periodo_final')
     ).values('month').annotate(
-        total=Sum('monto_pagado')
+        total=Sum('monto_total')
     ).order_by('month')
 
     labels = []
@@ -71,12 +71,12 @@ def dashboard_callback(request, context):
         inst_count.append(inst['total'])
         inst_revenue.append(float(inst['revenue']))
 
-    deuda_total = Pago.objects.filter(estado="pendiente").aggregate(
-        total=Sum("monto_pagado")
+    deuda_total = Factura.objects.filter(estado="pendiente").aggregate(
+        total=Sum("monto_total")
     )["total"] or 0
 
-    ingresos_metodo_qs = Pago.objects.filter(estado="pagado").values("metodo_pago").annotate(total=Sum("monto_pagado"))
-    ingresos_metodo_labels = [item["metodo_pago"].capitalize() for item in ingresos_metodo_qs]
+    ingresos_metodo_qs = Factura.objects.filter(estado="pagado").values("pagos__metodo_pago").annotate(total=Sum("pagos__monto_pagado"))
+    ingresos_metodo_labels = [item["pagos__metodo_pago"].capitalize() for item in ingresos_metodo_qs]
     ingresos_metodo_data = [float(item["total"]) for item in ingresos_metodo_qs]
 
     planes_dist_qs = Instalacion.objects.filter(servicio_activo=True).values("plan__nombre").annotate(total=Count("id"))
