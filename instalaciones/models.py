@@ -7,7 +7,6 @@ class CicloFacturacionChoices(models.IntegerChoices):
 
 
 class Instalacion(models.Model):
-    instalacion_id = models.AutoField(primary_key=True)
     cliente = models.ForeignKey(
         "clientes.Cliente",
         on_delete=models.CASCADE,

@@ -11,7 +11,6 @@ TIPO_PAGOS_CHOICES = [("mensualidad", "Mensualidad"),
 
 
 class Factura(models.Model):
-    factura_id = models.AutoField(primary_key=True)
     cliente = models.ForeignKey(
         "clientes.Cliente", on_delete=models.CASCADE, related_name="factura"
     )
@@ -21,7 +20,7 @@ class Factura(models.Model):
 
     def __str__(self):
         if not self.periodo_final:
-            return f"Factura {self.factura_id}"
+            return f"Factura {self.pk}"
         dia_inicio = self.periodo_inicio.day
         dia_final = self.periodo_final.day
         mes = date_format(self.periodo_final, "F").capitalize()
@@ -33,7 +32,6 @@ class Factura(models.Model):
 
 
 class Pago(models.Model):
-    pago_id = models.AutoField(primary_key=True)
     factura = models.ForeignKey(
         "Factura", on_delete=models.CASCADE, related_name="pagos", null=True
     )

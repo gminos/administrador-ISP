@@ -58,7 +58,7 @@ def dashboard_callback(request, context):
     ).annotate(
         month=TruncMonth('fecha_instalacion')
     ).values('month').annotate(
-        total=Count('instalacion_id'),
+        total=Count('id'),
         revenue=Sum('costo')
     ).order_by('month')
 
@@ -79,11 +79,11 @@ def dashboard_callback(request, context):
     ingresos_metodo_labels = [item["metodo_pago"].capitalize() for item in ingresos_metodo_qs]
     ingresos_metodo_data = [float(item["total"]) for item in ingresos_metodo_qs]
 
-    planes_dist_qs = Instalacion.objects.filter(servicio_activo=True).values("plan__nombre").annotate(total=Count("instalacion_id"))
+    planes_dist_qs = Instalacion.objects.filter(servicio_activo=True).values("plan__nombre").annotate(total=Count("id"))
     planes_labels = [item["plan__nombre"] for item in planes_dist_qs]
     planes_data = [item["total"] for item in planes_dist_qs]
 
-    veredas_dist_qs = Instalacion.objects.filter(servicio_activo=True).values("cliente__vereda").annotate(total=Count("instalacion_id"))
+    veredas_dist_qs = Instalacion.objects.filter(servicio_activo=True).values("cliente__vereda").annotate(total=Count("id"))
     veredas_labels = [item["cliente__vereda"] for item in veredas_dist_qs if item["cliente__vereda"]]
     veredas_data = [item["total"] for item in veredas_dist_qs if item["cliente__vereda"]]
 

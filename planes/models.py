@@ -2,7 +2,6 @@ from django.db import models
 
 
 class Plan(models.Model):
-    plan_id = models.AutoField(primary_key=True)
     nombre = models.CharField(max_length=20)
     cantidad_megas = models.IntegerField(
         help_text="Velocidad del plan en Mbps")
