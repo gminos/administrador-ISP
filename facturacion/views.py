@@ -13,5 +13,5 @@ def descargar_comprobante_pdf_view(request, pago_id):
     pdf = html.write_pdf()
     
     response = HttpResponse(pdf, content_type='application/pdf')
-    response['Content-Disposition'] = f'inline; filename="comprobante_{pago.pk}.pdf"'
+    response['Content-Disposition'] = f'attachment; filename="comprobante_{pago.pk}.pdf"'
     return response
