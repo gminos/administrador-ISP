@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Factura {{ factura.pk }}</title>
+    <title>Comprobante de Pago #{{ pago.pk }}</title>
     <style>
         @page {
             size: A4;
@@ -44,23 +44,23 @@
             margin: 5px 0 0;
             color: #666;
         }
-        .invoice-details {
+        .receipt-details {
             width: 100%;
             margin-bottom: 40px;
         }
-        .invoice-details td {
+        .receipt-details td {
             vertical-align: top;
         }
         .client-info {
             width: 50%;
         }
-        .factura-info {
+        .payment-info {
             width: 50%;
             text-align: right;
         }
-        .factura-info strong {
+        .payment-info strong {
             display: inline-block;
-            width: 140px;
+            width: 180px;
         }
         table.items {
             width: 100%;
@@ -85,31 +85,32 @@
             font-size: 14pt;
             font-weight: bold;
             border-top: 2px solid #333;
-        }
-        .estado {
-            margin-top: 30px;
-            padding: 15px;
             background-color: #f8f9fa;
-            border-radius: 5px;
-            text-align: center;
-            font-size: 14pt;
-            font-weight: bold;
-        }
-        .estado.pagado {
-            color: #155724;
-            background-color: #d4edda;
-            border: 1px solid #c3e6cb;
-        }
-        .estado.pendiente {
-            color: #721c24;
-            background-color: #f8d7da;
-            border: 1px solid #f5c6cb;
         }
         .footer {
             margin-top: 50px;
             text-align: center;
             font-size: 10pt;
             color: #888;
+        }
+        .amount-box {
+            text-align: center;
+            padding: 20px;
+            margin: 40px 0;
+            border: 2px dashed #ccc;
+            border-radius: 8px;
+            background-color: #fafafa;
+        }
+        .amount-box h2 {
+            margin: 0;
+            font-size: 24pt;
+            color: #28a745;
+        }
+        .amount-box p {
+            margin: 5px 0 0;
+            color: #666;
+            text-transform: uppercase;
+            font-size: 10pt;
         }
     </style>
 </head>
@@ -150,79 +151,59 @@
             </svg>
         </div>
         <div class="header-text">
-            <h1>Factura de Servicio de Internet</h1>
+            <h1>Comprobante de Pago</h1>
             <p>Arint Conexiones - Proveedor de Servicios de Internet</p>
         </div>
     </div>
 
-    <table class="invoice-details">
+    <table class="receipt-details">
         <tr>
             <td class="client-info">
-                <strong>Facturado a:</strong> {{ factura.cliente.nombre }} {{ factura.cliente.apellido }}<br>
-                <strong>Teléfono:</strong> {{ factura.cliente.telefono|default:"N/A" }}<br>
-                <strong>Vereda:</strong> {{ factura.cliente.vereda|default:"N/A" }}
+                <strong>Recibimos de:</strong> {{ pago.factura.cliente.nombre }} {{ pago.factura.cliente.apellido }}<br>
+                <strong>Concepto:</strong> Pago de {{ pago.get_tipo_pago_display|lower }}<br>
+                <strong>Vereda:</strong> {{ pago.factura.cliente.vereda|default:"N/A" }}
             </td>
-            <td class="factura-info">
-                <strong>N° Factura:</strong> #{{ factura.pk|stringformat:"05d" }}<br>
-                <strong>Fecha Emisión:</strong> {% now "d/m/Y" %}<br>
-                <strong>Vencimiento:</strong> {{ factura.fecha_reconexion|date:"d/m/Y"|default:"N/A" }}
+            <td class="payment-info">
+                <strong>N° Comprobante:</strong> #{{ pago.pk|stringformat:"05d" }}<br>
+                <strong>Fecha de Pago:</strong> {{ pago.fecha_pago|date:"d/m/Y"|default:"N/A" }}<br>
+                <strong>Método de Pago:</strong> {{ pago.get_metodo_pago_display }}
             </td>
         </tr>
     </table>
 
+    <div class="amount-box">
+        <h2>${{ pago.monto_pagado|floatformat:"2g" }}</h2>
+        <p>Monto Abonado</p>
+    </div>
+
     <table class="items">
         <thead>
             <tr>
-                <th>Descripción del Servicio</th>
-                <th class="right">Periodo</th>
-                <th class="right">Subtotal</th>
+                <th>Referencia de Factura</th>
+                <th class="right">Total Factura</th>
+                <th class="right">Saldo Pendiente Restante</th>
             </tr>
         </thead>
         <tbody>
             <tr>
                 <td>
-                    <strong>Plan de Internet:</strong> {{ factura.instalacion.plan.nombre }}<br>
+                    Factura #{{ pago.factura.pk|stringformat:"05d" }}<br>
                     <span style="color: #666; font-size: 10pt;">
-                        Velocidad: {{ factura.instalacion.plan.cantidad_megas }} Mbps
+                        Periodo: {{ pago.factura.periodo_inicio|date:"d M" }} - {{ pago.factura.periodo_final|date:"d M Y" }}
                     </span>
                 </td>
                 <td class="right">
-                    {{ factura.periodo_inicio|date:"d M" }} - {{ factura.periodo_final|date:"d M Y" }}
+                    ${{ pago.factura.monto_total|floatformat:"2g" }}
                 </td>
                 <td class="right">
-                    ${{ factura.monto_total|floatformat:"2g" }}
+                    ${{ pago.factura.saldo_pendiente|floatformat:"2g" }}
                 </td>
             </tr>
-            {% if factura.total_pagado > 0 %}
-            <tr>
-                <td colspan="2" class="right" style="font-weight: bold; border-top: 2px solid #333; font-size: 12pt;">TOTAL FACTURADO:</td>
-                <td class="right" style="border-top: 2px solid #333; font-size: 12pt;">${{ factura.monto_total|floatformat:"2g" }}</td>
-            </tr>
-            {% for pago in factura.pagos.all %}
-            <tr>
-                <td colspan="2" class="right" style="font-size: 11pt;"><strong>Pago del {{ pago.fecha_pago|date:"d M Y" }}:</strong></td>
-                <td class="right" style="font-size: 11pt;">-${{ pago.monto_pagado|floatformat:"2g" }}</td>
-            </tr>
-            {% endfor %}
-            <tr class="total-row">
-                <td colspan="2" class="right">SALDO PENDIENTE:</td>
-                <td class="right">${{ factura.saldo_pendiente|floatformat:"2g" }}</td>
-            </tr>
-            {% else %}
-            <tr class="total-row">
-                <td colspan="2" class="right">TOTAL A PAGAR:</td>
-                <td class="right">${{ factura.monto_total|floatformat:"2g" }}</td>
-            </tr>
-            {% endif %}
         </tbody>
     </table>
 
-    <div class="estado {{ factura.estado }}">
-        ESTADO DE LA FACTURA: {{ factura.get_estado_display|upper }}
-    </div>
-
     <div class="footer">
-        Gracias por su preferencia. Para cualquier duda o consulta sobre esta factura, por favor contáctenos.
+        Este documento es un comprobante de pago válido. Gracias por su puntualidad.
     </div>
 
 </body>

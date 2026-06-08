@@ -1,5 +1,5 @@
 from django.contrib import admin
-from unfold.admin import ModelAdmin, StackedInline
+from unfold.admin import ModelAdmin, StackedInline, TabularInline
 from facturacion.models import Factura, Pago
 from clientes.models import Cliente
 from base.admin import admin_site
@@ -16,11 +16,20 @@ import weasyprint
 import zipfile
 import io
 
+from django.urls import reverse
 
-class PagoInline(StackedInline):
+class PagoInline(TabularInline):
     model = Pago
     verbose_name_plural = "Gestiona pagos"
     extra = 0
+    readonly_fields = ['descargar_comprobante_btn']
+
+    def descargar_comprobante_btn(self, instance):
+        if instance.pk:
+            url = reverse('descargar_comprobante', args=[instance.pk])
+            return format_html('<a href="{}" target="_blank" style="background-color: #9333ea; color: white; padding: 5px 10px; text-decoration: none; border-radius: 4px; font-weight: bold; font-size: 11px; white-space: nowrap;">Descargar Comprobante</a>', url)
+        return "-"
+    descargar_comprobante_btn.short_description = "Comprobante"
 
 
 class EstadoPagoFilter(RadioFilter):
@@ -171,4 +180,51 @@ class FacturaAdmin(ModelAdmin):
 
         return f"{dia_reconexion} {mes_reconexion}"
 
+
+@admin.register(Pago)
+class PagoAdmin(ModelAdmin):
+    list_display = (
+        "cliente",
+        "factura",
+        "monto_pagado",
+        "tipo_pago",
+        "metodo_pago",
+        "fecha_pago",
+    )
+    list_filter = ["tipo_pago", "metodo_pago"]
+    search_fields = ["factura__instalacion__cliente__nombre", "factura__instalacion__cliente__apellido"]
+    actions = ["descargar_comprobante_pdf"]
+    list_select_related = ["factura", "factura__instalacion__cliente"]
+    autocomplete_fields = ["factura"]
+
+    @admin.display(description="cliente")
+    def cliente(self, obj):
+        if obj.factura and obj.factura.cliente:
+            return f'{obj.factura.cliente.nombre} {obj.factura.cliente.apellido}'
+        return "-"
+
+    @action(description="Descargar Comprobante(s) en PDF")
+    def descargar_comprobante_pdf(self, request, queryset):
+        if queryset.count() == 1:
+            pago = queryset.first()
+            html_string = render_to_string('facturacion/comprobante_pdf.html', {'pago': pago})
+            html = weasyprint.HTML(string=html_string)
+            pdf = html.write_pdf()
+            response = HttpResponse(pdf, content_type='application/pdf')
+            response['Content-Disposition'] = f'attachment; filename="comprobante_{pago.pk}.pdf"'
+            return response
+        else:
+            buffer = io.BytesIO()
+            with zipfile.ZipFile(buffer, 'w') as zip_file:
+                for pago in queryset:
+                    html_string = render_to_string('facturacion/comprobante_pdf.html', {'pago': pago})
+                    html = weasyprint.HTML(string=html_string)
+                    pdf = html.write_pdf()
+                    zip_file.writestr(f'comprobante_{pago.pk}.pdf', pdf)
+
+            response = HttpResponse(buffer.getvalue(), content_type='application/zip')
+            response['Content-Disposition'] = 'attachment; filename="comprobantes.zip"'
+            return response
+
 admin_site.register(Factura, FacturaAdmin)
+admin_site.register(Pago, PagoAdmin)

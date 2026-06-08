@@ -198,6 +198,12 @@ UNFOLD = {
                         "link": reverse_lazy("admin:facturacion_factura_changelist"),
                         "permission": lambda request: request.user.has_perm("facturacion.view_factura"),
                     },
+                    {
+                        "title": _("Pagos"),
+                        "icon": "payments",
+                        "link": reverse_lazy("admin:facturacion_pago_changelist"),
+                        "permission": lambda request: request.user.has_perm("facturacion.view_pago"),
+                    },
                 ],
             },
             {

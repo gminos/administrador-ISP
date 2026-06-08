@@ -22,9 +22,12 @@ class Factura(models.Model):
         return self.instalacion.cliente
 
     @property
+    def total_pagado(self):
+        return sum(pago.monto_pagado for pago in self.pagos.all())
+
+    @property
     def saldo_pendiente(self):
-        total_pagado = sum(pago.monto_pagado for pago in self.pagos.all())
-        return self.monto_total - total_pagado
+        return self.monto_total - self.total_pagado
 
     class Meta:
         verbose_name = "Factura"
