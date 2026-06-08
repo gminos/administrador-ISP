@@ -92,6 +92,7 @@ class FacturaAdmin(ModelAdmin):
     list_filter = [EstadoPagoFilter, VeredaFilter,]
     list_filter_submit = True
     show_facets = admin.ShowFacets.NEVER
+    readonly_fields = ["estado"]
 
 
     def get_queryset(self, request):
