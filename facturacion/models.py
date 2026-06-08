@@ -1,11 +1,10 @@
 from django.db import models
+from django.db.models.signals import post_delete, post_save
+from django.dispatch import receiver
 
-METODO_CHOICES = [("transferencia", "Transferencia"),
-                  ("efectivo", "Efectivo"), ("no aplica", "No aplica")]
-ESTADO_CHOICES = [("pagado", "Pagado"),
-                  ("pendiente", "Pendiente")]
-TIPO_PAGOS_CHOICES = [("mensualidad", "Mensualidad"),
-                      ("reconexion", "Reconexion")]
+METODO_CHOICES = [("transferencia", "Transferencia"), ("efectivo", "Efectivo"), ("no aplica", "No aplica")]
+ESTADO_CHOICES = [("pagado", "Pagado"), ("pendiente", "Pendiente"), ("parcial", "Parcial")]
+TIPO_PAGOS_CHOICES = [("mensualidad", "Mensualidad"), ("reconexion", "Reconexion")]
 
 
 class Factura(models.Model):
@@ -22,9 +21,15 @@ class Factura(models.Model):
     def cliente(self):
         return self.instalacion.cliente
 
+    @property
+    def saldo_pendiente(self):
+        total_pagado = sum(pago.monto_pagado for pago in self.pagos.all())
+        return self.monto_total - total_pagado
+
     class Meta:
-        verbose_name = "factura"
-        verbose_name_plural = "facturas"
+        verbose_name = "Factura"
+        verbose_name_plural = "Facturas"
+        ordering = ['-periodo_inicio']
 
     def __str__(self):
         return f"Factura #{self.pk} - {self.cliente}"
@@ -44,3 +49,18 @@ class Pago(models.Model):
     def __str__(self):
         factura_id = self.factura.pk if self.factura else "N/A"
         return f"Abono de ${self.monto_pagado} (Factura #{factura_id})"
+
+
+@receiver([post_save, post_delete], sender=Pago)
+def actualizar_estado_factura(sender, instance, **kwargs):
+    factura = instance.factura
+    saldo_pendiente = factura.saldo_pendiente
+
+    if saldo_pendiente <= 0:
+        factura.estado = "pagado"
+    elif saldo_pendiente < factura.monto_total:
+        factura.estado = "parcial"
+    else:
+        factura.estado = "pendiente"
+
+    factura.save()
