@@ -11,6 +11,7 @@ dependencies = [
     "psycopg2-binary>=2.9.11",
     "python-dotenv>=1.1.0",
     "django-unfold>=0.40.0",
+    "weasyprint>=69.0",
 ]
 
 [tool.basedpyright]

@@ -9,6 +9,12 @@ from django.db import models
 from unfold.widgets import UnfoldAdminDateWidget
 from unfold.contrib.filters.admin import RadioFilter
 from django.core.validators import EMPTY_VALUES
+from django.http import HttpResponse
+from django.template.loader import render_to_string
+from unfold.decorators import action
+import weasyprint
+import zipfile
+import io
 
 
 class PagoInline(StackedInline):
@@ -58,7 +64,7 @@ class FacturaAdmin(ModelAdmin):
         models.DateField: {"widget": UnfoldAdminDateWidget},
     }
     list_select_related = ["instalacion","instalacion__cliente"]
-    actions = None
+    actions = ["descargar_pdf"]
     list_display = (
         "cliente",
         "cliente_vereda",
@@ -81,6 +87,29 @@ class FacturaAdmin(ModelAdmin):
 
     def get_queryset(self, request):
         return super().get_queryset(request).prefetch_related("pagos")
+
+    @action(description="Descargar Factura(s) en PDF")
+    def descargar_pdf(self, request, queryset):
+        if queryset.count() == 1:
+            factura = queryset.first()
+            html_string = render_to_string('facturacion/factura_pdf.html', {'factura': factura})
+            html = weasyprint.HTML(string=html_string)
+            pdf = html.write_pdf()
+            response = HttpResponse(pdf, content_type='application/pdf')
+            response['Content-Disposition'] = f'attachment; filename="factura_{factura.pk}.pdf"'
+            return response
+        else:
+            buffer = io.BytesIO()
+            with zipfile.ZipFile(buffer, 'w') as zip_file:
+                for factura in queryset:
+                    html_string = render_to_string('facturacion/factura_pdf.html', {'factura': factura})
+                    html = weasyprint.HTML(string=html_string)
+                    pdf = html.write_pdf()
+                    zip_file.writestr(f'factura_{factura.pk}.pdf', pdf)
+
+            response = HttpResponse(buffer.getvalue(), content_type='application/zip')
+            response['Content-Disposition'] = 'attachment; filename="facturas.zip"'
+            return response
 
     @admin.display(description="cliente")
     def cliente(self, obj):

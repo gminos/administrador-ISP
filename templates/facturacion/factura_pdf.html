@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Factura {{ factura.pk }}</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 2cm;
+            @bottom-right {
+                content: "Página " counter(page) " de " counter(pages);
+                font-size: 10pt;
+                color: #666;
+            }
+        }
+        body {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            color: #333;
+            line-height: 1.5;
+            font-size: 12pt;
+        }
+        .header {
+            border-bottom: 2px solid #333;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        .header-logo {
+            width: 70px;
+            height: 70px;
+            flex-shrink: 0;
+        }
+        .header-text {
+            flex-grow: 1;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 22pt;
+            color: #1a1a1a;
+        }
+        .header p {
+            margin: 5px 0 0;
+            color: #666;
+        }
+        .invoice-details {
+            width: 100%;
+            margin-bottom: 40px;
+        }
+        .invoice-details td {
+            vertical-align: top;
+        }
+        .client-info {
+            width: 50%;
+        }
+        .factura-info {
+            width: 50%;
+            text-align: right;
+        }
+        .factura-info strong {
+            display: inline-block;
+            width: 140px;
+        }
+        table.items {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+        }
+        table.items th, table.items td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        table.items th {
+            background-color: #f8f9fa;
+            font-weight: bold;
+            text-transform: uppercase;
+            font-size: 10pt;
+        }
+        table.items td.right, table.items th.right {
+            text-align: right;
+        }
+        .total-row td {
+            font-size: 14pt;
+            font-weight: bold;
+            border-top: 2px solid #333;
+        }
+        .estado {
+            margin-top: 30px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            text-align: center;
+            font-size: 14pt;
+            font-weight: bold;
+        }
+        .estado.pagado {
+            color: #155724;
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+        }
+        .estado.pendiente {
+            color: #721c24;
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+        }
+        .footer {
+            margin-top: 50px;
+            text-align: center;
+            font-size: 10pt;
+            color: #888;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <div class="header-logo">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none" stroke-linecap="round" stroke-linejoin="round" width="70" height="70">
+                <defs>
+                    <linearGradient id="grad1" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" style="stop-color:#22d3ee;stop-opacity:1" />
+                        <stop offset="100%" style="stop-color:#84cc16;stop-opacity:1" />
+                    </linearGradient>
+                </defs>
+                <g stroke="url(#grad1)" stroke-width="6">
+                    <line x1="50" y1="15" x2="25" y2="50" />
+                    <line x1="50" y1="15" x2="75" y2="50" />
+                    <line x1="50" y1="15" x2="50" y2="50" />
+                    <line x1="25" y1="50" x2="15" y2="85" />
+                    <line x1="25" y1="50" x2="50" y2="50" />
+                    <line x1="25" y1="50" x2="50" y2="70" />
+                    <line x1="75" y1="50" x2="85" y2="85" />
+                    <line x1="75" y1="50" x2="50" y2="50" />
+                    <line x1="75" y1="50" x2="50" y2="70" />
+                    <line x1="50" y1="50" x2="50" y2="70" />
+                    <line x1="50" y1="70" x2="15" y2="85" />
+                    <line x1="50" y1="70" x2="85" y2="85" />
+                </g>
+                <g fill="url(#grad1)">
+                    <circle cx="50" cy="15" r="8" />
+                    <circle cx="25" cy="50" r="8" />
+                    <circle cx="75" cy="50" r="8" />
+                    <circle cx="50" cy="50" r="6" />
+                    <circle cx="50" cy="70" r="6" />
+                    <circle cx="15" cy="85" r="8" />
+                    <circle cx="85" cy="85" r="8" />
+                </g>
+            </svg>
+        </div>
+        <div class="header-text">
+            <h1>Factura de Servicio de Internet</h1>
+            <p>Arint Conexiones - Proveedor de Servicios de Internet</p>
+        </div>
+    </div>
+
+    <table class="invoice-details">
+        <tr>
+            <td class="client-info">
+                <strong>Facturado a:</strong> {{ factura.cliente.nombre }} {{ factura.cliente.apellido }}<br>
+                <strong>Teléfono:</strong> {{ factura.cliente.telefono|default:"N/A" }}<br>
+                <strong>Vereda:</strong> {{ factura.cliente.vereda|default:"N/A" }}
+            </td>
+            <td class="factura-info">
+                <strong>N° Factura:</strong> #{{ factura.pk|stringformat:"05d" }}<br>
+                <strong>Fecha Emisión:</strong> {% now "d/m/Y" %}<br>
+                <strong>Vencimiento:</strong> {{ factura.fecha_reconexion|date:"d/m/Y"|default:"N/A" }}
+            </td>
+        </tr>
+    </table>
+
+    <table class="items">
+        <thead>
+            <tr>
+                <th>Descripción del Servicio</th>
+                <th class="right">Periodo</th>
+                <th class="right">Subtotal</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>
+                    <strong>Plan de Internet:</strong> {{ factura.instalacion.plan.nombre }}<br>
+                    <span style="color: #666; font-size: 10pt;">
+                        Velocidad: {{ factura.instalacion.plan.cantidad_megas }} Mbps
+                    </span>
+                </td>
+                <td class="right">
+                    {{ factura.periodo_inicio|date:"d M" }} - {{ factura.periodo_final|date:"d M Y" }}
+                </td>
+                <td class="right">
+                    ${{ factura.monto_total|floatformat:"2g" }}
+                </td>
+            </tr>
+            <tr class="total-row">
+                <td colspan="2" class="right">TOTAL A PAGAR:</td>
+                <td class="right">${{ factura.monto_total|floatformat:"2g" }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="estado {{ factura.estado }}">
+        ESTADO DE LA FACTURA: {{ factura.get_estado_display|upper }}
+    </div>
+
+    <div class="footer">
+        Gracias por su preferencia. Para cualquier duda o consulta sobre esta factura, por favor contáctenos.
+    </div>
+
+</body>
+</html>
