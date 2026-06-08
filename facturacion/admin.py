@@ -117,9 +117,14 @@ class FacturaAdmin(ModelAdmin):
 
     @admin.display(description="estado del pago")
     def estado_pago(self, obj):
-        color = "green" if obj.estado == "pagado" else "red"
-        estado = obj.estado.capitalize()
+        if obj.estado == "pagado":
+            color = "green"
+        elif obj.estado == "parcial":
+            color = "orange"
+        else:
+            color = "red"
 
+        estado = obj.estado.capitalize()
         return format_html('<span style="color:{};">{}</span>', color, estado)
 
     @admin.display(description="total pagado")

@@ -53,7 +53,11 @@ class Pago(models.Model):
 
 @receiver([post_save, post_delete], sender=Pago)
 def actualizar_estado_factura(sender, instance, **kwargs):
-    factura = instance.factura
+    try:
+        factura = Factura.objects.get(pk=instance.factura.pk)
+    except Factura.DoesNotExist:
+        return
+
     saldo_pendiente = factura.saldo_pendiente
 
     if saldo_pendiente <= 0:
