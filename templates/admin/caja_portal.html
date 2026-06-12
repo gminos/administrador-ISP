@@ -4,19 +4,11 @@
 {% block title %}Caja rápida | Arint Conexiones{% endblock %}
 
 
-{% block messages %}
-    <div class="max-w-5xl mx-auto px-5 pt-5 w-full" id="caja-messages-wrapper">
-        <div class="w-full">
-            {{ block.super }}
-        </div>
-    </div>
-{% endblock %}
 
 {% block extrastyle %}
     {{ block.super }}
 <style>
     :root {
-        --caja-bg: #f9fafb;
         --caja-card-bg: #ffffff;
         --caja-border: #e5e7eb;
         --caja-text-main: #111827;
@@ -39,7 +31,6 @@
     }
 
     html.dark {
-        --caja-bg: #111827;
         --caja-card-bg: #1f2937;
         --caja-border: #374151;
         --caja-text-main: #f9fafb;
