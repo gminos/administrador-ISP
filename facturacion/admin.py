@@ -87,7 +87,7 @@ class FacturaAdmin(ModelAdmin):
 
 
     def get_queryset(self, request):
-        return super().get_queryset(request).prefetch_related("pagos")
+        return super().get_queryset(request).prefetch_related("pagos__transaccion")
 
     @action(description="Descargar Factura(s) en PDF")
     def descargar_pdf(self, request, queryset):
