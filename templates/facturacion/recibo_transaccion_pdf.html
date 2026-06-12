@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Comprobante de Pago #{{ pago.pk }}</title>
+    <title>Recibo de Transacción #{{ transaccion.pk }}</title>
     <style>
         @page {
             size: A4;
@@ -159,32 +159,33 @@
     <table class="receipt-details">
         <tr>
             <td class="client-info">
-                <strong>Recibimos de:</strong> {{ pago.factura.cliente.nombre }} {{ pago.factura.cliente.apellido }}<br>
-                <strong>Concepto:</strong> Pago de {{ pago.get_tipo_pago_display|lower }}<br>
-                <strong>Vereda:</strong> {{ pago.factura.cliente.vereda|default:"N/A" }}
+                <strong>Recibimos de:</strong> {{ transaccion.cliente.nombre }} {{ transaccion.cliente.apellido }}<br>
+                <strong>Vereda:</strong> {{ transaccion.cliente.vereda|default:"N/A" }}
             </td>
             <td class="payment-info">
-                <strong>N° Comprobante:</strong> #{{ pago.pk|stringformat:"05d" }}<br>
-                <strong>Fecha de Pago:</strong> {{ pago.fecha_pago|date:"d/m/Y"|default:"N/A" }}<br>
-                <strong>Método de Pago:</strong> {{ pago.get_metodo_pago_display }}
+                <strong>N° Comprobante:</strong> #{{ transaccion.pk|stringformat:"05d" }}<br>
+                <strong>Fecha de Pago:</strong> {{ transaccion.fecha_pago|date:"d/m/Y"|default:"N/A" }}<br>
+                <strong>Método de Pago:</strong> {{ transaccion.get_metodo_pago_display|default:transaccion.metodo_pago|title }}
             </td>
         </tr>
     </table>
 
     <div class="amount-box">
-        <h2>${{ pago.monto_pagado|floatformat:"2g" }}</h2>
-        <p>Monto Abonado</p>
+        <h2>${{ transaccion.monto_total|floatformat:"2g" }}</h2>
+        <p>Monto Total Abonado</p>
     </div>
 
+    <h3 style="color: #333; font-size: 11pt; margin-bottom: 10px;">Desglose de Aplicación de Pagos</h3>
     <table class="items">
         <thead>
             <tr>
                 <th>Referencia de Factura</th>
                 <th class="right">Total Factura</th>
-                <th class="right">Saldo Pendiente Restante</th>
+                <th class="right">Monto Abonado</th>
             </tr>
         </thead>
         <tbody>
+            {% for pago in transaccion.pagos.all %}
             <tr>
                 <td>
                     Factura #{{ pago.factura.pk|stringformat:"05d" }}<br>
@@ -196,9 +197,10 @@
                     ${{ pago.factura.monto_total|floatformat:"2g" }}
                 </td>
                 <td class="right">
-                    ${{ pago.factura.saldo_pendiente|floatformat:"2g" }}
+                    ${{ pago.monto_pagado|floatformat:"2g" }}
                 </td>
             </tr>
+            {% endfor %}
         </tbody>
     </table>
 

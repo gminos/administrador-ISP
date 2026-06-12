@@ -1,5 +1,5 @@
 from django.contrib import admin
-from unfold.admin import ModelAdmin, StackedInline, TabularInline
+from unfold.admin import ModelAdmin, TabularInline
 from facturacion.models import Factura, Pago
 from clientes.models import Cliente
 from base.admin import admin_site
@@ -16,20 +16,11 @@ import weasyprint
 import zipfile
 import io
 
-from django.urls import reverse
 
 class PagoInline(TabularInline):
     model = Pago
     verbose_name_plural = "Gestiona pagos"
     extra = 0
-    readonly_fields = ['descargar_comprobante_btn']
-
-    def descargar_comprobante_btn(self, instance):
-        if instance.pk:
-            url = reverse('descargar_comprobante', args=[instance.pk])
-            return format_html('<a href="{}" target="_blank" style="background-color: #9333ea; color: white; padding: 5px 10px; text-decoration: none; border-radius: 4px; font-weight: bold; font-size: 11px; white-space: nowrap;">Descargar Comprobante</a>', url)
-        return "-"
-    descargar_comprobante_btn.short_description = "Comprobante"
 
 
 class EstadoPagoFilter(RadioFilter):
@@ -102,7 +93,14 @@ class FacturaAdmin(ModelAdmin):
     def descargar_pdf(self, request, queryset):
         if queryset.count() == 1:
             factura = queryset.first()
-            html_string = render_to_string('facturacion/factura_pdf.html', {'factura': factura})
+            saldos_anteriores = sum([f.saldo_pendiente for f in Factura.objects.filter(instalacion=factura.instalacion, estado__in=['pendiente', 'parcial'], periodo_inicio__lt=factura.periodo_inicio)])
+            total_a_pagar = factura.saldo_pendiente + saldos_anteriores
+
+            html_string = render_to_string('facturacion/factura_pdf.html', {
+                'factura': factura, 
+                'saldos_anteriores': saldos_anteriores, 
+                'total_a_pagar': total_a_pagar
+            })
             html = weasyprint.HTML(string=html_string)
             pdf = html.write_pdf()
             response = HttpResponse(pdf, content_type='application/pdf')
@@ -112,7 +110,13 @@ class FacturaAdmin(ModelAdmin):
             buffer = io.BytesIO()
             with zipfile.ZipFile(buffer, 'w') as zip_file:
                 for factura in queryset:
-                    html_string = render_to_string('facturacion/factura_pdf.html', {'factura': factura})
+                    saldos_anteriores = sum([f.saldo_pendiente for f in Factura.objects.filter(instalacion=factura.instalacion, estado__in=['pendiente', 'parcial'], periodo_inicio__lt=factura.periodo_inicio)])
+                    total_a_pagar = factura.saldo_pendiente + saldos_anteriores
+                    html_string = render_to_string('facturacion/factura_pdf.html', {
+                        'factura': factura, 
+                        'saldos_anteriores': saldos_anteriores, 
+                        'total_a_pagar': total_a_pagar
+                    })
                     html = weasyprint.HTML(string=html_string)
                     pdf = html.write_pdf()
                     zip_file.writestr(f'factura_{factura.pk}.pdf', pdf)
@@ -145,10 +149,10 @@ class FacturaAdmin(ModelAdmin):
 
     @admin.display(description="fecha de pago")
     def fecha_pago(self, obj):
-        pagos = [p for p in obj.pagos.all() if p.fecha_pago]
+        pagos = [pago for pago in obj.pagos.all() if pago.transaccion and pago.transaccion.fecha_pago]
 
         if pagos:
-            fecha = max(p.fecha_pago for p in pagos)
+            fecha = max(p.transaccion.fecha_pago for p in pagos)
             dia = fecha.day
             mes = date_format(fecha, "F")
             year = fecha.year
@@ -192,10 +196,9 @@ class PagoAdmin(ModelAdmin):
         "metodo_pago",
         "fecha_pago",
     )
-    list_filter = ["tipo_pago", "metodo_pago"]
+    list_filter = ["tipo_pago", "transaccion__metodo_pago"]
     search_fields = ["factura__instalacion__cliente__nombre", "factura__instalacion__cliente__apellido"]
-    actions = ["descargar_comprobante_pdf"]
-    list_select_related = ["factura", "factura__instalacion__cliente"]
+    list_select_related = ["factura", "factura__instalacion__cliente", "transaccion"]
     autocomplete_fields = ["factura"]
 
     @admin.display(description="cliente")
@@ -204,28 +207,13 @@ class PagoAdmin(ModelAdmin):
             return f'{obj.factura.cliente.nombre} {obj.factura.cliente.apellido}'
         return "-"
 
-    @action(description="Descargar Comprobante(s) en PDF")
-    def descargar_comprobante_pdf(self, request, queryset):
-        if queryset.count() == 1:
-            pago = queryset.first()
-            html_string = render_to_string('facturacion/comprobante_pdf.html', {'pago': pago})
-            html = weasyprint.HTML(string=html_string)
-            pdf = html.write_pdf()
-            response = HttpResponse(pdf, content_type='application/pdf')
-            response['Content-Disposition'] = f'attachment; filename="comprobante_{pago.pk}.pdf"'
-            return response
-        else:
-            buffer = io.BytesIO()
-            with zipfile.ZipFile(buffer, 'w') as zip_file:
-                for pago in queryset:
-                    html_string = render_to_string('facturacion/comprobante_pdf.html', {'pago': pago})
-                    html = weasyprint.HTML(string=html_string)
-                    pdf = html.write_pdf()
-                    zip_file.writestr(f'comprobante_{pago.pk}.pdf', pdf)
+    @admin.display(description="metodo de pago", ordering="transaccion__metodo_pago")
+    def metodo_pago(self, obj):
+        return obj.transaccion.metodo_pago.capitalize() if obj.transaccion and obj.transaccion.metodo_pago else "-"
 
-            response = HttpResponse(buffer.getvalue(), content_type='application/zip')
-            response['Content-Disposition'] = 'attachment; filename="comprobantes.zip"'
-            return response
+    @admin.display(description="fecha de pago", ordering="transaccion__fecha_pago")
+    def fecha_pago(self, obj):
+        return obj.transaccion.fecha_pago if obj.transaccion else "-"
 
 admin_site.register(Factura, FacturaAdmin)
 admin_site.register(Pago, PagoAdmin)

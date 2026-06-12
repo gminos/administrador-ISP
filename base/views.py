@@ -75,9 +75,22 @@ def dashboard_callback(request, context):
         total=Sum("monto_total")
     )["total"] or 0
 
-    ingresos_metodo_qs = Factura.objects.filter(estado="pagado").values("pagos__metodo_pago").annotate(total=Sum("pagos__monto_pagado"))
-    ingresos_metodo_labels = [item["pagos__metodo_pago"].capitalize() for item in ingresos_metodo_qs]
-    ingresos_metodo_data = [float(item["total"]) for item in ingresos_metodo_qs]
+    ingresos_metodo_qs = Factura.objects.filter(estado="pagado").values("pagos__transaccion__metodo_pago").annotate(total=Sum("pagos__monto_pagado"))
+
+    ingresos_por_metodo = []
+    colores_metodo = {"efectivo": "#10b981", "transferencia": "#3b82f6"}
+
+    for item in ingresos_metodo_qs:
+        metodo = item["pagos__transaccion__metodo_pago"]
+        if metodo and metodo != "no aplica":
+            ingresos_por_metodo.append({
+                "label": metodo.capitalize(),
+                "data": float(item["total"] or 0),
+                "color": colores_metodo.get(metodo.lower(), "#6b7280")
+            })
+
+    ingresos_metodo_labels = [item["label"] for item in ingresos_por_metodo]
+    ingresos_metodo_data = [item["data"] for item in ingresos_por_metodo]
 
     planes_dist_qs = Instalacion.objects.filter(servicio_activo=True).values("plan__nombre").annotate(total=Count("id"))
     planes_labels = [item["plan__nombre"] for item in planes_dist_qs]
