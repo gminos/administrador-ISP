@@ -1,4 +1,6 @@
 from django.db import models
+from django.db.models.signals import post_delete, post_save
+from django.dispatch import receiver
 
 METODO_CHOICES = [("transferencia", "Transferencia"), ("efectivo", "Efectivo"), ("no aplica", "No aplica")]
 ESTADO_CHOICES = [("pagado", "Pagado"), ("pendiente", "Pendiente"), ("parcial", "Parcial")]
@@ -60,19 +62,6 @@ class Pago(models.Model):
         max_length=15, choices=TIPO_PAGOS_CHOICES, default="mensualidad", null=True
     )
 
-    def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)
-        if self.factura:
-            self.factura.recalcular_estado(0)
-            self.factura.save()
-
-    def delete(self, *args, **kwargs):
-        factura_asociada = self.factura
-        super().delete(*args, **kwargs)
-        if factura_asociada:
-            factura_asociada.recalcular_estado(0)
-            factura_asociada.save()
-
     def __str__(self):
         factura_id = self.factura.pk if self.factura else "N/A"
         return f"Abono de ${self.monto_pagado} (Factura #{factura_id})"
@@ -90,3 +79,14 @@ class Transaccion(models.Model):
 
     def __str__(self):
         return f"Trx #{self.pk} - ${self.monto_total} ({self.fecha_pago})"
+
+
+@receiver([post_save, post_delete], sender=Pago)
+def actualizar_estado_factura(sender, instance, **kwargs):
+    if instance.factura_id:
+        try:
+            factura = Factura.objects.get(pk=instance.factura_id)
+            factura.recalcular_estado(0)
+            factura.save()
+        except Factura.DoesNotExist:
+            pass
