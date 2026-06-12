@@ -17,3 +17,8 @@ dependencies = [
 [tool.basedpyright]
 typeCheckingMode = "standard"
 reportIncompatibleVariableOverride = false
+
+[dependency-groups]
+dev = [
+    "django-debug-toolbar>=6.3.0",
+]
