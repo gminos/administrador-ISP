@@ -160,7 +160,7 @@ UNFOLD = {
         "navigation": [
             {
                 "title": _("Navegación"),
-                "separator": True,
+                "separator": False,
                 "items": [
                     {
                         "title": _("Dashboard"),
@@ -174,6 +174,12 @@ UNFOLD = {
                 "title": _("Gestión"),
                 "separator": True,
                 "items": [
+                    {
+                        "title": _("Caja rápida"),
+                        "icon": "point_of_sale",
+                        "link": reverse_lazy("portal_caja"),
+                        "permission": lambda request: request.user.is_staff,
+                    },
                     {
                         "title": _("Clientes"),
                         "icon": "people",
