@@ -1,4 +1,6 @@
 from django.shortcuts import get_object_or_404, render, redirect
+from django.views import View
+from django.utils.decorators import method_decorator
 from django.http import HttpResponse
 from django.utils.safestring import mark_safe
 from django.urls import reverse
@@ -27,12 +29,42 @@ def descargar_recibo_transaccion(request, trx_id):
     return response
 
 
-@staff_member_required
-def portal_caja_view(request):
-    context = admin_site.each_context(request)
-    context.update({'title': 'Caja rápida'})
+@method_decorator(staff_member_required, name='dispatch')
+class PortalCajaView(View):
+    def get(self, request, *args, **kwargs):
+        context = admin_site.each_context(request)
+        context.update({'title': 'Caja rápida'})
 
-    if request.method == "POST":
+        q = request.GET.get('q', '').strip()
+        if q:
+            query = Q(nombre_completo__icontains=q)
+            if q.isdigit():
+                query |= Q(pk=q)
+
+            cliente_encontrado = Cliente.objects.annotate(
+                nombre_completo=Concat('nombre', Value(' '), 'apellido')
+            ).filter(query).first()
+
+            if cliente_encontrado:
+                facturas_pendientes = Factura.objects.filter(
+                    instalacion__cliente=cliente_encontrado, 
+                    estado__in=["pendiente", "parcial"]
+                ).prefetch_related("pagos").order_by("periodo_inicio")
+
+                total_deuda = cliente_encontrado.calcular_deuda_total()
+
+                context.update({
+                    'cliente': cliente_encontrado,
+                    'facturas_pendientes': facturas_pendientes,
+                    'total_adeudado': total_deuda,
+                    'q': f"{cliente_encontrado.nombre} {cliente_encontrado.apellido}",
+                })
+            else:
+                messages.warning(request, f"No se encontró ningún cliente coincidente con '{q}'.")
+
+        return render(request, 'admin/caja_portal.html', context)
+
+    def post(self, request, *args, **kwargs):
         cliente_id = request.POST.get('cliente_id')
         monto_str = request.POST.get('monto')
         metodo = request.POST.get('metodo')
@@ -56,9 +88,9 @@ def portal_caja_view(request):
         facturas_pendientes = Factura.objects.filter(
             instalacion__cliente=cliente, 
             estado__in=["pendiente", "parcial"]
-        ).order_by("periodo_inicio")
+        ).prefetch_related("pagos").order_by("periodo_inicio")
 
-        total_deuda = sum([factura.saldo_pendiente for factura in facturas_pendientes])
+        total_deuda = cliente.calcular_deuda_total()
 
         if monto_recibido > total_deuda:
             monto_str = f"{monto_recibido:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
@@ -77,6 +109,8 @@ def portal_caja_view(request):
         )
 
         monto_restante = monto_recibido
+        pagos_nuevos = []
+        facturas_modificadas = []
 
         for factura in facturas_pendientes:
             if monto_restante <= 0:
@@ -85,14 +119,18 @@ def portal_caja_view(request):
             saldo_factura = factura.saldo_pendiente
             monto_a_aplicar = min(monto_restante, saldo_factura)
 
-            Pago.objects.create(
+            pagos_nuevos.append(Pago(
                 factura=factura,
                 transaccion=transaccion,
                 monto_pagado=monto_a_aplicar,
                 tipo_pago="mensualidad"
-            )
+            ))
 
+            facturas_modificadas.append(factura.recalcular_estado(monto_a_aplicar))
             monto_restante -= monto_a_aplicar
+
+        Pago.objects.bulk_create(pagos_nuevos)
+        Factura.objects.bulk_update(facturas_modificadas, ["estado"])
 
         monto_str = f"{monto_recibido:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
         if monto_str.endswith(",00"):
@@ -103,32 +141,3 @@ def portal_caja_view(request):
 
         messages.success(request, mark_safe(msg))
         return redirect(f"/caja/?q={cliente.pk}")
-
-    q = request.GET.get('q', '').strip()
-    if q:
-        query = Q(nombre_completo__icontains=q)
-        if q.isdigit():
-            query |= Q(pk=q)
-
-        cliente_encontrado = Cliente.objects.annotate(
-            nombre_completo=Concat('nombre', Value(' '), 'apellido')
-        ).filter(query).first()
-
-        if cliente_encontrado:
-            facturas_pendientes = Factura.objects.filter(
-                instalacion__cliente=cliente_encontrado, 
-                estado__in=["pendiente", "parcial"]
-            ).order_by("periodo_inicio")
-
-            total_deuda = sum([factura_pendiente.saldo_pendiente for factura_pendiente in facturas_pendientes])
-
-            context.update({
-                'cliente': cliente_encontrado,
-                'facturas_pendientes': facturas_pendientes,
-                'total_adeudado': total_deuda,
-                'q': f"{cliente_encontrado.nombre} {cliente_encontrado.apellido}",
-            })
-        else:
-            messages.warning(request, f"No se encontró ningún cliente coincidente con '{q}'.")
-
-    return render(request, 'admin/caja_portal.html', context)

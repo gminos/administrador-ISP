@@ -1,6 +1,4 @@
 from django.db import models
-from django.db.models.signals import post_delete, post_save
-from django.dispatch import receiver
 
 METODO_CHOICES = [("transferencia", "Transferencia"), ("efectivo", "Efectivo"), ("no aplica", "No aplica")]
 ESTADO_CHOICES = [("pagado", "Pagado"), ("pendiente", "Pendiente"), ("parcial", "Parcial")]
@@ -15,7 +13,7 @@ class Factura(models.Model):
     periodo_final = models.DateField(null=True)
     fecha_reconexion = models.DateField(null=True)
     monto_total = models.DecimalField(max_digits=10, decimal_places=2)
-    estado = models.CharField(max_length=10, choices=ESTADO_CHOICES, default="pendiente")
+    estado = models.CharField(max_length=10, choices=ESTADO_CHOICES, default="pendiente", db_index=True)
 
     @property
     def cliente(self):
@@ -28,6 +26,18 @@ class Factura(models.Model):
     @property
     def saldo_pendiente(self):
         return self.monto_total - self.total_pagado
+
+    def recalcular_estado(self, monto_abano):
+        nuevo_saldo = self.saldo_pendiente - monto_abano
+
+        if nuevo_saldo <= 0:
+            self.estado = "pagado"
+        elif nuevo_saldo < self.monto_total:
+            self.estado = "parcial"
+        else:
+            self.estado = "pendiente"
+
+        return self
 
     class Meta:
         verbose_name = "Factura"
@@ -67,21 +77,3 @@ class Transaccion(models.Model):
 
     def __str__(self):
         return f"Trx #{self.pk} - ${self.monto_total} ({self.fecha_pago})"
-
-@receiver([post_save, post_delete], sender=Pago)
-def actualizar_estado_factura(sender, instance, **kwargs):
-    try:
-        factura = Factura.objects.get(pk=instance.factura.pk)
-    except Factura.DoesNotExist:
-        return
-
-    saldo_pendiente = factura.saldo_pendiente
-
-    if saldo_pendiente <= 0:
-        factura.estado = "pagado"
-    elif saldo_pendiente < factura.monto_total:
-        factura.estado = "parcial"
-    else:
-        factura.estado = "pendiente"
-
-    factura.save()
