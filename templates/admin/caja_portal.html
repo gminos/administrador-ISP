@@ -362,7 +362,7 @@
 
                     <div class="caja-input-group">
                         <label for="monto" class="caja-label">Monto recibido</label>
-                        <input type="number" step="0.01" id="monto" name="monto" value="{{ total_adeudado|floatformat:2|default:'' }}" max="{{ total_adeudado|floatformat:2|default:'' }}" lang="es-CO" class="caja-input input-large" required>
+                        <input type="number" step="0.01" id="monto" name="monto" value="{{ total_adeudado|stringformat:'.0f'|default:'' }}" max="{{ total_adeudado|stringformat:'.2f'|default:'' }}" lang="es-CO" class="caja-input input-large" required>
                     </div>
 
                     <div class="caja-input-group-last">
