@@ -60,6 +60,19 @@ class Pago(models.Model):
         max_length=15, choices=TIPO_PAGOS_CHOICES, default="mensualidad", null=True
     )
 
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        if self.factura:
+            self.factura.recalcular_estado(0)
+            self.factura.save()
+
+    def delete(self, *args, **kwargs):
+        factura_asociada = self.factura
+        super().delete(*args, **kwargs)
+        if factura_asociada:
+            factura_asociada.recalcular_estado(0)
+            factura_asociada.save()
+
     def __str__(self):
         factura_id = self.factura.pk if self.factura else "N/A"
         return f"Abono de ${self.monto_pagado} (Factura #{factura_id})"
