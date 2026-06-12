@@ -42,17 +42,31 @@ class Pago(models.Model):
     factura = models.ForeignKey(
         "Factura", on_delete=models.CASCADE, related_name="pagos", null=True
     )
+    transaccion = models.ForeignKey(
+        "Transaccion", on_delete=models.CASCADE, related_name="pagos"
+    )
     monto_pagado = models.DecimalField(max_digits=10, decimal_places=2)
     tipo_pago = models.CharField(
-        max_length=15, choices=TIPO_PAGOS_CHOICES, default="mensualidad", null=True)
-    metodo_pago = models.CharField(
-        max_length=15, choices=METODO_CHOICES, default="no aplica")
-    fecha_pago = models.DateField(null=True, blank=True)
+        max_length=15, choices=TIPO_PAGOS_CHOICES, default="mensualidad", null=True
+    )
 
     def __str__(self):
         factura_id = self.factura.pk if self.factura else "N/A"
         return f"Abono de ${self.monto_pagado} (Factura #{factura_id})"
 
+
+class Transaccion(models.Model):
+    cliente = models.ForeignKey(
+        "clientes.Cliente", on_delete=models.CASCADE, related_name="transaciones"
+    )
+    fecha_pago = models.DateField()
+    monto_total = models.DecimalField(max_digits=10, decimal_places=2)
+    metodo_pago = models.CharField(
+        max_length=15, choices=METODO_CHOICES, default="no aplica"
+    )
+
+    def __str__(self):
+        return f"Trx #{self.pk} - ${self.monto_total} ({self.fecha_pago})"
 
 @receiver([post_save, post_delete], sender=Pago)
 def actualizar_estado_factura(sender, instance, **kwargs):
