@@ -10,8 +10,13 @@ dependencies = [
     "gunicorn>=23.0.0",
     "psycopg2-binary>=2.9.11",
     "python-dotenv>=1.1.0",
-    "django-unfold>=0.40.0",
+    "django-unfold>=0.97.1",
     "weasyprint>=69.0",
+    "celery>=5.6.3",
+    "redis>=8.0.0",
+    "pywa>=4.0.0",
+    "celery-types>=0.26.0",
+    "pdf2image>=1.17.0",
 ]
 
 [tool.basedpyright]

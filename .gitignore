@@ -12,3 +12,6 @@ wheels/
 .env.dev
 .vscode
 .idea
+staticfiles/
+media/
+celerybeat-schedule*

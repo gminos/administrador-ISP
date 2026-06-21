@@ -133,6 +133,7 @@ LANGUAGE_CODE = "es-CO"
 TIME_ZONE = "America/Bogota"
 
 USE_I18N = True
+USE_THOUSAND_SEPARATOR = True
 
 USE_TZ = True
 
@@ -161,6 +162,21 @@ UNFOLD = {
             "href": lambda request: static("images/logo-light.svg"),
         },
     ],
+    "COLORS": {
+        "primary": {
+            "50": "236 253 245",
+            "100": "209 250 229",
+            "200": "167 243 208",
+            "300": "110 231 183",
+            "400": "52 211 153",
+            "500": "5 150 105",
+            "600": "4 120 87",
+            "700": "6 95 70",
+            "800": "6 78 59",
+            "900": "2 44 34",
+            "950": "1 20 15",
+        },
+    },
     "DASHBOARD_CALLBACK": "base.views.dashboard_callback",
     "SIDEBAR": {
         "show_search": False,
@@ -171,7 +187,7 @@ UNFOLD = {
                 "separator": False,
                 "items": [
                     {
-                        "title": _("Dashboard"),
+                        "title": _("Panel de control"),
                         "icon": "dashboard",
                         "link": reverse_lazy("admin:index"),
                         "permission": lambda request: request.user.is_staff,
@@ -187,6 +203,28 @@ UNFOLD = {
                         "icon": "point_of_sale",
                         "link": reverse_lazy("portal_caja"),
                         "permission": lambda request: request.user.is_staff,
+                        "badge": "conexiones.utils.get_nuevo_badge",
+                    },
+                    {
+                        "title": _("Cargos"),
+                        "icon": "account_balance",
+                        "link": reverse_lazy("admin:facturacion_cargo_changelist"),
+                        "permission": lambda request: request.user.has_perm("facturacion.view_cargo"),
+                        "badge": "conexiones.utils.get_nuevo_badge",
+                    },
+                    {
+                        "title": _("Transacciones"),
+                        "icon": "account_balance_wallet",
+                        "link": reverse_lazy("admin:facturacion_transaccion_changelist"),
+                        "permission": lambda request: request.user.has_perm("facturacion.view_transaccion"),
+                        "badge": "conexiones.utils.get_nuevo_badge",
+                    },
+
+                    {
+                        "title": _("Facturas"),
+                        "icon": "receipt_long",
+                        "link": reverse_lazy("admin:facturacion_factura_changelist"),
+                        "permission": lambda request: request.user.has_perm("facturacion.view_factura"),
                     },
                     {
                         "title": _("Clientes"),
@@ -205,18 +243,6 @@ UNFOLD = {
                         "icon": "layers",
                         "link": reverse_lazy("admin:planes_plan_changelist"),
                         "permission": lambda request: request.user.has_perm("planes.view_plan"),
-                    },
-                    {
-                        "title": _("Facturas"),
-                        "icon": "receipt_long",
-                        "link": reverse_lazy("admin:facturacion_factura_changelist"),
-                        "permission": lambda request: request.user.has_perm("facturacion.view_factura"),
-                    },
-                    {
-                        "title": _("Pagos"),
-                        "icon": "payments",
-                        "link": reverse_lazy("admin:facturacion_pago_changelist"),
-                        "permission": lambda request: request.user.has_perm("facturacion.view_pago"),
                     },
                 ],
             },
@@ -241,3 +267,17 @@ UNFOLD = {
         ],
     },
 }
+
+CELERY_BROKER_URL = os.getenv("REDIS_URL", "redis://redis:6379/0")
+CELERY_RESULT_BACKEND = os.getenv("REDIS_URL", "redis://redis:6379/0")
+CELERY_TIMEZONE = TIME_ZONE
+
+WA_PHONE_ID = os.getenv('WA_PHONE_ID', '')
+WA_TOKEN = os.getenv('WA_TOKEN', '')
+
+PAYMENT_NEQUI = os.getenv('PAYMENT_NEQUI', '[]')
+PAYMENT_BREVE = os.getenv('PAYMENT_BREVE', '[]')
+PAYMENT_BANCOLOMBIA = os.getenv('PAYMENT_BANCOLOMBIA', '[]')
+PAYMENT_EFECTIVO = os.getenv('PAYMENT_EFECTIVO', '[]')
+
+LOCALE_PATHS = [BASE_DIR / 'locale']
