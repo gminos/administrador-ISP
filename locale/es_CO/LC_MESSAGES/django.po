@@ -82,3 +82,56 @@ msgstr "Seleccionar valor"
 
 msgid "All dates"
 msgstr "Regresar"
+
+msgid "History"
+msgstr "Historial"
+
+msgid "Choose a date from the list below to revert to a previous version of this object"
+msgstr "Elige una fecha de la lista a continuación para revertir a una versión anterior"
+
+msgid "This object doesn't have a change history."
+msgstr "Este objeto no tiene historial de cambios."
+
+msgid "entry"
+msgid_plural "entries"
+msgstr[0] "entrada"
+msgstr[1] "entradas"
+
+msgid "Object"
+msgstr "Objeto"
+
+msgid "Date/time"
+msgstr "Fecha/hora"
+
+msgid "Comment"
+msgstr "Comentario"
+
+msgid "Changed by"
+msgstr "Modificado por"
+
+msgid "Change reason"
+msgstr "Razón de cambio"
+
+msgid "Changes"
+msgstr "Cambios"
+
+msgid "Created"
+msgstr "Creado"
+
+msgid "Changed"
+msgstr "Modificado"
+
+msgid "Deleted"
+msgstr "Eliminado"
+
+msgid "Press the 'Revert' button below to revert to this version of the object."
+msgstr "Presiona el botón 'Revertir' a continuación para restaurar a esta versión del objeto."
+
+msgid "Press the 'Change History' button below to edit the history."
+msgstr "Presiona el botón 'Historial de Cambios' a continuación para editar el historial."
+
+msgid "Revert"
+msgstr "Revertir"
+
+msgid "Change History"
+msgstr "Historial de Cambios"

@@ -3,7 +3,7 @@ from instalaciones.models import Instalacion
 from django.utils import timezone
 from django.dispatch import receiver
 from django.db import models
-
+from simple_history.models import HistoricalRecords
 
 METODO_CHOICES = [
     ("transferencia", "Transferencia"),
@@ -38,7 +38,7 @@ class Factura(models.Model):
     @property
     def monto_total(self):
         return self.cargo.monto_total if hasattr(self, 'cargo') else 0
-        
+
     @property
     def estado(self):
         return self.cargo.estado if hasattr(self, 'cargo') else "pendiente"
@@ -65,6 +65,7 @@ class Transaccion(models.Model):
     metodo_pago = models.CharField(
         max_length=15, choices=METODO_CHOICES, default="no aplica"
     )
+    history = HistoricalRecords()
 
     class Meta:
         verbose_name = "Transaccion"
@@ -95,6 +96,7 @@ class Cargo(models.Model):
     monto_total = models.DecimalField(max_digits=10 ,decimal_places=2)
     saldo_pendiente = models.DecimalField(max_digits=10, decimal_places=2)
     estado = models.CharField(choices=ESTADO_CHOICES, max_length=15, default="pendiente")
+    history = HistoricalRecords()
 
     def __str__(self):
         return f"Cargo #{self.pk:05d} - {self.get_tipo_cargo_display()}"
@@ -120,6 +122,7 @@ class DetallePago(models.Model):
     monto_abonado = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Monto pagado")
     saldo_previo = models.DecimalField(max_digits=10, decimal_places=2, default=0, verbose_name="Deuda inicial")
     saldo_restante = models.DecimalField(max_digits=10, decimal_places=2, default=0, verbose_name="Deuda final")
+    history = HistoricalRecords()
 
     def __str__(self):
         return f"Detalle de Transacción #{self.transaccion.pk:05d}"

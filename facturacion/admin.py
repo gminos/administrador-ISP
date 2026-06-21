@@ -1,6 +1,7 @@
 from facturacion.models import Factura, Transaccion, Cargo, DetallePago
 from unfold.contrib.filters.admin import RadioFilter
 from django.template.loader import render_to_string
+from simple_history.admin import SimpleHistoryAdmin
 from django.core.validators import EMPTY_VALUES
 from facturacion.utils import generar_pdf_factura
 from django.utils.formats import date_format
@@ -154,7 +155,7 @@ class DetallePagoInline(TabularInline):
         return False
 
 @admin.register(Transaccion, site=admin_site)
-class TransaccionAdmin(ModelAdmin):
+class TransaccionAdmin(ModelAdmin, SimpleHistoryAdmin):
     actions = ["descargar_pdf"]
     list_display = [
         "referencia_formateada",
@@ -214,7 +215,7 @@ class TransaccionAdmin(ModelAdmin):
             return response
 
 @admin.register(Cargo, site=admin_site)
-class CargoAdmin(ModelAdmin):
+class CargoAdmin(ModelAdmin, SimpleHistoryAdmin):
     list_display = (
         "referencia_formateada",
         "cliente",

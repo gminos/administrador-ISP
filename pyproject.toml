@@ -17,6 +17,7 @@ dependencies = [
     "pywa>=4.0.0",
     "celery-types>=0.26.0",
     "pdf2image>=1.17.0",
+    "django-simple-history>=3.11.0",
 ]
 
 [tool.basedpyright]
