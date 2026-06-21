@@ -1,6 +1,6 @@
 from django.utils.translation import gettext_lazy as _
 from clientes.models import Cliente
-from facturacion.models import Factura, Pago
+from facturacion.models import Cargo, DetallePago, Transaccion
 from instalaciones.models import Instalacion
 from django.db.models import Sum
 from django.utils import timezone
@@ -11,9 +11,9 @@ def dashboard_callback(request, context):
     total_clientes = Cliente.objects.count()
     total_instalaciones = Instalacion.objects.count()
     total_servicios_activos = Instalacion.objects.filter(servicio_activo=True).count()
-    
-    total_recaudado = Factura.objects.filter(estado="pagado").aggregate(
-        total=Sum("monto_total")
+
+    total_recaudado = DetallePago.objects.aggregate(
+        total=Sum("monto_abonado")
     )["total"] or 0
 
     total_inst_revenue = Instalacion.objects.aggregate(
@@ -33,26 +33,25 @@ def dashboard_callback(request, context):
     META_SERVICIOS = 100
     progreso_meta = min((total_servicios_activos / META_SERVICIOS) * 100, 100)
     falta_meta = max(META_SERVICIOS - total_servicios_activos, 0)
-    
+
     last_12_months = timezone.now() - timedelta(days=365)
-    pagos_por_mes = Factura.objects.filter(
-        periodo_final__gte=last_12_months,
-        estado="pagado"
+    pagos_por_mes = Transaccion.objects.filter(
+        fecha_pago__gte=last_12_months
     ).annotate(
-        month=TruncMonth('periodo_final')
+        month=TruncMonth('fecha_pago')
     ).values('month').annotate(
         total=Sum('monto_total')
     ).order_by('month')
 
     labels = []
     data = []
-    
+
     for pago in pagos_por_mes:
         labels.append(pago['month'].strftime('%B %Y'))
         data.append(float(pago['total']))
 
     from django.db.models import Count
-    
+
     instalaciones_por_mes = Instalacion.objects.filter(
         fecha_instalacion__gte=last_12_months
     ).annotate(
@@ -71,17 +70,17 @@ def dashboard_callback(request, context):
         inst_count.append(inst['total'])
         inst_revenue.append(float(inst['revenue']))
 
-    deuda_total = Factura.objects.filter(estado="pendiente").aggregate(
-        total=Sum("monto_total")
+    deuda_total = Cargo.objects.filter(estado__in=["pendiente", "parcial"]).aggregate(
+        total=Sum("saldo_pendiente")
     )["total"] or 0
 
-    ingresos_metodo_qs = Factura.objects.filter(estado="pagado").values("pagos__transaccion__metodo_pago").annotate(total=Sum("pagos__monto_pagado"))
+    ingresos_metodo_qs = Transaccion.objects.values("metodo_pago").annotate(total=Sum("monto_total"))
 
     ingresos_por_metodo = []
     colores_metodo = {"efectivo": "#10b981", "transferencia": "#3b82f6"}
 
     for item in ingresos_metodo_qs:
-        metodo = item["pagos__transaccion__metodo_pago"]
+        metodo = item["metodo_pago"]
         if metodo and metodo != "no aplica":
             ingresos_por_metodo.append({
                 "label": metodo.capitalize(),
@@ -100,6 +99,7 @@ def dashboard_callback(request, context):
     veredas_labels = [item["cliente__vereda"] for item in veredas_dist_qs if item["cliente__vereda"]]
     veredas_data = [item["total"] for item in veredas_dist_qs if item["cliente__vereda"]]
 
+    import json
     context.update({
         "kpi_data": {
             "clientes": {
@@ -141,16 +141,16 @@ def dashboard_callback(request, context):
             "total": META_SERVICIOS,
             "actual": total_servicios_activos
         },
-        "chart_labels": labels,
-        "chart_data": data,
-        "inst_labels": inst_labels,
-        "inst_count": inst_count,
-        "inst_revenue": inst_revenue,
-        "payment_method_labels": ingresos_metodo_labels,
-        "payment_method_data": ingresos_metodo_data,
-        "plans_labels": planes_labels,
-        "plans_data": planes_data,
-        "veredas_labels": veredas_labels,
-        "veredas_data": veredas_data,
+        "chart_labels": json.dumps(labels),
+        "chart_data": json.dumps(data),
+        "inst_labels": json.dumps(inst_labels),
+        "inst_count": json.dumps(inst_count),
+        "inst_revenue": json.dumps(inst_revenue),
+        "payment_method_labels": json.dumps(ingresos_metodo_labels),
+        "payment_method_data": json.dumps(ingresos_metodo_data),
+        "plans_labels": json.dumps(planes_labels),
+        "plans_data": json.dumps(planes_data),
+        "veredas_labels": json.dumps(veredas_labels),
+        "veredas_data": json.dumps(veredas_data),
     })
     return context

@@ -1,19 +1,20 @@
-from django.shortcuts import get_object_or_404, render, redirect
-from django.views import View
-from django.utils.decorators import method_decorator
-from django.http import HttpResponse
-from django.utils.safestring import mark_safe
-from django.urls import reverse
-from django.template.loader import render_to_string
-from facturacion.models import Pago, Transaccion, Factura
-from clientes.models import Cliente
-from base.admin import admin_site
 from django.contrib.admin.views.decorators import staff_member_required
+from facturacion.tasks import procesar_envio_comprobando_whatsapp
+from django.shortcuts import get_object_or_404, render, redirect
+from facturacion.models import Transaccion, Cargo, DetallePago
+from django.utils.decorators import method_decorator
+from django.template.loader import render_to_string
+from django.utils.safestring import mark_safe
 from django.db.models.functions import Concat
-from django.db.models import Value
-from django.db.models import Q
+from django.http import HttpResponse
+from clientes.models import Cliente
 from django.contrib import messages
+from django.db.models import Value
 from django.utils import timezone
+from base.admin import admin_site
+from django.urls import reverse
+from django.db.models import Q
+from django.views import View
 from decimal import Decimal
 import weasyprint
 
@@ -31,7 +32,8 @@ def descargar_recibo_transaccion(request, trx_id):
 
 @method_decorator(staff_member_required, name='dispatch')
 class PortalCajaView(View):
-    def get(self, request, *args, **kwargs):
+    @staticmethod
+    def get(request, *args, **kwargs):
         context = admin_site.each_context(request)
         context.update({'title': 'Caja rápida'})
 
@@ -46,25 +48,26 @@ class PortalCajaView(View):
             ).filter(query).first()
 
             if cliente_encontrado:
-                facturas_pendientes = Factura.objects.filter(
-                    instalacion__cliente=cliente_encontrado, 
+                cargos_pendientes = Cargo.objects.filter(
+                    cliente=cliente_encontrado,
                     estado__in=["pendiente", "parcial"]
-                ).prefetch_related("pagos").order_by("periodo_inicio")
+                ).order_by("fecha_emision")
 
-                total_deuda = cliente_encontrado.calcular_deuda_total()
+                deuda_total = sum(cargo.saldo_pendiente for cargo in cargos_pendientes)
 
                 context.update({
-                    'cliente': cliente_encontrado,
-                    'facturas_pendientes': facturas_pendientes,
-                    'total_adeudado': total_deuda,
-                    'q': f"{cliente_encontrado.nombre} {cliente_encontrado.apellido}",
+                    "cliente": cliente_encontrado,
+                    "cargos_pendientes": cargos_pendientes,
+                    "total_deuda": deuda_total,
+                    "q": f"{cliente_encontrado.nombre} {cliente_encontrado.apellido}"
                 })
             else:
                 messages.warning(request, f"No se encontró ningún cliente coincidente con '{q}'.")
 
         return render(request, 'admin/caja_portal.html', context)
 
-    def post(self, request, *args, **kwargs):
+    @staticmethod
+    def post(request, *args, **kwargs):
         cliente_id = request.POST.get('cliente_id')
         monto_str = request.POST.get('monto')
         metodo = request.POST.get('metodo')
@@ -85,17 +88,17 @@ class PortalCajaView(View):
             messages.error(request, "El monto debe ser mayor a 0.")
             return redirect('portal_caja')
 
-        facturas_pendientes = Factura.objects.filter(
-            instalacion__cliente=cliente, 
+        cargos_pendientes = Cargo.objects.filter(
+            cliente=cliente,
             estado__in=["pendiente", "parcial"]
-        ).prefetch_related("pagos").order_by("periodo_inicio")
+        ).order_by("fecha_emision")
 
-        total_deuda = cliente.calcular_deuda_total()
+        deuda_total = cliente.calcular_deuda_total()
 
-        if monto_recibido > total_deuda:
+        if monto_recibido > deuda_total:
             monto_str = f"{monto_recibido:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
             if monto_str.endswith(",00"): monto_str = monto_str[:-3]
-            deuda_str = f"{total_deuda:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+            deuda_str = f"{deuda_total:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
             if deuda_str.endswith(",00"): deuda_str = deuda_str[:-3]
 
             messages.error(request, f"Error: El monto ingresado ($ {monto_str}) supera la deuda total del cliente ($ {deuda_str}).")
@@ -109,28 +112,40 @@ class PortalCajaView(View):
         )
 
         monto_restante = monto_recibido
-        pagos_nuevos = []
-        facturas_modificadas = []
+        detalle_pagos_nuevos = []
+        cargos_modificados = []
 
-        for factura in facturas_pendientes:
+        for cargo in cargos_pendientes:
             if monto_restante <= 0:
                 break
 
-            saldo_factura = factura.saldo_pendiente
-            monto_a_aplicar = min(monto_restante, saldo_factura)
+            saldo_cargo = cargo.saldo_pendiente
+            saldo_previo = cargo.saldo_pendiente
+            monto_a_aplicar = min(monto_restante, saldo_cargo)
 
-            pagos_nuevos.append(Pago(
-                factura=factura,
-                transaccion=transaccion,
-                monto_pagado=monto_a_aplicar,
-                tipo_pago="mensualidad"
+            cargo.saldo_pendiente -= monto_a_aplicar
+
+            detalle_pagos_nuevos.append(DetallePago(
+                transaccion=transaccion, 
+                cargo=cargo, 
+                monto_abonado=monto_a_aplicar,
+                saldo_previo=saldo_previo,
+                saldo_restante=cargo.saldo_pendiente
             ))
 
-            facturas_modificadas.append(factura.recalcular_estado(monto_a_aplicar))
             monto_restante -= monto_a_aplicar
 
-        Pago.objects.bulk_create(pagos_nuevos)
-        Factura.objects.bulk_update(facturas_modificadas, ["estado"])
+            if cargo.saldo_pendiente <= 0:
+                cargo.estado = "pagado"
+            elif cargo.saldo_pendiente < cargo.monto_total:
+                cargo.estado = "parcial"
+
+            cargos_modificados.append(cargo)
+
+        DetallePago.objects.bulk_create(detalle_pagos_nuevos)
+        Cargo.objects.bulk_update(cargos_modificados, ["estado", "saldo_pendiente"])
+
+        procesar_envio_comprobando_whatsapp.delay(transaccion.pk)
 
         monto_str = f"{monto_recibido:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
         if monto_str.endswith(",00"):

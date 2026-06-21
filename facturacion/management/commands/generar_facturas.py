@@ -9,7 +9,8 @@ import calendar
 class Command(BaseCommand):
     help = 'Genera pagos del mes actual para todos los usuarios cuyo servicio se encuentre activo'
 
-    def calculo_fechas(self, ciclo_facturacion: int) -> tuple[date, date, date]:
+    @staticmethod
+    def calculo_fechas(ciclo_facturacion: int) -> tuple[date, date, date]:
         fecha_hoy = date.today()
         year_siguiente = fecha_hoy.year if fecha_hoy.month < 12 else fecha_hoy.year + 1
         mes_siguiente = fecha_hoy.month + 1 if fecha_hoy.month < 12 else 1
@@ -54,7 +55,6 @@ class Command(BaseCommand):
                 periodo_inicio=periodo_inicio,
                 periodo_final=periodo_final,
                 fecha_reconexion=fecha_reconexion,
-                monto_total = instalacion.plan.costo
             )
 
             facturas_nuevas.append(factura_nueva)
@@ -64,4 +64,5 @@ class Command(BaseCommand):
             ))
 
         with transaction.atomic():
-            Factura.objects.bulk_create(facturas_nuevas)
+            for factura in facturas_nuevas:
+                factura.save()

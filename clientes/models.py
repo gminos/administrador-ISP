@@ -1,7 +1,6 @@
-from django.db import models
 from django.db.models.aggregates import Sum
-
-from facturacion.models import Factura, Pago
+from facturacion.models import Cargo
+from django.db import models
 
 
 class Cliente(models.Model):
@@ -11,17 +10,10 @@ class Cliente(models.Model):
     vereda = models.CharField(max_length=20, null=True)
 
     def calcular_deuda_total(self):
-        monto_facturas = Factura.objects.filter(
-            instalacion__cliente=self,
+        return Cargo.objects.filter(
+            cliente=self,
             estado__in=["pendiente", "parcial"]
-        ).aggregate(Sum("monto_total"))["monto_total__sum"] or 0
-
-        monto_pagos = Pago.objects.filter(
-            factura__instalacion__cliente=self,
-            factura__estado__in=["pendiente", "parcial"]
-        ).aggregate(Sum("monto_pagado"))["monto_pagado__sum"] or 0
-
-        return monto_facturas - monto_pagos
+        ).aggregate(Sum("saldo_pendiente"))["saldo_pendiente__sum"] or 0
 
     def __str__(self):
         return f"{self.nombre} {self.apellido}"
