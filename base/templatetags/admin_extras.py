@@ -1,7 +1,7 @@
 from django import template
 import calendar
 import logging
-from base.admin import admin_site
+from django.contrib import admin
 
 register = template.Library()
 
@@ -49,7 +49,7 @@ def has_multiple_years(context):
         return True # Without request we cannot filter
     
     path = request.path
-    for model, model_admin in admin_site._registry.items():
+    for model, model_admin in admin.site._registry.items():
         meta = model._meta
         # Check standard admin path structure: /app/model/
         url_part = f"/{meta.app_label}/{meta.model_name}/"

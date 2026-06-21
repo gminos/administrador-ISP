@@ -254,6 +254,7 @@ dependencies = [
     { name = "python-dotenv" },
     { name = "pywa" },
     { name = "redis" },
+    { name = "routeros-api" },
     { name = "weasyprint" },
 ]
 
@@ -276,6 +277,7 @@ requires-dist = [
     { name = "python-dotenv", specifier = ">=1.1.0" },
     { name = "pywa", specifier = ">=4.0.0" },
     { name = "redis", specifier = ">=8.0.0" },
+    { name = "routeros-api", specifier = ">=0.21.0" },
     { name = "weasyprint", specifier = ">=69.0" },
 ]
 
@@ -675,6 +677,15 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/53/ae/ed461cca5780b5fc8b9fe8ca0ed98d89508645fb9d880c24cc42c087678f/redis-8.0.0.tar.gz", hash = "sha256:a00c5355432051ac14e593b8b197fc76c887ee12d55a0984f69328a1115fdc49", size = 5101591, upload-time = "2026-05-28T12:45:13.5Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/27/e3/b519734372d305bd547534a9f32e4ce9f98552af753dce72cf3483a0ff0b/redis-8.0.0-py3-none-any.whl", hash = "sha256:c938c18338585009f0bc310f4c7e4e4b4d37639356c4ac072cedf3af570c8dc7", size = 499870, upload-time = "2026-05-28T12:45:11.697Z" },
+]
+
+[[package]]
+name = "routeros-api"
+version = "0.21.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/3b/3d/414cfbdc91ca6cf127cde120178ec0961caec4b1810e654f2d4520a475b7/routeros_api-0.21.0.tar.gz", hash = "sha256:0d37452a4ff85cd476dca392068d7d76ba430c9b055c39d8dabc5930a997d82d", size = 14332, upload-time = "2025-03-07T13:37:42.083Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/d5/00/05f60d90a041ff61fce514cf8db3d5b8401e45a1baad1b1b1cde814f5c27/routeros_api-0.21.0-py2.py3-none-any.whl", hash = "sha256:4189c11bdeae0d8d654b1f1212f3654a54f0df8e4ec0bcb4d5bc31303a7f76d0", size = 22656, upload-time = "2025-03-07T13:37:40.576Z" },
 ]
 
 [[package]]

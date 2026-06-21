@@ -1,54 +1,91 @@
-from django import forms
-from django.contrib import admin
+from redes.mikrotik_cliente import suspender_cliente, reactivar_cliente, consultar_estado_cliente
+from django.contrib import admin, messages
 from unfold.admin import ModelAdmin
 from .models import Instalacion
-from base.admin import admin_site
-from django.utils import timezone
-from django.utils.formats import date_format
-from django.db import models
-from unfold.widgets import UnfoldAdminSplitDateTimeWidget
 
 @admin.register(Instalacion)
 class InstalacionAdmin(ModelAdmin):
-    formfield_overrides = {
-        models.DateTimeField: {"widget": UnfoldAdminSplitDateTimeWidget},
-    }
-    actions = None
+    actions = [
+        "action_suspender",
+        "action_reactivar",
+        "action_consultar_estado"
+    ]
     list_display = (
         "cliente",
         "vereda",
-        "fecha_instalacion_cliente",
-        "valor_pagado"
+        "pppoe_usuario",
+        "fecha_instalacion",
+        "costo",
+        "servicio_activo"
     )
-    search_fields = ("cliente__nombre", "cliente__apellido")
+    search_fields = (
+        "cliente__nombre",
+        "cliente__apellido",
+        "pppoe_usuario"
+    )
     autocomplete_fields = ["cliente"]
+    readonly_fields = ["cliente"]
 
-    def get_form(self, request, obj=None, change=False ,**kwargs):
-        form = super().get_form(request, obj, change=change,**kwargs)
-        if obj:
-            form.base_fields["cliente"].widget = forms.HiddenInput()
-        return form
+    @admin.action(description="Mikrotik: Suspender cliente/s")
+    def action_suspender(self, request, queryset):
+        exitosos = 0
+        for instalacion in queryset:
+            if not instalacion.router or not instalacion.pppoe_usuario:
+                self.message_user(request, f"Omitido: {instalacion.cliente} no tiene router o usuario PPPoE asignado.", messages.WARNING)
+                continue
 
-    @admin.display(description="nombre cliente")
-    def cliente(self, obj):
-        return obj.cliente
+            exito, mensaje = suspender_cliente(instalacion.router, instalacion.pppoe_usuario)
 
-    @admin.display(description="vereda")
+            if exito:
+                instalacion.servicio_activo = False
+                instalacion.save()
+                exitosos += 1
+            else:
+                self.message_user(request, f"Fallo al suspender a {instalacion.pppoe_usuario}: {mensaje}", messages.ERROR)
+
+        if exitosos > 0:
+            self.message_user(request, f"Se suspendieron {exitosos} cliente/s exitosamente.", messages.SUCCESS)
+
+    @admin.action(description="Mikrotik: Reactivar cliente/s")
+    def action_reactivar(self, request, queryset):
+        exitosos = 0
+        for instalacion in queryset:
+            if not instalacion.router or not instalacion.pppoe_usuario:
+                self.message_user(request, f"Omitido: {instalacion.cliente} no tiene router o usuario PPPoE asignado.", messages.WARNING)
+                continue
+
+            exito, mensaje = reactivar_cliente(instalacion.router, instalacion.pppoe_usuario)
+
+            if exito:
+                instalacion.servicio_activo = True
+                instalacion.save()
+                exitosos += 1
+            else:
+                self.message_user(request, f"Fallo al reactivar a {instalacion.pppoe_usuario}: {mensaje}", messages.ERROR)
+
+        if exitosos > 0:
+            self.message_user(request, f"Se reactivaron {exitosos} clientes en Mikrotik exitosamente.", messages.SUCCESS)
+
+    @admin.action(description="Mikrotik: Consultar estado de conexión")
+    def action_consultar_estado(self, request, queryset):
+        for instalacion in queryset:
+            if not instalacion.router or not instalacion.pppoe_usuario:
+                self.message_user(request, f"Omitido: {instalacion.cliente} no tiene router o usuario PPPoE asignado.", messages.WARNING)
+                continue
+
+            exito, esta_conectado, mensaje = consultar_estado_cliente(instalacion.router, instalacion.pppoe_usuario)
+            if exito:
+                if esta_conectado:
+                    self.message_user(request, f"{instalacion.cliente}: {mensaje}", messages.SUCCESS)
+                else:
+                    self.message_user(request, f"{instalacion.cliente}: {mensaje}", messages.WARNING)
+            else:
+                self.message_user(request, f"{instalacion.cliente}: {mensaje}", messages.ERROR)
+
+    @admin.display(description="cliente", ordering="cliente__nombre")
+    def get_cliente_nombre(self, obj):
+        return f"{obj.cliente.nombre} {obj.cliente.apellido}"
+
+    @admin.display(description="Vereda", ordering="cliente__vereda")
     def vereda(self, obj):
         return obj.cliente.vereda
-
-    @admin.display(description="valor pagado")
-    def valor_pagado(self, obj):
-        return f"{obj.costo:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
-
-    @admin.display(description="fecha de instalacion")
-    def fecha_instalacion_cliente(self, obj):
-        fecha_local = timezone.localtime(obj.fecha_instalacion)
-        return date_format(
-            fecha_local, 
-            format='j \\d\\e F \\d\\e Y \\a \\l\\a\\s H:i', 
-            use_l10n=True
-        )
-
-
-admin_site.register(Instalacion, InstalacionAdmin)

@@ -1,8 +1,6 @@
 from django.contrib import admin
 from unfold.admin import ModelAdmin
 from planes.models import Plan
-from base.admin import admin_site
-
 
 class EstadoServicioFilter(admin.SimpleListFilter):
     title = "Estado del servicio"
@@ -29,6 +27,3 @@ class PlanAdmin(ModelAdmin):
     def monto_formateado(self, obj):
         return f"{obj.costo:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
     monto_formateado.short_description = 'Valor'
-
-
-admin_site.register(Plan, PlanAdmin)

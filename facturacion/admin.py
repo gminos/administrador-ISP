@@ -9,7 +9,6 @@ from unfold.decorators import display
 from django.http import HttpResponse
 from unfold.admin import ModelAdmin, TabularInline
 from clientes.models import Cliente
-from base.admin import admin_site
 from django.contrib import admin
 import weasyprint
 import zipfile
@@ -51,7 +50,7 @@ class VeredaFilter(RadioFilter):
         return queryset
 
 
-@admin.register(Factura, site=admin_site)
+@admin.register(Factura)
 class FacturaAdmin(ModelAdmin):
     list_select_related = [
         "instalacion",
@@ -63,7 +62,7 @@ class FacturaAdmin(ModelAdmin):
         "cliente_vereda",
         "estado_pago",
         "periodo_facturado",
-        "fecha_reconexion_formateada",
+        "fecha_reconexion",
     )
     search_fields = (
         "instalacion__cliente__nombre",
@@ -135,16 +134,7 @@ class FacturaAdmin(ModelAdmin):
 
         return f"{dia_inicio} {mes_inicio} ~ {dia_final} {mes_final}"
 
-    @admin.display(description="fecha reconexion")
-    def fecha_reconexion_formateada(self, obj):
-        if not obj.fecha_reconexion:
-            return "-"
-        dia_reconexion = obj.fecha_reconexion.day
-        mes_reconexion = date_format(obj.fecha_reconexion, "F").capitalize()
-
-        return f"{dia_reconexion} {mes_reconexion}"
-
-
+ 
 class DetallePagoInline(TabularInline):
     model = DetallePago
     extra = 0
@@ -154,7 +144,8 @@ class DetallePagoInline(TabularInline):
     def has_add_permission(self, request, obj=None):
         return False
 
-@admin.register(Transaccion, site=admin_site)
+
+@admin.register(Transaccion)
 class TransaccionAdmin(ModelAdmin, SimpleHistoryAdmin):
     actions = ["descargar_pdf"]
     list_display = [
@@ -214,7 +205,8 @@ class TransaccionAdmin(ModelAdmin, SimpleHistoryAdmin):
             response['Content-Disposition'] = 'attachment; filename="comprobantes.zip"'
             return response
 
-@admin.register(Cargo, site=admin_site)
+
+@admin.register(Cargo)
 class CargoAdmin(ModelAdmin, SimpleHistoryAdmin):
     list_display = (
         "referencia_formateada",

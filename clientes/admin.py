@@ -3,7 +3,6 @@ from unfold.admin import ModelAdmin, StackedInline
 from django.core.validators import EMPTY_VALUES
 from instalaciones.models import Instalacion
 from clientes.models import Cliente
-from base.admin import admin_site
 from django.contrib import admin
 
 class InstalacionStackedInline(StackedInline):
@@ -76,5 +75,3 @@ class ClienteAdmin(ModelAdmin):
     @admin.display(description="cliente")
     def cliente(self, obj):
         return f"{obj.nombre} {obj.apellido}"
-
-admin_site.register(Cliente, ClienteAdmin)

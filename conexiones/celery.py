@@ -17,4 +17,8 @@ app.conf.beat_schedule = {
         'task': 'facturacion.tasks.procesar_envio_facturas',
         'schedule': crontab(hour=8, minute=0),
     },
+    'suspender-morosos-diario': {
+        'task': 'redes.tasks.suspender_morosos_masivamente',
+        'schedule': crontab(hour=0, minute=1),
+    },
 }

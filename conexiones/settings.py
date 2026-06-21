@@ -40,6 +40,21 @@ DEBUG_TOOLBAR_CONFIG = {
     "SHOW_TOOLBAR_CALLBACK": lambda request: DEBUG,
 }
 
+DEBUG_TOOLBAR_PANELS = [
+    'debug_toolbar.panels.versions.VersionsPanel',
+    'debug_toolbar.panels.timer.TimerPanel',
+    'debug_toolbar.panels.settings.SettingsPanel',
+    'debug_toolbar.panels.headers.HeadersPanel',
+    'debug_toolbar.panels.request.RequestPanel',
+    'debug_toolbar.panels.sql.SQLPanel',
+    'debug_toolbar.panels.staticfiles.StaticFilesPanel',
+    'debug_toolbar.panels.templates.TemplatesPanel',
+    'debug_toolbar.panels.cache.CachePanel',
+    'debug_toolbar.panels.signals.SignalsPanel',
+    'debug_toolbar.panels.redirects.RedirectsPanel',
+    # 'debug_toolbar.panels.profiling.ProfilingPanel',
+]
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -61,6 +76,7 @@ INSTALLED_APPS = [
     "instalaciones.apps.InstalacionesConfig",
     "facturacion.apps.FacturacionConfig",
     "base.apps.BaseConfig",
+    "redes.apps.RedesConfig",
     "debug_toolbar",
 ]
 
@@ -245,6 +261,18 @@ UNFOLD = {
                         "icon": "layers",
                         "link": reverse_lazy("admin:planes_plan_changelist"),
                         "permission": lambda request: request.user.has_perm("planes.view_plan"),
+                    },
+                ],
+            },
+            {
+                "title": _("Redes e Infraestructura"),
+                "separator": True,
+                "items": [
+                    {
+                        "title": _("Routers"),
+                        "icon": "dns",
+                        "link": reverse_lazy("admin:redes_router_changelist"),
+                        "permission": lambda request: request.user.has_perm("redes.view_router"),
                     },
                 ],
             },

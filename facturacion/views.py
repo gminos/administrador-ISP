@@ -2,6 +2,8 @@ from django.contrib.admin.views.decorators import staff_member_required
 from facturacion.tasks import procesar_envio_comprobando_whatsapp
 from django.shortcuts import get_object_or_404, render, redirect
 from facturacion.models import Transaccion, Cargo, DetallePago
+from django.db.models import Value, Case, When, IntegerField
+from redes.tasks import verificar_y_reactivar_instalacion
 from django.utils.decorators import method_decorator
 from django.template.loader import render_to_string
 from django.utils.safestring import mark_safe
@@ -9,9 +11,8 @@ from django.db.models.functions import Concat
 from django.http import HttpResponse
 from clientes.models import Cliente
 from django.contrib import messages
-from django.db.models import Value
 from django.utils import timezone
-from base.admin import admin_site
+from django.contrib import admin
 from django.urls import reverse
 from django.db.models import Q
 from django.views import View
@@ -34,7 +35,7 @@ def descargar_recibo_transaccion(request, trx_id):
 class PortalCajaView(View):
     @staticmethod
     def get(request, *args, **kwargs):
-        context = admin_site.each_context(request)
+        context = admin.site.each_context(request)
         context.update({'title': 'Caja rápida'})
 
         q = request.GET.get('q', '').strip()
@@ -51,7 +52,15 @@ class PortalCajaView(View):
                 cargos_pendientes = Cargo.objects.filter(
                     cliente=cliente_encontrado,
                     estado__in=["pendiente", "parcial"]
-                ).order_by("fecha_emision")
+                ).annotate(
+                    prioridad=Case(
+                        When(tipo_cargo='mensualidad', then=1),
+                        When(tipo_cargo='reconexion', then=2),
+                        When(tipo_cargo='instalacion', then=3),
+                        default=4,
+                        output_field=IntegerField(),
+                    )
+                ).order_by("prioridad", "fecha_emision")
 
                 deuda_total = sum(cargo.saldo_pendiente for cargo in cargos_pendientes)
 
@@ -91,7 +100,15 @@ class PortalCajaView(View):
         cargos_pendientes = Cargo.objects.filter(
             cliente=cliente,
             estado__in=["pendiente", "parcial"]
-        ).order_by("fecha_emision")
+        ).annotate(
+            prioridad=Case(
+                When(tipo_cargo='mensualidad', then=1),
+                When(tipo_cargo='reconexion', then=2),
+                When(tipo_cargo='instalacion', then=3),
+                default=4,
+                output_field=IntegerField(),
+            )
+        ).order_by("prioridad", "fecha_emision")
 
         deuda_total = cliente.calcular_deuda_total()
 
@@ -146,6 +163,9 @@ class PortalCajaView(View):
         Cargo.objects.bulk_update(cargos_modificados, ["estado", "saldo_pendiente"])
 
         procesar_envio_comprobando_whatsapp.delay(transaccion.pk)
+
+        for instalacion in cliente.instalaciones.filter(servicio_activo=False):
+            verificar_y_reactivar_instalacion.delay(instalacion.pk)
 
         monto_str = f"{monto_recibido:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
         if monto_str.endswith(",00"):

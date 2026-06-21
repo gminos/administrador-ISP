@@ -22,6 +22,9 @@ class Instalacion(models.Model):
     )
     servicio_activo = models.BooleanField(default=True)
     ciclo_facturacion = models.IntegerField(choices=CicloFacturacionChoices.choices, default=CicloFacturacionChoices.MENSUAL)
+    router = models.ForeignKey("redes.Router", on_delete=models.SET_NULL, blank=True, null=True)
+    pppoe_usuario = models.CharField(max_length=50, unique=True, null=True, blank=True)
+    pppoe_password = models.CharField(max_length=100, null=True, blank=True)
 
     class Meta:
         verbose_name = "instalacion"
@@ -30,4 +33,10 @@ class Instalacion(models.Model):
     def __str__(self):
         plan_nombre = self.plan.nombre if self.plan else "Sin plan"
         ciclo = self.get_ciclo_facturacion_display()
-        return f"Instalación #{self.pk:05d} - {self.cliente.nombre} {self.cliente.apellido} | {plan_nombre} ({ciclo})"
+        pk_str = f"{self.pk:05d}" if self.pk else "Sin ID"
+        return f"Instalación #{pk_str} - {self.cliente.nombre} {self.cliente.apellido} | {plan_nombre} ({ciclo})"
+
+    def clean(self):
+        super().clean()
+        if self.pppoe_usuario == "":
+            self.pppoe_usuario = None
