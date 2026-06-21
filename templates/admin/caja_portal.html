@@ -23,11 +23,11 @@
         --caja-factura-title: #991b1b;
         --caja-factura-sub: #dc2626;
 
-        --caja-primary: #9333ea;
-        --caja-primary-hover: #7e22ce;
-        --caja-success: #16a34a;
-        --caja-success-hover: #15803d;
-        --caja-success-text: #15803d;
+        --caja-primary: #059669;
+        --caja-primary-hover: #047857;
+        --caja-success: #059669;
+        --caja-success-hover: #047857;
+        --caja-success-text: #059669;
     }
 
     html.dark {
@@ -45,7 +45,7 @@
         --caja-factura-title: #fca5a5;
         --caja-factura-sub: #f87171;
 
-        --caja-success-text: #4ade80;
+        --caja-success-text: #34d399;
     }
 
     .caja-container {
@@ -325,24 +325,24 @@
             <p>Vereda: {{ cliente.vereda|default:"No especificada" }}</p>
         </div>
 
-        {% if facturas_pendientes %}
+        {% if cargos_pendientes %}
         <div class="caja-grid">
             <div>
-                <h3 class="section-title">Facturas Vencidas</h3>
+                <h3 class="section-title">Cargos Pendientes</h3>
 
-                {% for factura in facturas_pendientes %}
+                {% for cargo in cargos_pendientes %}
                 <div class="factura-item">
                     <div>
-                        <span class="factura-title">Factura #{{ factura.pk }}</span>
-                        <span class="factura-subtitle">Periodo: {{ factura.periodo_inicio|date:"F Y" }}</span>
+                        <span class="factura-title">{{ cargo.get_tipo_cargo_display }} #{{ cargo.pk }}</span>
+                        <span class="factura-subtitle">Emisión: {{ cargo.fecha_emision|date:"d b Y" }}</span>
                     </div>
-                    <span class="factura-amount">${{ factura.saldo_pendiente|floatformat:"2g" }}</span>
+                    <span class="factura-amount">${{ cargo.saldo_pendiente|floatformat:"2g" }}</span>
                 </div>
                 {% endfor %}
 
                 <div class="total-row">
                     <span class="total-label">Total deuda:</span>
-                    <span class="total-value">${{ total_adeudado|floatformat:"2g" }}</span>
+                    <span class="total-value">${{ total_deuda|floatformat:"2g" }}</span>
                 </div>
             </div>
 
@@ -353,11 +353,11 @@
 
                     <div class="caja-input-group">
                         <label for="monto" class="caja-label">Monto recibido</label>
-                        <input type="number" step="0.01" id="monto" name="monto" value="{{ total_adeudado|stringformat:'.0f'|default:'' }}" max="{{ total_adeudado|stringformat:'.2f'|default:'' }}" lang="es-CO" class="caja-input input-large" required>
+                        <input type="number" step="0.01" id="monto" name="monto" value="{{ total_deuda|stringformat:'.0f'|default:'' }}" max="{{ total_deuda|stringformat:'.2f'|default:'' }}" lang="es-CO" class="caja-input input-large" required>
                     </div>
 
                     <div class="caja-input-group-last">
-                        <label for="metodo" class="caja-label">Método de Pago</label>
+                        <label for="metodo" class="caja-label">Método de pago</label>
                         <select id="metodo" name="metodo" class="caja-input">
                             <option value="efectivo">Efectivo</option>
                             <option value="transferencia">Transferencia</option>
@@ -368,7 +368,7 @@
                         Procesar Pago
                     </button>
                     <p class="payment-note">
-                        El sistema distribuirá el monto automáticamente sobre las facturas más antiguas. No se permite recibir más de la deuda actual.
+                        El sistema distribuirá el monto automáticamente sobre los cargos más antiguos. No se permite recibir más de la deuda actual.
                     </p>
                 </form>
             </div>

@@ -6,7 +6,7 @@ from base.views import dashboard_callback
 
 class AdminPersonalizado(UnfoldAdminSite):
     site_header = "ADMINISTRACIÓN ARINT CONEXIONES"
-    index_title = "Dashboard"
+    index_title = "Panel de control"
     site_title = "ISP Admin"
     dashboard_callback = dashboard_callback
 

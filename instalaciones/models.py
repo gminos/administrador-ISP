@@ -28,4 +28,6 @@ class Instalacion(models.Model):
         verbose_name_plural = "instalaciones"
 
     def __str__(self):
-        return f"{self.cliente.nombre} {self.cliente.apellido}"
+        plan_nombre = self.plan.nombre if self.plan else "Sin plan"
+        ciclo = self.get_ciclo_facturacion_display()
+        return f"Instalación #{self.pk:05d} - {self.cliente.nombre} {self.cliente.apellido} | {plan_nombre} ({ciclo})"

@@ -78,8 +78,8 @@
             text-transform: uppercase;
             font-size: 10pt;
         }
-        table.items td.right, table.items th.right {
-            text-align: right;
+        table.items td.center, table.items th.center {
+            text-align: center;
         }
         .total-row td {
             font-size: 14pt;
@@ -119,13 +119,7 @@
     <div class="header">
         <div class="header-logo">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none" stroke-linecap="round" stroke-linejoin="round" width="70" height="70">
-                <defs>
-                    <linearGradient id="grad1" x1="0%" y1="0%" x2="0%" y2="100%">
-                        <stop offset="0%" style="stop-color:#22d3ee;stop-opacity:1" />
-                        <stop offset="100%" style="stop-color:#84cc16;stop-opacity:1" />
-                    </linearGradient>
-                </defs>
-                <g stroke="url(#grad1)" stroke-width="6">
+                <g stroke="#28a745" stroke-width="6">
                     <line x1="50" y1="15" x2="25" y2="50" />
                     <line x1="50" y1="15" x2="75" y2="50" />
                     <line x1="50" y1="15" x2="50" y2="50" />
@@ -139,7 +133,7 @@
                     <line x1="50" y1="70" x2="15" y2="85" />
                     <line x1="50" y1="70" x2="85" y2="85" />
                 </g>
-                <g fill="url(#grad1)">
+                <g fill="#28a745">
                     <circle cx="50" cy="15" r="8" />
                     <circle cx="25" cy="50" r="8" />
                     <circle cx="75" cy="50" r="8" />
@@ -159,8 +153,10 @@
     <table class="receipt-details">
         <tr>
             <td class="client-info">
-                <strong>Recibimos de:</strong> {{ transaccion.cliente.nombre }} {{ transaccion.cliente.apellido }}<br>
-                <strong>Vereda:</strong> {{ transaccion.cliente.vereda|default:"N/A" }}
+                <div style="margin-bottom: 5px;">
+                    <strong>Recibimos de:</strong><br>
+                    {{ transaccion.cliente.nombre }} {{ transaccion.cliente.apellido }}
+                </div>
             </td>
             <td class="payment-info">
                 <strong>N° Comprobante:</strong> #{{ transaccion.pk|stringformat:"05d" }}<br>
@@ -172,32 +168,40 @@
 
     <div class="amount-box">
         <h2>${{ transaccion.monto_total|floatformat:"2g" }}</h2>
-        <p>Monto Total Abonado</p>
+        <p>Total Recibido</p>
     </div>
 
     <h3 style="color: #333; font-size: 11pt; margin-bottom: 10px;">Desglose de Aplicación de Pagos</h3>
     <table class="items">
         <thead>
             <tr>
-                <th>Referencia de Factura</th>
-                <th class="right">Total Factura</th>
-                <th class="right">Monto Abonado</th>
+                <th>Referencia</th>
+                <th class="center">Deuda</th>
+                <th class="center">Pago Aplicado</th>
+                <th class="center">Saldo Restante</th>
             </tr>
         </thead>
         <tbody>
-            {% for pago in transaccion.pagos.all %}
+            {% for pago in transaccion.detallepagos.all %}
             <tr>
                 <td>
-                    Factura #{{ pago.factura.pk|stringformat:"05d" }}<br>
-                    <span style="color: #666; font-size: 10pt;">
-                        Periodo: {{ pago.factura.periodo_inicio|date:"d M" }} - {{ pago.factura.periodo_final|date:"d M Y" }}
-                    </span>
+                    {% if pago.cargo.factura_origen %}
+                        Factura #{{ pago.cargo.factura_origen.pk|stringformat:"05d" }}<br>
+                        <span style="color: #666; font-size: 10pt;">
+                            Periodo: {{ pago.cargo.factura_origen.periodo_inicio|date:"d M" }} - {{ pago.cargo.factura_origen.periodo_final|date:"d M Y" }}
+                        </span>
+                    {% else %}
+                        {{ pago.cargo.get_tipo_cargo_display|default:"Cargo"|title }} #{{ pago.cargo.pk|stringformat:"05d" }}
+                    {% endif %}
                 </td>
-                <td class="right">
-                    ${{ pago.factura.monto_total|floatformat:"2g" }}
+                <td class="center">
+                    ${{ pago.saldo_previo|floatformat:"2g" }}
                 </td>
-                <td class="right">
-                    ${{ pago.monto_pagado|floatformat:"2g" }}
+                <td class="center">
+                    ${{ pago.monto_abonado|floatformat:"2g" }}
+                </td>
+                <td class="center" style="font-weight: bold; color: {% if pago.saldo_restante > 0 %}#dc3545{% else %}#28a745{% endif %};">
+                    ${{ pago.saldo_restante|floatformat:"2g" }}
                 </td>
             </tr>
             {% endfor %}

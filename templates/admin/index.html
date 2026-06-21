@@ -26,109 +26,63 @@
     </div>
 </div>
 
-<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-    <div
-        class="bg-white dark:bg-base-800 rounded-default border border-base-200 dark:border-base-700 shadow-sm flex flex-col">
-        <div class="px-6 pt-6 pb-2 flex-grow">
-            <h3 class="text-base-900 dark:text-base-100 text-lg font-semibold mb-4">Evolución de pagos</h3>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-start mb-6">
-                <div class="text-center md:text-left">
-                    <h3
-                        class="text-base-500 dark:text-base-400 text-sm font-medium tracking-wider mb-2 h-10 flex items-center justify-center md:justify-start">
-                        {{ kpi_data.recaudo.title }}
-                    </h3>
-                    <div class="flex items-baseline justify-center md:justify-start">
-                        <p class="text-3xl font-bold text-green-600 dark:text-green-400">
-                            {{ kpi_data.recaudo.metric }}
-                        </p>
-                    </div>
-                </div>
-                <div class="text-center md:text-right">
-                    <h3
-                        class="text-base-500 dark:text-base-400 text-sm font-medium tracking-wider mb-2 h-10 flex items-center justify-center md:justify-end">
-                        {{ kpi_data.deuda.title }}
-                    </h3>
-                    <p class="text-3xl font-bold text-red-600 dark:text-red-400">
-                        {{ kpi_data.deuda.metric }}
-                    </p>
-                </div>
-            </div>
-            <div class="relative h-64 w-full">
-                <canvas id="revenueChart"></canvas>
-            </div>
-        </div>
-
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <div class="bg-white dark:bg-base-800 rounded-default border border-base-200 dark:border-base-700 shadow-sm p-4 flex flex-col justify-between">
+        <h3 class="text-base-500 dark:text-base-400 text-xs font-medium tracking-wider mb-2 uppercase">{{ kpi_data.recaudo.title }}</h3>
+        <p class="text-2xl font-bold text-green-600 dark:text-green-400">{{ kpi_data.recaudo.metric }}</p>
     </div>
-
-    <div
-        class="bg-white dark:bg-base-800 rounded-default border border-base-200 dark:border-base-700 shadow-sm flex flex-col">
-        <div class="px-6 pt-6 pb-2 flex-grow">
-            <h3 class="text-base-900 dark:text-base-100 text-lg font-semibold mb-4">Ingresos por instalaciones</h3>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-start mb-6">
-                <div class="text-center md:text-left">
-                    <h3
-                        class="text-base-500 dark:text-base-400 text-sm font-medium tracking-wider mb-2 h-10 flex items-center justify-center md:justify-start">
-                        {{ kpi_data.inst_revenue.title }}
-                    </h3>
-                    <div class="flex items-baseline justify-center md:justify-start">
-                        <p class="text-3xl font-bold text-green-600 dark:text-green-400">
-                            {{ kpi_data.inst_revenue.metric }}
-                        </p>
-                    </div>
-                </div>
-                <div class="text-center md:text-right">
-                    <h3
-                        class="text-base-500 dark:text-base-400 text-sm font-medium tracking-wider mb-2 h-10 flex items-center justify-center md:justify-end">
-                        {{ kpi_data.inst_revenue.year_title }}
-                    </h3>
-                    <p class="text-3xl font-bold text-blue-600 dark:text-blue-400">
-                        {{ kpi_data.inst_revenue.year_metric }}
-                    </p>
-                </div>
-            </div>
-            <div class="relative h-64 w-full">
-                <canvas id="instRevenueChart"></canvas>
-            </div>
+    
+    <div class="bg-white dark:bg-base-800 rounded-default border border-base-200 dark:border-base-700 shadow-sm p-4 flex flex-col justify-between">
+        <h3 class="text-base-500 dark:text-base-400 text-xs font-medium tracking-wider mb-2 uppercase">{{ kpi_data.deuda.title }}</h3>
+        <p class="text-2xl font-bold text-red-600 dark:text-red-400">{{ kpi_data.deuda.metric }}</p>
+    </div>
+    
+    <div class="bg-white dark:bg-base-800 rounded-default border border-base-200 dark:border-base-700 shadow-sm p-4 flex flex-col justify-between">
+        <h3 class="text-base-500 dark:text-base-400 text-xs font-medium tracking-wider mb-2 uppercase">Ingresos de instalaciones</h3>
+        <div>
+            <p class="text-2xl font-bold text-green-600 dark:text-green-400">{{ kpi_data.inst_revenue.metric }}</p>
+            <p class="text-xs text-base-500 dark:text-base-400 mt-1">
+                Año actual: <span class="font-semibold text-blue-600 dark:text-blue-400">{{ kpi_data.inst_revenue.year_metric }}</span>
+            </p>
         </div>
-
+    </div>
+    
+    <div class="bg-white dark:bg-base-800 rounded-default border border-base-200 dark:border-base-700 shadow-sm p-4 flex flex-col justify-between">
+        <h3 class="text-base-500 dark:text-base-400 text-xs font-medium tracking-wider mb-2 uppercase">{{ kpi_data.instalaciones.title }}</h3>
+        <div>
+            <p class="text-2xl font-bold text-green-600 dark:text-green-400">{{ kpi_data.instalaciones.metric }}</p>
+            <p class="text-xs text-base-500 dark:text-base-400 mt-1">
+                Año actual: <span class="font-semibold text-blue-600 dark:text-blue-400">{{ kpi_data.instalaciones.year_metric }}</span>
+            </p>
+        </div>
     </div>
 </div>
 
-<div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-    <div
-        class="bg-white dark:bg-base-800 rounded-default border border-base-200 dark:border-base-700 shadow-sm flex flex-col">
-        <div class="px-6 pt-6 pb-2 flex-grow flex flex-col">
-            <h3 class="text-base-900 dark:text-base-100 text-lg font-semibold mb-4">Crecimiento en instalaciones</h3>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-start mb-6">
-                <div class="text-center md:text-left">
-                    <h3
-                        class="text-base-500 dark:text-base-400 text-sm font-medium tracking-wider mb-2 h-10 flex items-center justify-center md:justify-start">
-                        {{ kpi_data.instalaciones.title }}
-                    </h3>
-                    <div class="flex items-baseline justify-center md:justify-start">
-                        <p class="text-3xl font-bold text-green-600 dark:text-green-400">
-                            {{ kpi_data.instalaciones.metric }}
-                        </p>
-                    </div>
-                </div>
-                <div class="text-center md:text-right">
-                    <h3
-                        class="text-base-500 dark:text-base-400 text-sm font-medium tracking-wider mb-2 h-10 flex items-center justify-center md:justify-end">
-                        {{ kpi_data.instalaciones.year_title }}
-                    </h3>
-                    <p class="text-3xl font-bold text-blue-600 dark:text-blue-400">
-                        {{ kpi_data.instalaciones.year_metric }}
-                    </p>
-                </div>
-            </div>
-            <div class="relative h-64 w-full mt-auto">
-                <canvas id="installationsChart"></canvas>
-            </div>
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+    <div class="bg-white dark:bg-base-800 rounded-default border border-base-200 dark:border-base-700 shadow-sm p-6 flex flex-col">
+        <h3 class="text-base-900 dark:text-base-100 text-lg font-semibold mb-4">Evolución de pagos</h3>
+        <div class="relative h-64 w-full">
+            <canvas id="revenueChart"></canvas>
         </div>
-
     </div>
 
-    <div class="bg-white dark:bg-base-800 rounded-default border border-base-200 dark:border-base-700 shadow-sm p-6">
+    <div class="bg-white dark:bg-base-800 rounded-default border border-base-200 dark:border-base-700 shadow-sm p-6 flex flex-col">
+        <h3 class="text-base-900 dark:text-base-100 text-lg font-semibold mb-4">Ingresos por instalaciones</h3>
+        <div class="relative h-64 w-full">
+            <canvas id="instRevenueChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+    <div class="bg-white dark:bg-base-800 rounded-default border border-base-200 dark:border-base-700 shadow-sm p-6 flex flex-col">
+        <h3 class="text-base-900 dark:text-base-100 text-lg font-semibold mb-4">Crecimiento en instalaciones</h3>
+        <div class="relative h-64 w-full mt-auto">
+            <canvas id="installationsChart"></canvas>
+        </div>
+    </div>
+
+    <div class="bg-white dark:bg-base-800 rounded-default border border-base-200 dark:border-base-700 shadow-sm p-6 flex flex-col">
         <h3 class="text-base-900 dark:text-base-100 text-lg font-semibold mb-4">Distribución de planes</h3>
         <div class="relative h-64 w-full">
             <canvas id="plansChart"></canvas>

@@ -1,59 +1,34 @@
 {% load admin_extras %}
-{% has_multiple_years as many_years %}
-
 {% if show %}
-<div class="mb-4">
-    <ul class="toplinks flex flex-wrap -mx-2">
-        {% block date-hierarchy-toplinks %}
-        {% block date-hierarchy-back %}
-        {% if back %}
-        {% with back_year=back.link|get_year_from_link %}
-        {% if many_years or back_year %}
-        <li class="date-back px-2">
-            <a href="{{ back.link }}"
-                class="flex group items-center hover:text-primary-600 dark:hover:text-primary-500">
-                <span
-                    class="material-symbols-outlined md-16 mr-2 text-base-400 group-hover:text-primary-600 dark:group-hover:text-primary-500">arrow_back</span>
-                {% with year=back.link|get_year_from_link %}
-                {% if year %}
-                {{ year }}
-                {% else %}
-                {{ back.title|clean_date_title }}
-                {% endif %}
-                {% endwith %}
-            </a>
-        </li>
-        {% endif %}
-        {% if request.GET.periodo_inicio__month and not request.GET.periodo_inicio__day %}
-        <li class="px-2 flex items-center">
-            <span class="text-base-500 font-normal select-none cursor-default"
-                onclick="event.preventDefault(); event.stopPropagation();" style="cursor: default; user-select: none;">
-                {{ request.GET.periodo_inicio__month|es_month_name }}
-            </span>
-        </li>
-        {% endif %}
-        {% endwith %}
-        {% endif %}
-        {% endblock %}
+    <div class="mb-4">
+        <ul class="toplinks flex flex-wrap -mx-2">
+            {% block date-hierarchy-toplinks %}
+                {% block date-hierarchy-back %}
+                    {% if back %}
+                        <li class="date-back px-2">
+                            <a href="{{ back.link }}" class="flex group items-center hover:text-primary-600 dark:hover:text-primary-500">
+                                <span class="material-symbols-outlined md-16 mr-2 text-base-400 group-hover:text-primary-600 dark:group-hover:text-primary-500">arrow_back</span> Regresar
+                            </a>
+                        </li>
+                    {% endif %}
+                {% endblock %}
 
-        {% block date-hierarchy-choices %}
-        {% if not request.GET.periodo_inicio__month %}
-        {% for choice in choices %}
-        <li class="px-2">
-            {% if choice.link %}
-            <a href="{{ choice.link }}" class="hover:text-primary-600 dark:hover:text-primary-500">
-                {% endif %}
+                {% block date-hierarchy-choices %}
+                    {% for choice in choices %}
+                        <li class="px-2">
+                            {% if choice.link %}
+                                <a href="{{ choice.link }}" class="hover:text-primary-600 dark:hover:text-primary-500">
+                            {% endif %}
 
-                {{ choice.title|clean_date_title }}
+                            {{ choice.title|clean_date_title }}
 
-                {% if choice.link %}
-            </a>
-            {% endif %}
-        </li>
-        {% endfor %}
-        {% endif %}
-        {% endblock %}
-        {% endblock %}
-    </ul>
-</div>
+                            {% if choice.link %}
+                                </a>
+                            {% endif %}
+                        </li>
+                    {% endfor %}
+                {% endblock %}
+            {% endblock %}
+        </ul>
+    </div>
 {% endif %}

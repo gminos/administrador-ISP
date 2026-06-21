@@ -111,6 +111,30 @@
             font-size: 10pt;
             color: #888;
         }
+        .payment-methods {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-left: 4px solid #333;
+        }
+        .payment-methods h3 {
+            margin-top: 0;
+            font-size: 10pt;
+            text-transform: uppercase;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 12px;
+        }
+        .payment-methods table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .payment-methods td {
+            padding: 4px 0;
+            font-size: 11pt;
+            color: #444;
+            vertical-align: top;
+        }
     </style>
 </head>
 <body>
@@ -118,13 +142,7 @@
     <div class="header">
         <div class="header-logo">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none" stroke-linecap="round" stroke-linejoin="round" width="70" height="70">
-                <defs>
-                    <linearGradient id="grad1" x1="0%" y1="0%" x2="0%" y2="100%">
-                        <stop offset="0%" style="stop-color:#22d3ee;stop-opacity:1" />
-                        <stop offset="100%" style="stop-color:#84cc16;stop-opacity:1" />
-                    </linearGradient>
-                </defs>
-                <g stroke="url(#grad1)" stroke-width="6">
+                <g stroke="#28a745" stroke-width="6">
                     <line x1="50" y1="15" x2="25" y2="50" />
                     <line x1="50" y1="15" x2="75" y2="50" />
                     <line x1="50" y1="15" x2="50" y2="50" />
@@ -138,7 +156,7 @@
                     <line x1="50" y1="70" x2="15" y2="85" />
                     <line x1="50" y1="70" x2="85" y2="85" />
                 </g>
-                <g fill="url(#grad1)">
+                <g fill="#28a745">
                     <circle cx="50" cy="15" r="8" />
                     <circle cx="25" cy="50" r="8" />
                     <circle cx="75" cy="50" r="8" />
@@ -153,6 +171,10 @@
             <h1>Factura de Servicio de Internet</h1>
             <p>Arint Conexiones - Proveedor de Servicios de Internet</p>
         </div>
+    </div>
+
+    <div class="estado {{ factura.estado }}" style="margin-top: 0; margin-bottom: 30px;">
+        ESTADO DE LA FACTURA: {{ factura.get_estado_display|upper }}
     </div>
 
     <table class="invoice-details">
@@ -193,35 +215,47 @@
                     ${{ factura.monto_total|floatformat:"2g" }}
                 </td>
             </tr>
-            {% if factura.total_pagado > 0 %}
+            {% if total_pagado > 0 %}
             <tr>
                 <td colspan="2" class="right" style="font-weight: bold; border-top: 2px solid #333; font-size: 12pt;">TOTAL FACTURADO:</td>
-                <td class="right" style="border-top: 2px solid #333; font-size: 12pt;">${{ factura.monto_total|floatformat:"2g" }}</td>
+                <td class="right" style="border-top: 2px solid #333; font-size: 12pt;">${{ monto_total|floatformat:"2g" }}</td>
             </tr>
-            {% for pago in factura.pagos.all %}
+            {% for pago in pagos %}
             <tr>
                 <td colspan="2" class="right" style="font-size: 11pt;"><strong>Pago del {{ pago.transaccion.fecha_pago|date:"d M Y" }}:</strong></td>
-                <td class="right" style="font-size: 11pt;">-${{ pago.monto_pagado|floatformat:"2g" }}</td>
+                <td class="right" style="font-size: 11pt;">-${{ pago.monto_abonado|floatformat:"2g" }}</td>
             </tr>
             {% endfor %}
             <tr class="total-row">
                 <td colspan="2" class="right">SALDO MES ACTUAL:</td>
-                <td class="right">${{ factura.saldo_pendiente|floatformat:"2g" }}</td>
+                <td class="right">${{ saldo_pendiente|floatformat:"2g" }}</td>
             </tr>
             {% else %}
             <tr>
-                <td colspan="2" class="right" style="font-weight: bold; border-top: 2px solid #333; font-size: 12pt;">TOTAL MES ACTUAL:</td>
-                <td class="right" style="border-top: 2px solid #333; font-size: 12pt;">${{ factura.monto_total|floatformat:"2g" }}</td>
+                <td colspan="2" class="right" style="font-weight: bold; border-top: 2px solid #333; font-size: 12pt;">SUBTOTAL DEL MES:</td>
+                <td class="right" style="border-top: 2px solid #333; font-size: 12pt;">${{ monto_total|floatformat:"2g" }}</td>
             </tr>
             {% endif %}
 
             {% if saldos_anteriores > 0 %}
             <tr>
-                <td colspan="2" class="right" style="font-size: 11pt; font-weight: bold; color: #721c24;">SALDOS ANTERIORES VENCIDOS:</td>
+                <td colspan="3" style="padding-top: 20px; border-bottom: 2px solid #333;"><strong>ESTADO DE CUENTA ANTERIOR</strong></td>
+            </tr>
+            {% for cargo_vencido in cargos_vencidos %}
+            <tr>
+                <td>
+                    <span style="color: #721c24;">• Cargo #{{ cargo_vencido.pk|stringformat:"05d" }} - {{ cargo_vencido.get_tipo_cargo_display }} ({% if cargo_vencido.factura_origen %}{{ cargo_vencido.factura_origen.periodo_inicio|date:"M Y" }}{% else %}{{ cargo_vencido.fecha_emision|date:"M Y" }}{% endif %})</span>
+                </td>
+                <td class="right" style="color: #721c24; font-size: 10pt;">Deuda pendiente:</td>
+                <td class="right" style="color: #721c24;">${{ cargo_vencido.saldo_pendiente|floatformat:"2g" }}</td>
+            </tr>
+            {% endfor %}
+            <tr>
+                <td colspan="2" class="right" style="font-size: 11pt; font-weight: bold; color: #721c24;">+ TOTAL DEUDAS ANTERIORES:</td>
                 <td class="right" style="font-size: 11pt; font-weight: bold; color: #721c24;">${{ saldos_anteriores|floatformat:"2g" }}</td>
             </tr>
             {% endif %}
-            
+
             <tr class="total-row" style="background-color: #f8f9fa;">
                 <td colspan="2" class="right" style="font-size: 16pt;">TOTAL A PAGAR:</td>
                 <td class="right" style="font-size: 16pt;">${{ total_a_pagar|floatformat:"2g" }}</td>
@@ -229,9 +263,21 @@
         </tbody>
     </table>
 
-    <div class="estado {{ factura.estado }}">
-        ESTADO DE LA FACTURA: {{ factura.get_estado_display|upper }}
+    {% if factura.estado != 'pagado' %}
+    <div class="payment-methods">
+        <h3>Medios de Pago Autorizados</h3>
+        <table>
+            <tr>
+                <td style="width: 60%; padding-right: 10px;"><strong>Nequi:</strong> {{ payment_nequi }}</td>
+                <td style="width: 40%;"><strong>Llave BRE-B:</strong> {{ payment_breve }}</td>
+            </tr>
+            <tr>
+                <td style="padding-right: 10px; white-space: nowrap;"><strong>Bancolombia Ahorros:</strong> {{ payment_bancolombia }}</td>
+                <td><strong>Efectivo:</strong> {{ payment_efectivo }}</td>
+            </tr>
+        </table>
     </div>
+    {% endif %}
 
     <div class="footer">
         Gracias por su preferencia. Para cualquier duda o consulta sobre esta factura, por favor contáctenos.
