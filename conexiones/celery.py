@@ -21,4 +21,8 @@ app.conf.beat_schedule = {
         'task': 'redes.tasks.suspender_morosos_masivamente',
         'schedule': crontab(hour=0, minute=1),
     },
+    'verificar-estado-suscripcion-isps': {
+        'task': 'nucleo_admin.tasks.verificar_estado_isps',
+        'schedule': crontab(hour=2, minute=0),
+    },
 }

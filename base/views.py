@@ -8,6 +8,42 @@ from datetime import timedelta
 from django.db.models.functions import TruncMonth
 
 def dashboard_callback(request, context):
+    import json
+
+    if hasattr(request, 'tenant') and request.tenant.schema_name == 'public':
+        from nucleo_admin.models import EmpresaISP, Dominio
+        total_tenants = EmpresaISP.objects.exclude(schema_name='public').count()
+        total_domains = Dominio.objects.exclude(tenant__schema_name='public').count()
+        
+        context.update({
+            "is_public_schema": True,
+            "kpi_data": {
+                "clientes": {
+                    "title": "Total Inquilinos",
+                    "metric": total_tenants,
+                    "footer": "Empresas ISP registradas",
+                },
+                "instalaciones": {
+                    "title": "Dominios",
+                    "metric": total_domains,
+                    "footer": "Dominios activos",
+                },
+            },
+            "meta_data": {},
+            "chart_labels": "[]",
+            "chart_data": "[]",
+            "inst_labels": "[]",
+            "inst_count": "[]",
+            "inst_revenue": "[]",
+            "payment_method_labels": "[]",
+            "payment_method_data": "[]",
+            "plans_labels": "[]",
+            "plans_data": "[]",
+            "veredas_labels": "[]",
+            "veredas_data": "[]",
+        })
+        return context
+
     total_clientes = Cliente.objects.count()
     total_instalaciones = Instalacion.objects.count()
     total_servicios_activos = Instalacion.objects.filter(servicio_activo=True).count()
@@ -99,7 +135,6 @@ def dashboard_callback(request, context):
     veredas_labels = [item["cliente__vereda"] for item in veredas_dist_qs if item["cliente__vereda"]]
     veredas_data = [item["total"] for item in veredas_dist_qs if item["cliente__vereda"]]
 
-    import json
     context.update({
         "kpi_data": {
             "clientes": {
