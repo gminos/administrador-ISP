@@ -4,6 +4,24 @@ Todas las novedades, cambios y correcciones del proyecto Administrador ISP será
 
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/), y este proyecto se adhiere a [Versionamiento Semántico (SemVer)](https://semver.org/lang/es/).
 
+## [2.0.0] - 2026-06-29
+
+Esta versión marca la evolución del proyecto de un Gestor ISP individual a una Plataforma SaaS B2B Multi-Inquilino. Ahora el sistema es capaz de alojar y gestionar a múltiples ISPs simultáneamente con aislamiento de bases de datos, control financiero y automatización de clientes.
+
+### Agregado
+- **Facturación SaaS B2B:** Nuevo modelo de gestión financiera para inquilinos (EmpresaISP) que incluye campos de estado de cuenta, fecha de próximo pago y días de gracia.
+- **Middleware "Kill Switch":** Sistema de seguridad y proxy reverso que bloquea automáticamente a los ISPs morosos, redirigiendo su tráfico a una pantalla de "Servicio Suspendido".
+- **Onboarding Automatizado:** Envío automático de credenciales (usuario y contraseña temporal) por correo electrónico al registrar un nuevo ISP, garantizando el principio de "Cero Confianza" (Zero Trust).
+- **App Usuarios:** Nueva aplicación dedicada para la gestión del modelo de usuarios base (`usuarios`).
+
+### Modificado
+- **Arquitectura Multi-tenant:** Refactorización masiva de bases de datos utilizando esquemas de PostgreSQL (`django-tenants`), rompiendo la compatibilidad con el esquema público original de la v1.0.0 para lograr aislamiento de datos por ISP.
+- **Estructura de Señales (Signals):** Implementación de archivos `signals.py` separados para las apps de facturación, instalaciones y planes para desacoplar la lógica de negocio.
+- **Dependencias Docker:** Actualización de `pyproject.toml` y `docker-compose.yml` para reflejar el uso del gestor de paquetes `uv`.
+
+### Corregido
+- **Filtro Celery WhatsApp:** Solucionado error en el modelo de consultas asíncronas de facturación, asegurando que los recibos solo se generen para facturas en mora o estado parcial.
+
 ## [1.0.0] - 2026-06-21
 
 Esta es la primera versión oficial estable ("Lanzamiento Inicial"). Convierte el proyecto de una prueba de concepto en un software completo de gestión para Proveedores de Servicios de Internet (ISP), incorporando control total sobre la red y automatización de cobros.
