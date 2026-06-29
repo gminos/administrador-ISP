@@ -135,3 +135,9 @@ msgstr "Revertir"
 
 msgid "Change History"
 msgstr "Historial de Cambios"
+
+msgid "Choose file to upload"
+msgstr "Seleccionar archivo"
+
+msgid "Email Address"
+msgstr "Correo electrónico"
