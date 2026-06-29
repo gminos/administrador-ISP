@@ -14,7 +14,6 @@ from pathlib import Path
 from dotenv import load_dotenv
 from django.templatetags.static import static
 from django.urls import reverse_lazy
-from django.utils.translation import gettext_lazy as _
 import os
 
 load_dotenv()
@@ -57,7 +56,14 @@ DEBUG_TOOLBAR_PANELS = [
 
 # Application definition
 
-INSTALLED_APPS = [
+SHARED_APPS = [
+    "django_tenants",
+    "nucleo_admin.apps.NucleoAdminConfig",
+    "usuarios",
+    "django.contrib.contenttypes",
+    "django.contrib.auth",
+    "django.contrib.sessions",
+    "django.contrib.messages",
     "unfold",
     "unfold.contrib.filters",
     "unfold.contrib.forms",
@@ -65,11 +71,23 @@ INSTALLED_APPS = [
     "unfold.contrib.guardian",
     "unfold.contrib.simple_history",
     "django.contrib.admin",
-    "django.contrib.auth",
+    "django.contrib.staticfiles",
+]
+
+TENANT_APPS = [
     "django.contrib.contenttypes",
+    "django.contrib.auth",
     "django.contrib.sessions",
     "django.contrib.messages",
+    "unfold",
+    "unfold.contrib.filters",
+    "unfold.contrib.forms",
+    "unfold.contrib.import_export",
+    "unfold.contrib.guardian",
+    "unfold.contrib.simple_history",
+    "django.contrib.admin",
     "django.contrib.staticfiles",
+    "usuarios",
     "simple_history",
     "clientes.apps.ClientesConfig",
     "planes.apps.PlanesConfig",
@@ -80,7 +98,18 @@ INSTALLED_APPS = [
     "debug_toolbar",
 ]
 
+INSTALLED_APPS = list(SHARED_APPS) + [app for app in TENANT_APPS if app not in SHARED_APPS]
+
+TENANT_MODEL = "nucleo_admin.EmpresaISP"
+TENANT_DOMAIN_MODEL = "nucleo_admin.Dominio"
+
+DATABASE_ROUTERS = (
+    'django_tenants.routers.TenantSyncRouter',
+)
+
 MIDDLEWARE = [
+    "django_tenants.middleware.main.TenantMainMiddleware",
+    "nucleo_admin.middleware.TenantSuspensionMiddleware",
     "debug_toolbar.middleware.DebugToolbarMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
@@ -91,6 +120,8 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "simple_history.middleware.HistoryRequestMiddleware",
 ]
+
+AUTH_USER_MODEL = "usuarios.User"
 
 ROOT_URLCONF = "conexiones.urls"
 
@@ -116,7 +147,7 @@ WSGI_APPLICATION = "conexiones.wsgi.application"
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.postgresql",
+        "ENGINE": "django_tenants.postgresql_backend",
         "NAME": os.getenv("POSTGRES_DB"),
         "USER": os.getenv("POSTGRES_USER"),
         "PASSWORD": os.getenv("POSTGRES_PASSWORD"),
@@ -153,6 +184,10 @@ TIME_ZONE = "America/Bogota"
 USE_I18N = True
 USE_THOUSAND_SEPARATOR = True
 
+LOCALE_PATHS = [
+    os.path.join(BASE_DIR, 'locale')
+]
+
 USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
@@ -161,23 +196,36 @@ USE_TZ = True
 STATIC_URL = "/static/"
 STATIC_ROOT = '/app/staticfiles'
 
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
+def obtener_logo_inquilino(request):
+    if hasattr(request, 'tenant') and request.tenant.schema_name != 'public' and request.tenant.logo:
+        return request.tenant.logo.url
+    return static("images/logo-light.svg")
+
+def obtener_nombre_inquilino(request):
+    if hasattr(request, 'tenant') and request.tenant.schema_name != 'public':
+        return request.tenant.name
+    return "NucleoISP"
+
 UNFOLD = {
-    "SITE_TITLE": "Arint Conexiones",
-    "SITE_HEADER": "Arint Conexiones",
+    "SITE_TITLE": obtener_nombre_inquilino,
+    "SITE_HEADER": obtener_nombre_inquilino,
     "SITE_URL": "/",
     "SITE_ICON": {
-        "light": lambda request: static("images/logo-light.svg"),
-        "dark": lambda request: static("images/logo-dark.svg"),
+        "light": obtener_logo_inquilino,
+        "dark": obtener_logo_inquilino,
     },
     "SITE_FAVICONS": [
         {
             "rel": "icon",
-            "href": lambda request: static("images/logo-light.svg"),
+            "href": obtener_logo_inquilino,
         },
     ],
     "COLORS": {
@@ -201,11 +249,11 @@ UNFOLD = {
         "show_all_applications": False,
         "navigation": [
             {
-                "title": _("Navegación"),
+                "title": "Navegación",
                 "separator": False,
                 "items": [
                     {
-                        "title": _("Panel de control"),
+                        "title": "Panel de control",
                         "icon": "dashboard",
                         "link": reverse_lazy("admin:index"),
                         "permission": lambda request: request.user.is_staff,
@@ -213,81 +261,125 @@ UNFOLD = {
                 ],
             },
             {
-                "title": _("Gestión"),
+                "title": "Administración",
                 "separator": True,
                 "items": [
                     {
-                        "title": _("Caja rápida"),
-                        "icon": "point_of_sale",
-                        "link": reverse_lazy("portal_caja"),
-                        "permission": lambda request: request.user.is_staff,
-                        "badge": "conexiones.utils.get_nuevo_badge",
+                        "title": "Empresas",
+                        "icon": "business",
+                        "link": reverse_lazy("admin:nucleo_admin_empresaisp_changelist"),
+                        "permission": lambda request: request.user.is_superuser and hasattr(request, "tenant") and request.tenant.schema_name == "public",
                     },
                     {
-                        "title": _("Cargos"),
-                        "icon": "account_balance",
-                        "link": reverse_lazy("admin:facturacion_cargo_changelist"),
-                        "permission": lambda request: request.user.has_perm("facturacion.view_cargo"),
-                        "badge": "conexiones.utils.get_nuevo_badge",
+                        "title": "Dominios",
+                        "icon": "language",
+                        "link": reverse_lazy("admin:nucleo_admin_dominio_changelist"),
+                        "permission": lambda request: request.user.is_superuser and hasattr(request, "tenant") and request.tenant.schema_name == "public",
                     },
                     {
-                        "title": _("Transacciones"),
-                        "icon": "account_balance_wallet",
-                        "link": reverse_lazy("admin:facturacion_transaccion_changelist"),
-                        "permission": lambda request: request.user.has_perm("facturacion.view_transaccion"),
-                        "badge": "conexiones.utils.get_nuevo_badge",
+                        "title": "Paquete",
+                        "icon": "package",
+                        "link": reverse_lazy("admin:nucleo_admin_paquete_changelist"),
+                        "permission": lambda request: request.user.is_superuser and hasattr(request, "tenant") and request.tenant.schema_name == "public",
                     },
-
+                ],
+            },
+            {
+                "title": "Gestión de clientes",
+                "separator": True,
+                "items": [
                     {
-                        "title": _("Facturas"),
-                        "icon": "receipt_long",
-                        "link": reverse_lazy("admin:facturacion_factura_changelist"),
-                        "permission": lambda request: request.user.has_perm("facturacion.view_factura"),
-                    },
-                    {
-                        "title": _("Clientes"),
+                        "title": "Clientes",
                         "icon": "people",
                         "link": reverse_lazy("admin:clientes_cliente_changelist"),
-                        "permission": lambda request: request.user.has_perm("clientes.view_cliente"),
+                        "permission": lambda request: request.user.has_perm("clientes.view_cliente") and hasattr(request, "tenant") and request.tenant.schema_name != "public",
                     },
                     {
-                        "title": _("Instalaciones"),
+                        "title": "Instalaciones",
                         "icon": "router",
                         "link": reverse_lazy("admin:instalaciones_instalacion_changelist"),
-                        "permission": lambda request: request.user.has_perm("instalaciones.view_intalacion"),
+                        "permission": lambda request: request.user.has_perm("instalaciones.view_intalacion") and hasattr(request, "tenant") and request.tenant.schema_name != "public",
                     },
                     {
-                        "title": _("Planes"),
+                        "title": "Planes",
                         "icon": "layers",
                         "link": reverse_lazy("admin:planes_plan_changelist"),
-                        "permission": lambda request: request.user.has_perm("planes.view_plan"),
+                        "permission": lambda request: request.user.has_perm("planes.view_plan") and hasattr(request, "tenant") and request.tenant.schema_name != "public",
                     },
                 ],
             },
             {
-                "title": _("Redes e Infraestructura"),
+                "title": "Facturación y cobros",
                 "separator": True,
                 "items": [
                     {
-                        "title": _("Routers"),
+                        "title": "Caja rápida",
+                        "icon": "point_of_sale",
+                        "link": reverse_lazy("portal_caja"),
+                        "permission": lambda request: request.user.is_staff and hasattr(request, "tenant") and request.tenant.schema_name != "public",
+                    },
+                    {
+                        "title": "Facturas",
+                        "icon": "receipt_long",
+                        "link": reverse_lazy("admin:facturacion_factura_changelist"),
+                        "permission": lambda request: request.user.has_perm("facturacion.view_factura") and hasattr(request, "tenant") and request.tenant.schema_name != "public",
+                    },
+                    {
+                        "title": "Cargos",
+                        "icon": "account_balance",
+                        "link": reverse_lazy("admin:facturacion_cargo_changelist"),
+                        "permission": lambda request: request.user.has_perm("facturacion.view_cargo") and hasattr(request, "tenant") and request.tenant.schema_name != "public",
+                    },
+                    {
+                        "title": "Transacciones",
+                        "icon": "account_balance_wallet",
+                        "link": reverse_lazy("admin:facturacion_transaccion_changelist"),
+                        "permission": lambda request: request.user.has_perm("facturacion.view_transaccion") and hasattr(request, "tenant") and request.tenant.schema_name != "public",
+                    },
+                ],
+            },
+            {
+                "title": "Ajustes generales",
+                "separator": True,
+                "items": [
+                    {
+                        "title": "Métodos de pago",
+                        "icon": "payments",
+                        "link": reverse_lazy("admin:facturacion_metodopago_changelist"),
+                        "permission": lambda request: request.user.has_perm("facturacion.view_metodopago") and hasattr(request, "tenant") and request.tenant.schema_name != "public",
+                    },
+                    {
+                        "title": "Regla de reconexión",
+                        "icon": "settings",
+                        "link": reverse_lazy("admin:facturacion_configuracionfacturacion_changelist"),
+                        "permission": lambda request: request.user.has_perm("facturacion.view_configuracionfacturacion") and hasattr(request, "tenant") and request.tenant.schema_name != "public",
+                    },
+                ],
+            },
+            {
+                "title": "Redes e Infraestructura",
+                "separator": True,
+                "items": [
+                    {
+                        "title": "Routers",
                         "icon": "dns",
                         "link": reverse_lazy("admin:redes_router_changelist"),
-                        "permission": lambda request: request.user.has_perm("redes.view_router"),
+                        "permission": lambda request: request.user.has_perm("redes.view_router") and hasattr(request, "tenant") and request.tenant.schema_name != "public",
                     },
                 ],
             },
             {
-                "title": _("Administración"),
+                "title": "Administración",
                 "separator": True,
                 "items": [
                     {
-                        "title": _("Usuarios"),
+                        "title": "Usuarios",
                         "icon": "person",
-                        "link": reverse_lazy("admin:auth_user_changelist"),
-                        "permission": lambda request: request.user.has_perm("auth.view_user"),
+                        "link": reverse_lazy("admin:usuarios_user_changelist"),
+                        "permission": lambda request: request.user.has_perm("usuarios.view_user"),
                     },
                     {
-                        "title": _("Grupos"),
+                        "title": "Grupos",
                         "icon": "group",
                         "link": reverse_lazy("admin:auth_group_changelist"),
                         "permission": lambda request: request.user.has_perm("auth.view_group"),
@@ -302,12 +394,13 @@ CELERY_BROKER_URL = os.getenv("REDIS_URL", "redis://redis:6379/0")
 CELERY_RESULT_BACKEND = os.getenv("REDIS_URL", "redis://redis:6379/0")
 CELERY_TIMEZONE = TIME_ZONE
 
-WA_PHONE_ID = os.getenv('WA_PHONE_ID', '')
-WA_TOKEN = os.getenv('WA_TOKEN', '')
-
-PAYMENT_NEQUI = os.getenv('PAYMENT_NEQUI', '[]')
-PAYMENT_BREVE = os.getenv('PAYMENT_BREVE', '[]')
-PAYMENT_BANCOLOMBIA = os.getenv('PAYMENT_BANCOLOMBIA', '[]')
-PAYMENT_EFECTIVO = os.getenv('PAYMENT_EFECTIVO', '[]')
+# Email Configuration
+EMAIL_BACKEND = os.getenv("EMAIL_BACKEND", "django.core.mail.backends.console.EmailBackend" if DEBUG else "django.core.mail.backends.smtp.EmailBackend")
+EMAIL_HOST = os.getenv("EMAIL_HOST", "smtp.gmail.com")
+EMAIL_PORT = int(os.getenv("EMAIL_PORT", 587))
+EMAIL_USE_TLS = os.getenv("EMAIL_USE_TLS", "true").lower() == "true"
+EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER", "")
+EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD", "")
+DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL", "Soporte NucleoISP <no-reply@nucleoisp.com>")
 
 LOCALE_PATHS = [BASE_DIR / 'locale']
