@@ -5,3 +5,6 @@ class PlanesConfig(AppConfig):
     default_auto_field = "django.db.models.BigAutoField"
     name = "planes"
     verbose_name = "gestiona planes"
+
+    def ready(self):
+        import planes.signals

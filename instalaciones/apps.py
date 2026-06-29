@@ -5,3 +5,6 @@ class InstalacionesConfig(AppConfig):
     default_auto_field = "django.db.models.BigAutoField"
     name = "instalaciones"
     verbose_name = "gestiona instalaciones"
+
+    def ready(self):
+        import instalaciones.signals

@@ -5,3 +5,6 @@ class FacturacionConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
     name = 'facturacion'
     verbose_name = "gestiona pagos"
+
+    def ready(self):
+        import facturacion.signals

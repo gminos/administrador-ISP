@@ -1,9 +1,6 @@
-from django.db.models.signals import post_delete, post_save
-from instalaciones.models import Instalacion
-from django.utils import timezone
-from django.dispatch import receiver
-from django.db import models
 from simple_history.models import HistoricalRecords
+from django.utils import timezone
+from django.db import models
 
 METODO_CHOICES = [
     ("transferencia", "Transferencia"),
@@ -24,6 +21,45 @@ TIPO_CARGO_CHOICES = [
     ("instalacion", "Instalacion"),
     ("reconexion", "Reconexion")
 ]
+
+
+class MetodoPago(models.Model):
+    nombre = models.CharField("Metodo de pago", max_length=100)
+    detalles = models.TextField("Detalles de la cuenta", help_text="Ej: Número 3001234567 a nombre de Juan")
+    activo = models.BooleanField("Activo", default=True)
+
+    class Meta:
+        verbose_name = "Método de Pago"
+        verbose_name_plural = "Métodos de Pago"
+        ordering = ['nombre']
+
+    def __str__(self):
+        return f"{self.nombre}"
+
+
+class ConfiguracionFacturacion(models.Model):
+    dias_gracia = models.PositiveIntegerField(
+        "Días de gracia",
+        default=3,
+        help_text="Días adicionales después del corte del ciclo antes de cobrar reconexión"
+    )
+
+    class Meta:
+        verbose_name = "Regla de Reconexión"
+        verbose_name_plural = "Regla de Reconexión"
+
+    def save(self, *args, **kwargs):
+        if not self.pk and ConfiguracionFacturacion.objects.exists():
+            return
+        super().save(*args, **kwargs)
+
+    @classmethod
+    def get_solo(cls):
+        obj, _ = cls.objects.get_or_create(pk=1)
+        return obj
+
+    def __str__(self):
+        return "Configuración Global"
 
 
 class Factura(models.Model):
@@ -109,6 +145,10 @@ class Cargo(models.Model):
         if not self.pk and self.saldo_pendiente is None:
             self.saldo_pendiente = self.monto_total
 
+        if self.monto_total == 0 and self.estado != "pagado":
+            self.estado = "pagado"
+            self.saldo_pendiente = 0
+
         super().save(*args, **kwargs)
 
 
@@ -126,41 +166,3 @@ class DetallePago(models.Model):
 
     def __str__(self):
         return f"Detalle de Transacción #{self.transaccion.pk:05d}"
-
-
-@receiver(post_save, sender=Instalacion)
-def crear_cargo_por_instalacion(sender, instance, created, **kwargs):
-    if created:
-        Cargo.objects.create(
-            cliente=instance.cliente,
-            instalacion=instance,
-            tipo_cargo="instalacion",
-            fecha_emision=instance.fecha_instalacion,
-            monto_total=instance.costo
-        )
-
-@receiver(post_save, sender=Factura)
-def crear_cargo_por_factura(sender, instance, created, **kwargs):
-    if created:
-        costo = instance.instalacion.plan.costo if instance.instalacion.plan else 0
-        Cargo.objects.create(
-            cliente=instance.instalacion.cliente,
-            instalacion=instance.instalacion,
-            factura_origen=instance,
-            fecha_vencimiento=instance.fecha_reconexion,
-            monto_total=costo
-        )
-
-@receiver(post_delete, sender=DetallePago)
-def restaurar_saldo_cargo_al_borrar_pago(sender, instance, **kwargs):
-    cargo = instance.cargo
-    cargo.saldo_pendiente += instance.monto_abonado
-
-    if cargo.saldo_pendiente >= cargo.monto_total:
-        cargo.estado = "pendiente"
-    elif cargo.saldo_pendiente > 0:
-        cargo.estado = "parcial"
-    else:
-        cargo.estado = "pagado"
-
-    cargo.save(update_fields=["saldo_pendiente", "estado"])

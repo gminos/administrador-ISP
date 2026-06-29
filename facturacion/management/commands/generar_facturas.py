@@ -1,8 +1,8 @@
-from django.db import transaction
+from facturacion.models import Factura, ConfiguracionFacturacion
 from django.core.management.base import BaseCommand
-from facturacion.models import Factura
 from instalaciones.models import Instalacion
-from datetime import date
+from datetime import date, timedelta
+from django.db import transaction
 import calendar
 
 
@@ -10,7 +10,7 @@ class Command(BaseCommand):
     help = 'Genera pagos del mes actual para todos los usuarios cuyo servicio se encuentre activo'
 
     @staticmethod
-    def calculo_fechas(ciclo_facturacion: int) -> tuple[date, date, date]:
+    def calculo_fechas(ciclo_facturacion: int, dias_gracia: int) -> tuple[date, date, date]:
         fecha_hoy = date.today()
         year_siguiente = fecha_hoy.year if fecha_hoy.month < 12 else fecha_hoy.year + 1
         mes_siguiente = fecha_hoy.month + 1 if fecha_hoy.month < 12 else 1
@@ -20,13 +20,13 @@ class Command(BaseCommand):
             ultimo_dia_del_mes = calendar.monthrange(fecha_hoy.year, fecha_hoy.month)[1]
             dia_final = 30 if ultimo_dia_del_mes >= 30 else ultimo_dia_del_mes
             periodo_final = date(fecha_hoy.year, fecha_hoy.month, dia_final)
-            fecha_reconexion = date(year_siguiente, mes_siguiente, 3)
+            fecha_reconexion = periodo_final + timedelta(days=dias_gracia)
 
             return periodo_inicio, periodo_final, fecha_reconexion
 
         periodo_inicio = date(fecha_hoy.year, fecha_hoy.month, 15)
         periodo_final = date(year_siguiente, mes_siguiente, 14)
-        fecha_reconexion = date(year_siguiente, mes_siguiente, 17)
+        fecha_reconexion = periodo_final + timedelta(days=dias_gracia)
 
         return periodo_inicio, periodo_final, fecha_reconexion
 
@@ -34,6 +34,7 @@ class Command(BaseCommand):
         fecha_hoy = date.today()
         ultimo_dia_del_mes = calendar.monthrange(fecha_hoy.year, fecha_hoy.month)[1]
         ciclos_a_cobrar = [fecha_hoy.day]
+        dias_gracia = ConfiguracionFacturacion.get_solo().dias_gracia
 
         if fecha_hoy.day == ultimo_dia_del_mes and ultimo_dia_del_mes < 30:
             ciclos_a_cobrar.append(30)
@@ -43,7 +44,7 @@ class Command(BaseCommand):
         facturas_nuevas = []
 
         for instalacion in instalaciones_del_dia:
-            periodo_inicio, periodo_final, fecha_reconexion = self.calculo_fechas(instalacion.ciclo_facturacion)
+            periodo_inicio, periodo_final, fecha_reconexion = self.calculo_fechas(instalacion.ciclo_facturacion, dias_gracia)
 
             if Factura.objects.filter(instalacion=instalacion, periodo_inicio=periodo_inicio).exists():
                 self.stdout.write(self.style.WARNING(

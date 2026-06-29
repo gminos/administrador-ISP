@@ -2,6 +2,38 @@
 {% load i18n %}
 
 {% block content %}
+{% if is_public_schema %}
+<div class="mb-8">
+    <div class="bg-white dark:bg-base-800 rounded-default border border-base-200 dark:border-base-700 shadow-sm p-6">
+        <h3 class="text-base-900 dark:text-base-100 text-xl font-semibold mb-2">Panel Maestro NucleoISP</h3>
+        <p class="text-base-500 dark:text-base-400 mb-6">Bienvenido al administrador global. Desde aquí puedes gestionar las Empresas ISP (inquilinos) y sus dominios.</p>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="bg-base-50 dark:bg-base-900 rounded-default border border-base-200 dark:border-base-700 p-5 flex items-center">
+                <div class="p-3 bg-primary-100 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400 rounded-full mr-4">
+                    <span class="material-symbols-outlined" style="font-size: 32px;">domain</span>
+                </div>
+                <div>
+                    <h4 class="text-xs font-semibold uppercase tracking-wider text-base-500 dark:text-base-400 mb-1">{{ kpi_data.clientes.title }}</h4>
+                    <p class="text-3xl font-bold text-base-900 dark:text-base-100">{{ kpi_data.clientes.metric }}</p>
+                    <p class="text-xs text-base-500 dark:text-base-400 mt-1">{{ kpi_data.clientes.footer }}</p>
+                </div>
+            </div>
+            
+            <div class="bg-base-50 dark:bg-base-900 rounded-default border border-base-200 dark:border-base-700 p-5 flex items-center">
+                <div class="p-3 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-full mr-4">
+                    <span class="material-symbols-outlined" style="font-size: 32px;">language</span>
+                </div>
+                <div>
+                    <h4 class="text-xs font-semibold uppercase tracking-wider text-base-500 dark:text-base-400 mb-1">{{ kpi_data.instalaciones.title }}</h4>
+                    <p class="text-3xl font-bold text-base-900 dark:text-base-100">{{ kpi_data.instalaciones.metric }}</p>
+                    <p class="text-xs text-base-500 dark:text-base-400 mt-1">{{ kpi_data.instalaciones.footer }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% else %}
 <div class="mb-8">
     <div class="bg-white dark:bg-base-800 rounded-default border border-base-200 dark:border-base-700 shadow-sm p-6">
         <div class="flex justify-between items-end mb-2">
@@ -282,4 +314,5 @@
             });
         });
 </script>
+{% endif %}
 {% endblock %}

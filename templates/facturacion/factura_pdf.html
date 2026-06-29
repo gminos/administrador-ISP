@@ -141,6 +141,9 @@
 
     <div class="header">
         <div class="header-logo">
+            {% if tenant.logo %}
+                <img src="file://{{ tenant.logo.path }}" alt="Logo {{ tenant.name }}" style="max-width: 70px; max-height: 70px;">
+            {% else %}
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none" stroke-linecap="round" stroke-linejoin="round" width="70" height="70">
                 <g stroke="#28a745" stroke-width="6">
                     <line x1="50" y1="15" x2="25" y2="50" />
@@ -166,15 +169,16 @@
                     <circle cx="85" cy="85" r="8" />
                 </g>
             </svg>
+            {% endif %}
         </div>
         <div class="header-text">
             <h1>Factura de Servicio de Internet</h1>
-            <p>Arint Conexiones - Proveedor de Servicios de Internet</p>
+            <p>{{ tenant.name }} - Proveedor de Servicios de Internet</p>
         </div>
     </div>
 
     <div class="estado {{ factura.estado }}" style="margin-top: 0; margin-bottom: 30px;">
-        ESTADO DE LA FACTURA: {{ factura.get_estado_display|upper }}
+        ESTADO DE LA FACTURA: {{ factura.estado|upper }}
     </div>
 
     <table class="invoice-details">
@@ -267,14 +271,13 @@
     <div class="payment-methods">
         <h3>Medios de Pago Autorizados</h3>
         <table>
-            <tr>
-                <td style="width: 60%; padding-right: 10px;"><strong>Nequi:</strong> {{ payment_nequi }}</td>
-                <td style="width: 40%;"><strong>Llave BRE-B:</strong> {{ payment_breve }}</td>
-            </tr>
-            <tr>
-                <td style="padding-right: 10px; white-space: nowrap;"><strong>Bancolombia Ahorros:</strong> {{ payment_bancolombia }}</td>
-                <td><strong>Efectivo:</strong> {{ payment_efectivo }}</td>
-            </tr>
+            {% for metodo in metodos_pago %}
+                {% if forloop.counter0|divisibleby:2 %}<tr>{% endif %}
+                <td style="width: 50%; padding-right: 10px;"><strong>{{ metodo.nombre }}:</strong> {{ metodo.detalles }}</td>
+                {% if forloop.counter|divisibleby:2 or forloop.last %}</tr>{% endif %}
+            {% empty %}
+                <tr><td>No hay métodos de pago configurados.</td></tr>
+            {% endfor %}
         </table>
     </div>
     {% endif %}

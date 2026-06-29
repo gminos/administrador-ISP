@@ -4,18 +4,21 @@ from facturacion.models import Factura, Transaccion
 from facturacion.utils import generar_pdf_factura
 from pdf2image import convert_from_bytes
 from pywa.errors import WhatsAppError
-from django.conf import settings
+from django.db import connection
 from pywa import WhatsApp
 import weasyprint
 import logging
 import io
 
-wa = WhatsApp(
-    phone_id=settings.WA_PHONE_ID,
-    token=settings.WA_TOKEN
-)
-
 def enviar_factura_cliente(factura: Factura) -> bool:
+    tenant = connection.tenant
+
+    if not tenant.wa_token or not tenant.wa_phone_id:
+        print(f"Error: El inquilino {tenant.name} no tiene configurado WhatsApp.")
+        return False
+
+    wa = WhatsApp(phone_id=tenant.wa_phone_id, token=tenant.wa_token)
+
     telefono_cliente = factura.cliente.telefono
     if not telefono_cliente:
         print(f"Error: El cliente {factura.cliente} no tiene telefono registrado.")
@@ -75,11 +78,21 @@ def enviar_factura_cliente(factura: Factura) -> bool:
         return False
 
 def generar_pdf_comprobante(transaccion: Transaccion) -> bytes:
-    html_string = render_to_string('facturacion/recibo_transaccion_pdf.html', {'transaccion': transaccion})
+    from django.db import connection
+    tenant = connection.tenant
+    html_string = render_to_string('facturacion/recibo_transaccion_pdf.html', {'transaccion': transaccion, 'tenant': tenant})
     html = weasyprint.HTML(string=html_string)
     return html.write_pdf()
 
 def enviar_comprobante_pago(transaccion: Transaccion) -> bool:
+    tenant = connection.tenant
+
+    if not tenant.wa_token or not tenant.wa_phone_id:
+        print(f"Error: El inquilino {tenant.name} no tiene configurado WhatsApp.")
+        return False
+
+    wa = WhatsApp(phone_id=tenant.wa_phone_id, token=tenant.wa_token)
+
     telefono_cliente = transaccion.cliente.telefono
     if not telefono_cliente:
         return False

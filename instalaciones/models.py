@@ -21,10 +21,11 @@ class Instalacion(models.Model):
         related_name='instalaciones'
     )
     servicio_activo = models.BooleanField(default=True)
-    ciclo_facturacion = models.IntegerField(choices=CicloFacturacionChoices.choices, default=CicloFacturacionChoices.MENSUAL)
+    ciclo_facturacion = models.IntegerField(choices=CicloFacturacionChoices, default=CicloFacturacionChoices.MENSUAL)
     router = models.ForeignKey("redes.Router", on_delete=models.SET_NULL, blank=True, null=True)
     pppoe_usuario = models.CharField(max_length=50, unique=True, null=True, blank=True)
     pppoe_password = models.CharField(max_length=100, null=True, blank=True)
+    ip_estatica = models.GenericIPAddressField("IP Estática", null=True, blank=True, help_text="Opcional. Dejar en blanco para IP Dinámica.")
 
     class Meta:
         verbose_name = "instalacion"

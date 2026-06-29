@@ -14,6 +14,7 @@ class InstalacionAdmin(ModelAdmin):
         "cliente",
         "vereda",
         "pppoe_usuario",
+        "ip_estatica",
         "fecha_instalacion",
         "costo",
         "servicio_activo"
@@ -21,7 +22,8 @@ class InstalacionAdmin(ModelAdmin):
     search_fields = (
         "cliente__nombre",
         "cliente__apellido",
-        "pppoe_usuario"
+        "pppoe_usuario",
+        "ip_estatica"
     )
     autocomplete_fields = ["cliente"]
     readonly_fields = ["cliente"]

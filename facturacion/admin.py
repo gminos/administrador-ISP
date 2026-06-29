@@ -1,9 +1,11 @@
-from facturacion.models import Factura, Transaccion, Cargo, DetallePago
+from facturacion.models import Factura, Transaccion, Cargo, DetallePago, MetodoPago, ConfiguracionFacturacion
 from unfold.contrib.filters.admin import RadioFilter
 from django.template.loader import render_to_string
 from simple_history.admin import SimpleHistoryAdmin
 from django.core.validators import EMPTY_VALUES
 from facturacion.utils import generar_pdf_factura
+from django.db import connection, transaction
+from django.db.utils import ProgrammingError
 from django.utils.formats import date_format
 from unfold.decorators import display
 from django.http import HttpResponse
@@ -134,11 +136,17 @@ class FacturaAdmin(ModelAdmin):
 
         return f"{dia_inicio} {mes_inicio} ~ {dia_final} {mes_final}"
 
- 
+
 class DetallePagoInline(TabularInline):
     model = DetallePago
     extra = 0
-    readonly_fields = ["transaccion", "cargo", "saldo_previo", "monto_abonado", "saldo_restante"]
+    readonly_fields = [
+        "transaccion",
+        "cargo",
+        "saldo_previo",
+        "monto_abonado",
+        "saldo_restante"
+    ]
     can_delete = False
 
     def has_add_permission(self, request, obj=None):
@@ -185,7 +193,7 @@ class TransaccionAdmin(ModelAdmin, SimpleHistoryAdmin):
     def descargar_pdf(self, request, queryset):
         if queryset.count() == 1:
             transaccion = queryset.first()
-            html_string = render_to_string('facturacion/recibo_transaccion_pdf.html', {'transaccion': transaccion})
+            html_string = render_to_string('facturacion/recibo_transaccion_pdf.html', {'transaccion': transaccion, 'tenant': getattr(request, 'tenant', None)})
             html = weasyprint.HTML(string=html_string)
             pdf = html.write_pdf()
             response = HttpResponse(pdf, content_type='application/pdf')
@@ -195,7 +203,7 @@ class TransaccionAdmin(ModelAdmin, SimpleHistoryAdmin):
             buffer = io.BytesIO()
             with zipfile.ZipFile(buffer, 'w') as zip_file:
                 for transaccion in queryset:
-                    html_string = render_to_string('facturacion/recibo_transaccion_pdf.html', {'transaccion': transaccion})
+                    html_string = render_to_string('facturacion/recibo_transaccion_pdf.html', {'transaccion': transaccion, 'tenant': getattr(request, 'tenant', None)})
                     html = weasyprint.HTML(string=html_string)
                     pdf = html.write_pdf()
                     zip_file.writestr(f"comprobante_{transaccion.pk}.pdf", pdf)
@@ -250,3 +258,36 @@ class CargoAdmin(ModelAdmin, SimpleHistoryAdmin):
     )
     def estado_cargo(self, obj):
         return obj.estado
+
+
+@admin.register(MetodoPago)
+class MetodoPagoAdmin(ModelAdmin):
+    sortable_by = ()
+    list_display = (
+        "nombre",
+        "detalles",
+        "activo"
+    )
+    list_filter = ["activo"]
+    search_fields = [
+        "nombre",
+        "detalles"
+    ]
+
+
+@admin.register(ConfiguracionFacturacion)
+class ConfiguracionFacturacionAdmin(ModelAdmin):
+    list_display = ["__str__", "dias_gracia"]
+
+    def has_add_permission(self, request):
+        if connection.schema_name == 'public':
+            return False
+
+        try:
+            with transaction.atomic():
+                if ConfiguracionFacturacion.objects.exists():
+                    return False
+        except ProgrammingError:
+            pass
+
+        return super().has_add_permission(request)

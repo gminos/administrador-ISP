@@ -1,6 +1,6 @@
+from facturacion.models import Factura, Cargo, MetodoPago
 from django.template.loader import render_to_string
-from facturacion.models import Factura, Cargo
-from django.conf import settings
+from django.db import connection
 import weasyprint
 
 def generar_pdf_factura(factura: Factura) -> bytes:
@@ -9,7 +9,7 @@ def generar_pdf_factura(factura: Factura) -> bytes:
             instalacion=factura.instalacion,
             estado__in=['pendiente', 'parcial']
         ).exclude(pk=factura.cargo.pk).order_by("fecha_emision", "pk"))
-        
+
         saldos_anteriores = sum(c.saldo_pendiente for c in cargos_vencidos)
         saldo_pendiente = factura.cargo.saldo_pendiente
         monto_total = factura.cargo.monto_total
@@ -22,8 +22,11 @@ def generar_pdf_factura(factura: Factura) -> bytes:
         monto_total = 0
         pagos = []
         total_pagado = 0
-        
+
     total_a_pagar = saldos_anteriores + saldo_pendiente
+
+    tenant = connection.tenant
+    metodos_pago = MetodoPago.objects.filter(activo=True)
 
     html_string = render_to_string('facturacion/factura_pdf.html', {
         'factura': factura, 
@@ -34,10 +37,8 @@ def generar_pdf_factura(factura: Factura) -> bytes:
         'monto_total': monto_total,
         'pagos': pagos,
         'total_pagado': total_pagado,
-        'payment_nequi': settings.PAYMENT_NEQUI,
-        'payment_breve': settings.PAYMENT_BREVE,
-        'payment_bancolombia': settings.PAYMENT_BANCOLOMBIA,
-        'payment_efectivo': settings.PAYMENT_EFECTIVO,
+        'metodos_pago': metodos_pago,
+        'tenant': tenant,
     })
 
     html = weasyprint.HTML(string=html_string)

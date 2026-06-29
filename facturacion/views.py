@@ -162,10 +162,10 @@ class PortalCajaView(View):
         DetallePago.objects.bulk_create(detalle_pagos_nuevos)
         Cargo.objects.bulk_update(cargos_modificados, ["estado", "saldo_pendiente"])
 
-        procesar_envio_comprobando_whatsapp.delay(transaccion.pk)
-
+        procesar_envio_comprobando_whatsapp.delay(transaccion.pk, request.tenant.schema_name)
+        
         for instalacion in cliente.instalaciones.filter(servicio_activo=False):
-            verificar_y_reactivar_instalacion.delay(instalacion.pk)
+            verificar_y_reactivar_instalacion.delay(instalacion.pk, request.tenant.schema_name)
 
         monto_str = f"{monto_recibido:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
         if monto_str.endswith(",00"):

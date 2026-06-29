@@ -1,6 +1,7 @@
+from django.core.exceptions import ValidationError
 from django.db.models.aggregates import Sum
+from django.db import models, connection
 from facturacion.models import Cargo
-from django.db import models
 
 
 class Cliente(models.Model):
@@ -17,6 +18,20 @@ class Cliente(models.Model):
 
     def __str__(self):
         return f"{self.nombre} {self.apellido}"
+
+    def clean(self) -> None:
+        super().clean()
+
+        if not self.pk:
+            tenant = connection.tenant
+            if hasattr(tenant, 'schema_name') and tenant.schema_name != 'public':
+                if tenant.paquete:
+                    limite = tenant.paquete.limite_cliente
+                    if limite > 0:
+                        cantidad_cliente = Cliente.objects.count()
+                        if cantidad_cliente >= limite:
+                            raise ValidationError("Has alcanzado el límite máximo de clientes permitidos en tu paquete actual."
+                                                  " Por favor, contacta a soporte para mejorar tu plan.")
 
     class Meta:
         verbose_name = "cliente"
