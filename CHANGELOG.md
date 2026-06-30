@@ -4,6 +4,11 @@ Todas las novedades, cambios y correcciones del proyecto Administrador ISP será
 
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/), y este proyecto se adhiere a [Versionamiento Semántico (SemVer)](https://semver.org/lang/es/).
 
+## [2.1.2] - 2026-06-30
+
+### Cambiado
+- **Documentación del Proyecto:** Reescritura completa del archivo `README.md` para reflejar la evolución arquitectónica del proyecto hacia una plataforma B2B SaaS Multi-Tenant. Se integró el logotipo oficial de NucleoISP, se estandarizó la terminología (ej. "multi-tenant", "secrets"), se agregó la mención de notificaciones por WhatsApp, y se actualizaron las instrucciones de despliegue local para incluir configuraciones de correo electrónico (`EMAIL_HOST`), la nueva estructura `.env.dev` y el aprovisionamiento de subdominios. Se eliminó la sección de infraestructura por ser redundante.
+
 ## [2.1.1] - 2026-06-30
 
 ### Cambiado

@@ -1,72 +1,92 @@
-# Administrador ISP - Arint Conexiones
+<div align="center">
+    <img src="base/static/images/logo-nucleo.svg" alt="NucleoISP Logo" width="200"/>
+    <h1>NucleoISP</h1>
+    <p><strong>Plataforma para la gestión de proveedores de servicio de internet</strong></p>
+</div>
 
-## Descripción
+## Descripción General
 
-Sistema integral para la gestión y administración de proveedores de servicios de internet (ISP). Desarrollado en Django, este proyecto funciona como una plataforma completa que automatiza operaciones críticas como facturación, control de pagos, notificaciones a clientes y aprovisionamiento directo de routers Mikrotik.
+NucleoISP es una plataforma diseñada con arquitectura multi-tenant, aislando completamente los datos de cada proveedor de internet a nivel de esquema en PostgreSQL. Desarrollada sobre el ecosistema de Python y Django, la plataforma permite a empresas proveedoras de internet administrar toda su lógica de negocios, facturación, automatización y control de infraestructura de red de manera centralizada.
 
-## Características Principales
+El sistema funciona mediante un esquema público que orquesta la creación y administración de los proveedores de internet, asignando a cada uno un subdominio dedicado para acceder a su panel de control independiente de marca blanca.
 
-* **Gestión de Clientes e Instalaciones:** Registro detallado de abonados, planes de internet asignados y datos técnicos de conexión (asignación de routers y credenciales PPPoE).
-* **Facturación y Caja Rápida:** Generación masiva de facturas mensuales, registro de abonos y cancelación de deudas con sistema de prioridades matemáticas (mensualidad, reconexión, instalación). Generación de recibos de pago en formato PDF.
-* **Integración con Mikrotik (RouterOS API):** Comunicación en tiempo real con los equipos de red. Permite visualizar clientes conectados, suspender servicios de forma manual o automática y reactivarlos sin salir del sistema.
-* **Automatización de Procesos (Celery y Redis):** Ejecución de procesos en segundo plano para el corte automático de clientes morosos en la madrugada, reactivación inmediata al registrar pagos y generación masiva de facturación sin interrumpir el servidor web.
-* **Notificaciones por WhatsApp:** Integración para el envío automatizado de facturas pendientes y comprobantes de pago directamente a los números de los clientes.
-* **Interfaz de Administración Avanzada:** Interfaz de usuario potenciada por Django Unfold para una experiencia administrativa moderna, fluida y responsiva.
+## Capacidades Arquitectónicas
 
-## Requisitos del Sistema
+* **Arquitectura multi-tenant aislada:** Uso de esquemas de bases de datos independientes para asegurar privacidad absoluta de los datos y escalabilidad de alto rendimiento.
+* **Integración directa con infraestructura:** Comunicación bidireccional mediante la API de RouterOS con equipos Mikrotik.
+* **Aprovisionamiento automático:** Sincronización transparente e instantánea de perfiles PPPoE, secrets y configuraciones de planes desde la nube hacia los enrutadores físicos.
+* **Procesamiento asíncrono de alto rendimiento:** Uso intensivo de Celery y Redis para manejar tareas críticas en segundo plano, tales como:
+    * Corte automatizado de servicios para clientes en mora masiva.
+    * Sincronización de planes a routers recién integrados.
+    * Generación en lote de comprobantes y facturas.
+* **Gestión financiera de alta precisión:** Sistema de priorización matemática de deuda para procesar abonos parciales, reconexiones e instalaciones.
+* **Túneles seguros incorporados:** Despliegue empaquetado con WireGuard para garantizar accesos seguros a la red de gestión y monitoreo.
+* **Notificaciones automatizadas por WhatsApp:** Integración para el envío automático de comprobantes de pago y alertas de cobro directamente a los clientes de cada ISP.
 
-* Docker y Docker Compose
-* Python 3.13+ (para desarrollo local con UV)
-* Router Mikrotik accesible a través del puerto de la API (por defecto 8728)
+## Stack Tecnológico
 
-## Instalación y Ejecución
+* **Backend:** Python 3.13, Django 5.x, Django Tenants, Celery
+* **Base de Datos:** PostgreSQL 17
+* **Caché y Mensajería:** Redis 7
+* **Despliegue y Contenedores:** Docker, Docker Compose, Nginx
+* **Gestor de Paquetes:** UV
+* **Interfaz de Administración:** Django Unfold
+
+## Proceso de Despliegue Local
 
 1. **Clonar el repositorio:**
 
-```bash 
-git clone https://github.com/gminos/arint_conexiones_admin.git
-cd arint_conexiones_admin
+```bash
+git clone https://github.com/gminos/NucleoISP.git
+cd NucleoISP
 ```
 
-2. **Configurar las variables de entorno:**
+2. **Configuración de Entorno:**
 
-Crea un archivo llamado `.env` en la raíz del proyecto y añade la siguiente configuración (ajustando los valores a tu entorno):
+Crear un archivo `.env.dev` en el directorio raíz basado en los requerimientos de la plataforma:
 
-```bash
-# Base de Datos
-DB_NAME=postgres
-DB_USER=postgres
-DB_PASSWORD=contraseña
-DB_PORT=5432
+```env
+# Configuracion Base de Datos
+POSTGRES_DB=postgres
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=contrasena_segura
 
-# Django
-DJANGO_SECRET_KEY=clave_secreta
-DJANGO_ALLOWED_HOSTS=localhost,127.0.0.1
+# Configuracion Django
+DJANGO_SECRET_KEY=clave_ultra_secreta_aqui
+DJANGO_ALLOWED_HOSTS=.nucleoisp.localhost,127.0.0.1
 DEBUG=True
+
+# Configuracion Correo Electronico
+EMAIL_HOST=smtp.gmail.com
+EMAIL_PORT=587
+EMAIL_USE_TLS=true
+EMAIL_HOST_USER=tu_correo@gmail.com
+EMAIL_HOST_PASSWORD=tu_contrasena_de_aplicacion
+
+# Configuracion WireGuard
+WG_PASSWORD=contrasena_admin_vpn
 ```
 
-Nota: Para generar una clave secreta segura para Django, puedes ejecutar:
+3. **Construcción y Arranque de Contenedores:**
 
-```bash
-uv run python -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())"
-```
-
-3. **Iniciar los servicios con Docker Compose:**
-
-El proyecto incluye múltiples contenedores (Web, Base de Datos, Redis, Celery Worker y Celery Beat). Para construir las imágenes e iniciarlos todos en segundo plano:
+El entorno inicializa la base de datos, el servidor web, trabajadores de Celery y el balanceador proxy inverso local.
 
 ```bash
 docker compose up -d --build
 ```
 
-4. **Crear un superusuario:**
+4. **Inicialización de la Arquitectura Multi-Tenant:**
 
-Este paso es obligatorio para poder iniciar sesión en el panel de control por primera vez:
+Dado el diseño de múltiples esquemas, la configuración inicial requiere la creación del esquema maestro public antes de crear administradores estándar.
 
 ```bash
-docker compose exec web uv run python manage.py createsuperuser
+docker compose exec web uv run python manage.py migrate_schemas --shared
+docker compose exec web uv run python manage.py create_tenant --schema_name=public --domain_url=nucleoisp.localhost --name="NucleoISP Central"
+docker compose exec web uv run python manage.py create_tenant_superuser --schema_name=public
 ```
 
-5. **Acceso al sistema:**
+5. **Acceso al Panel Central:**
 
-Una vez que los contenedores estén corriendo, abre tu navegador web e ingresa a `http://localhost:8000` (o el puerto configurado en tu máquina virtual). Utiliza las credenciales del superusuario creado en el paso anterior.
+Ingresar mediante el dominio principal configurado (ej. `http://nucleoisp.localhost:8000`) utilizando las credenciales maestras generadas. Desde este panel público se podrán aprovisionar las nuevas empresas, las cuales recibirán inmediatamente su propia base de datos y su propio subdominio (ej. `http://megared.nucleoisp.localhost:8000`).
+
+---
