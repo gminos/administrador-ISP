@@ -339,6 +339,18 @@ UNFOLD = {
                 ],
             },
             {
+                "title": "Redes e Infraestructura",
+                "separator": True,
+                "items": [
+                    {
+                        "title": "Routers",
+                        "icon": "dns",
+                        "link": reverse_lazy("admin:redes_router_changelist"),
+                        "permission": lambda request: request.user.has_perm("redes.view_router") and hasattr(request, "tenant") and request.tenant.schema_name != "public",
+                    },
+                ],
+            },
+            {
                 "title": "Ajustes generales",
                 "separator": True,
                 "items": [
@@ -353,18 +365,6 @@ UNFOLD = {
                         "icon": "settings",
                         "link": reverse_lazy("admin:facturacion_configuracionfacturacion_changelist"),
                         "permission": lambda request: request.user.has_perm("facturacion.view_configuracionfacturacion") and hasattr(request, "tenant") and request.tenant.schema_name != "public",
-                    },
-                ],
-            },
-            {
-                "title": "Redes e Infraestructura",
-                "separator": True,
-                "items": [
-                    {
-                        "title": "Routers",
-                        "icon": "dns",
-                        "link": reverse_lazy("admin:redes_router_changelist"),
-                        "permission": lambda request: request.user.has_perm("redes.view_router") and hasattr(request, "tenant") and request.tenant.schema_name != "public",
                     },
                 ],
             },

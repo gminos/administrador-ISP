@@ -4,6 +4,11 @@ Todas las novedades, cambios y correcciones del proyecto Administrador ISP será
 
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/), y este proyecto se adhiere a [Versionamiento Semántico (SemVer)](https://semver.org/lang/es/).
 
+## [2.1.3] - 2026-06-30
+
+### Cambiado
+- **UX/UI (Navegación):** Se reordenó el menú lateral del panel de administración (Django Unfold). La sección "Redes e Infraestructura" ahora aparece por encima de "Ajustes generales", siguiendo el principio de diseño de jerarquizar las operaciones core del modelo de negocio por sobre las configuraciones estáticas de un solo uso.
+
 ## [2.1.2] - 2026-06-30
 
 ### Cambiado
