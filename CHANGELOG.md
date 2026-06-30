@@ -4,6 +4,11 @@ Todas las novedades, cambios y correcciones del proyecto Administrador ISP será
 
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/), y este proyecto se adhiere a [Versionamiento Semántico (SemVer)](https://semver.org/lang/es/).
 
+## [2.1.0] - 2026-06-29
+
+### Agregado
+- **Adoctrinamiento Automático de Routers:** Nuevo sistema de señales (`signals.py`) en la aplicación de redes que detecta cuando un ISP registra un nuevo enrutador Mikrotik. Al ser detectado, se dispara una tarea asíncrona en Celery que busca todos los planes existentes en la base de datos del inquilino y los inyecta automáticamente en el nuevo equipo, eliminando la necesidad de sincronización manual y mejorando la experiencia de onboarding (UX).
+
 ## [2.0.1] - 2026-06-29
 
 ### Corregido
