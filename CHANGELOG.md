@@ -4,6 +4,11 @@ Todas las novedades, cambios y correcciones del proyecto Administrador ISP será
 
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/), y este proyecto se adhiere a [Versionamiento Semántico (SemVer)](https://semver.org/lang/es/).
 
+## [2.1.1] - 2026-06-30
+
+### Cambiado
+- **Refactorización de Importaciones:** Refactorización estética (chore) en los módulos de `tasks.py` y `signals.py` dentro de la aplicación de `redes`. Se movieron todas las importaciones locales e internas hacia la cabecera del archivo, y se aplicó una regla de ordenamiento estricta por longitud de caracteres (de mayor a menor) para asegurar un código más limpio y legible según los estándares del proyecto.
+
 ## [2.1.0] - 2026-06-29
 
 ### Agregado

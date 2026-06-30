@@ -1,10 +1,12 @@
-from redes.mikrotik_cliente import reactivar_cliente, suspender_clientes_masivo
+from redes.mikrotik_cliente import reactivar_cliente, suspender_clientes_masivo, sincronizar_perfil_ppp, eliminar_perfil_ppp, sincronizar_secret_ppp, eliminar_secret_ppp
 from django_tenants.utils import schema_context
 from instalaciones.models import Instalacion
 from nucleo_admin.models import EmpresaISP
 from celery import shared_task, Task
 from collections import defaultdict
 from django.utils import timezone
+from redes.models import Router
+from planes.models import Plan
 import logging
 
 logger = logging.getLogger(__name__)
@@ -92,8 +94,6 @@ def verificar_y_reactivar_instalacion(self: Task, instalacion_id: int, schema_na
 
 @shared_task(bind=True, max_retries=3)
 def tarea_sincronizar_perfil(self: Task, schema_name: str, plan_nombre: str, megas: int):
-    from redes.models import Router
-    from redes.mikrotik_cliente import sincronizar_perfil_ppp
     with schema_context(schema_name):
         routers = Router.objects.all()
         for router in routers:
@@ -103,8 +103,6 @@ def tarea_sincronizar_perfil(self: Task, schema_name: str, plan_nombre: str, meg
 
 @shared_task(bind=True, max_retries=3)
 def tarea_eliminar_perfil(self: Task, schema_name: str, plan_nombre: str):
-    from redes.models import Router
-    from redes.mikrotik_cliente import eliminar_perfil_ppp
     with schema_context(schema_name):
         routers = Router.objects.all()
         for router in routers:
@@ -114,8 +112,6 @@ def tarea_eliminar_perfil(self: Task, schema_name: str, plan_nombre: str):
 
 @shared_task(bind=True, max_retries=3)
 def tarea_sincronizar_secret(self: Task, schema_name: str, router_id: int, usuario: str, password: str, plan_nombre: str, ip_estatica: str = None):
-    from redes.models import Router
-    from redes.mikrotik_cliente import sincronizar_secret_ppp
     with schema_context(schema_name):
         try:
             router = Router.objects.get(pk=router_id)
@@ -128,8 +124,6 @@ def tarea_sincronizar_secret(self: Task, schema_name: str, router_id: int, usuar
 
 @shared_task(bind=True, max_retries=3)
 def tarea_eliminar_secret(self: Task, schema_name: str, router_id: int, usuario: str):
-    from redes.models import Router
-    from redes.mikrotik_cliente import eliminar_secret_ppp
     with schema_context(schema_name):
         try:
             router = Router.objects.get(pk=router_id)
@@ -139,3 +133,20 @@ def tarea_eliminar_secret(self: Task, schema_name: str, router_id: int, usuario:
                 raise self.retry(countdown=10)
         except Router.DoesNotExist:
             logger.error(f"Router {router_id} no existe.")
+
+@shared_task(bind=True, max_retries=3)
+def tarea_sincronizar_planes_router_nuevo(self: Task, schema_name: str, router_id: int):
+    with schema_context(schema_name):
+        try:
+            router = Router.objects.get(id=router_id)
+        except Router.DoesNotExist:
+            logger.error(f"Router {router_id} no encontrado en {schema_name}.")
+            return f"Router {router_id} no encontrado."
+            
+        planes = Plan.objects.all()
+        for plan in planes:
+            exito, msg = sincronizar_perfil_ppp(router, plan.nombre, plan.cantidad_megas)
+            if not exito:
+                logger.error(f"Error sincronizando plan {plan.nombre} al router {router.ip}: {msg}")
+                
+        return f"Planes sincronizados exitosamente en router {router.ip} ({schema_name})"
