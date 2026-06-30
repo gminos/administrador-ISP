@@ -207,7 +207,7 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 def obtener_logo_inquilino(request):
     if hasattr(request, 'tenant') and request.tenant.schema_name != 'public' and request.tenant.logo:
         return request.tenant.logo.url
-    return static("images/logo-light.svg")
+    return static("images/logo-nucleo.svg")
 
 def obtener_nombre_inquilino(request):
     if hasattr(request, 'tenant') and request.tenant.schema_name != 'public':

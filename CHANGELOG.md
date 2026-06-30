@@ -4,6 +4,11 @@ Todas las novedades, cambios y correcciones del proyecto Administrador ISP será
 
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/), y este proyecto se adhiere a [Versionamiento Semántico (SemVer)](https://semver.org/lang/es/).
 
+## [2.0.1] - 2026-06-29
+
+### Corregido
+- **Caché y Assets Estáticos:** Implementado nuevo logotipo vectorial (`.svg`) de fondo transparente con branding oficial de NucleoISP. Se forzó la invalidación del caché estático cambiando las referencias en `settings.py` para asegurar que el cambio se refleje instantáneamente en las interfaces en la nube.
+
 ## [2.0.0] - 2026-06-29
 
 Esta versión marca la evolución del proyecto de un Gestor ISP individual a una Plataforma SaaS B2B Multi-Inquilino. Ahora el sistema es capaz de alojar y gestionar a múltiples ISPs simultáneamente con aislamiento de bases de datos, control financiero y automatización de clientes.
