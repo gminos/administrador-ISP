@@ -64,7 +64,7 @@ class ConfiguracionFacturacion(models.Model):
 
 class Factura(models.Model):
     instalacion = models.ForeignKey(
-        "instalaciones.Instalacion", on_delete=models.CASCADE
+        "instalaciones.Instalacion", on_delete=models.PROTECT
     )
     periodo_inicio = models.DateField(null=True, db_index=True)
     periodo_final = models.DateField(null=True)
@@ -94,7 +94,7 @@ class Factura(models.Model):
 
 class Transaccion(models.Model):
     cliente = models.ForeignKey(
-        "clientes.Cliente", on_delete=models.CASCADE, related_name="transaciones"
+        "clientes.Cliente", on_delete=models.PROTECT, related_name="transaciones"
     )
     fecha_pago = models.DateField()
     monto_total = models.DecimalField(max_digits=10, decimal_places=2)
@@ -115,13 +115,13 @@ class Transaccion(models.Model):
 
 class Cargo(models.Model):
     cliente = models.ForeignKey(
-        "clientes.Cliente", on_delete=models.CASCADE, related_name="cargos"
+        "clientes.Cliente", on_delete=models.PROTECT, related_name="cargos"
     )
     instalacion = models.ForeignKey(
-        "instalaciones.Instalacion", on_delete=models.CASCADE, related_name="cargos"
+        "instalaciones.Instalacion", on_delete=models.PROTECT, related_name="cargos"
     )
     factura_origen = models.OneToOneField(
-        "Factura", null=True, blank=True, on_delete=models.CASCADE
+        "Factura", null=True, blank=True, on_delete=models.SET_NULL
     )
     tipo_cargo = models.CharField(
         choices=TIPO_CARGO_CHOICES, max_length=15, default="mensualidad"

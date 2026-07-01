@@ -4,6 +4,11 @@ Todas las novedades, cambios y correcciones del proyecto Administrador ISP será
 
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/), y este proyecto se adhiere a [Versionamiento Semántico (SemVer)](https://semver.org/lang/es/).
 
+## [2.3.2] - 2026-07-01
+
+### Arreglado
+- **Facturación y Contabilidad:** Se cambió la regla de borrado en cascada (`models.CASCADE`) por protección estricta (`models.PROTECT`) en las relaciones de `Factura`, `Cargo` y `Transaccion` hacia los modelos de `Instalacion` y `Cliente`. Esto impide la eliminación accidental de historiales financieros y transacciones huérfanas al borrar una instalación o cliente del sistema.
+
 ## [2.3.1] - 2026-07-01
 
 ### Arreglado
