@@ -4,6 +4,11 @@ Todas las novedades, cambios y correcciones del proyecto Administrador ISP será
 
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/), y este proyecto se adhiere a [Versionamiento Semántico (SemVer)](https://semver.org/lang/es/).
 
+## [2.1.6] - 2026-06-30
+
+### Cambiado
+- **Documentación (README):** Se eliminó el paso manual redundante de ejecutar `migrate_schemas --shared` de la guía de despliegue inicial, ya que esta acción ahora está automatizada en el script de arranque de Docker (`entrypoint.sh`).
+
 ## [2.1.5] - 2026-06-30
 
 ### Corregido

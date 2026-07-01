@@ -71,22 +71,25 @@ WG_PASSWORD=contrasena_admin_vpn
 
 El entorno inicializa la base de datos, el servidor web, trabajadores de Celery y el balanceador proxy inverso local.
 
-```bash
-docker compose up -d --build
-```
+3. **Inicialización de la Arquitectura Multi-Tenant:**
 
-4. **Inicialización de la Arquitectura Multi-Tenant:**
+1. Construye y levanta los contenedores:
+   ```bash
+   docker compose up -d --build
+   ```
 
-Dado el diseño de múltiples esquemas, la configuración inicial requiere la creación del esquema maestro public antes de crear administradores estándar.
+2. Crea el inquilino principal (Public Tenant) para la administración central:
+   ```bash
+   docker compose exec web uv run python manage.py create_tenant --schema_name=public --domain_url=nucleoisp.localhost --name="NucleoISP Central"
+   ```
 
-```bash
-docker compose exec web uv run python manage.py migrate_schemas --shared
-docker compose exec web uv run python manage.py create_tenant --schema_name=public --domain_url=nucleoisp.localhost --name="NucleoISP Central"
-docker compose exec web uv run python manage.py create_tenant_superuser --schema_name=public
-```
+3. Crea el usuario administrador maestro (Superuser):
+   ```bash
+   docker compose exec web uv run python manage.py create_tenant_superuser --schema_name=public
+   ```
 
-5. **Acceso al Panel Central:**
+4. **Acceso al Panel Central:**
 
-Ingresar mediante el dominio principal configurado (ej. `http://nucleoisp.localhost:8000`) utilizando las credenciales maestras generadas. Desde este panel público se podrán aprovisionar las nuevas empresas, las cuales recibirán inmediatamente su propia base de datos y su propio subdominio (ej. `http://megared.nucleoisp.localhost:8000`).
+Ingresar mediante el dominio principal configurado (ej. `http://nucleoisp.localhost:8000`) utilizando las credenciales maestras generadas. Desde este panel público se podrán aprovisionar las nuevas empresas, las cuales recibirán inmediatamente su propia base de datos y su propio subdominio.
 
 ---
