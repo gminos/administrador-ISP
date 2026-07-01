@@ -4,6 +4,13 @@ Todas las novedades, cambios y correcciones del proyecto Administrador ISP será
 
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/), y este proyecto se adhiere a [Versionamiento Semántico (SemVer)](https://semver.org/lang/es/).
 
+## [2.2.1] - 2026-07-01
+
+### Cambiado
+- **Interfaz (Facturas PDF):** Se optimizó la hoja de estilos (CSS) de la plantilla de facturación (`factura_pdf.html`). Se ajustaron los márgenes (`1.5cm`), tipografía (`11pt`) y espaciados internos a un "punto medio" para evitar que facturas con 2 cargos generen un desbordamiento hacia una segunda página sin perder el diseño premium.
+- **Nomenclatura Contable:** Se renombró la cabecera de la tabla de cargos de "Subtotal" a "Total" para eliminar la redundancia cognitiva con la fila inferior.
+- **Diseño Responsivo (Nombres Largos):** Se forzó un salto de línea (`<br>`) debajo de la etiqueta "Facturado a:" para asegurar que los nombres de clientes inusualmente largos tengan el ancho total de la columna, evitando cortes asimétricos o desalineaciones visuales en la tabla.
+
 ## [2.2.0] - 2026-06-30
 
 ### Añadido

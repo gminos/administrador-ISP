@@ -6,10 +6,10 @@
     <style>
         @page {
             size: A4;
-            margin: 2cm;
+            margin: 1.5cm;
             @bottom-right {
                 content: "Página " counter(page) " de " counter(pages);
-                font-size: 10pt;
+                font-size: 9pt;
                 color: #666;
             }
         }
@@ -17,12 +17,12 @@
             font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
             color: #333;
             line-height: 1.5;
-            font-size: 12pt;
+            font-size: 11pt;
         }
         .header {
             border-bottom: 2px solid #333;
-            padding-bottom: 20px;
-            margin-bottom: 30px;
+            padding-bottom: 15px;
+            margin-bottom: 25px;
             display: flex;
             align-items: center;
             gap: 20px;
@@ -46,7 +46,7 @@
         }
         .invoice-details {
             width: 100%;
-            margin-bottom: 40px;
+            margin-bottom: 30px;
         }
         .invoice-details td {
             vertical-align: top;
@@ -68,7 +68,7 @@
             margin-bottom: 30px;
         }
         table.items th, table.items td {
-            padding: 12px;
+            padding: 10px;
             text-align: left;
             border-bottom: 1px solid #ddd;
         }
@@ -87,12 +87,12 @@
             border-top: 2px solid #333;
         }
         .estado {
-            margin-top: 30px;
-            padding: 15px;
+            margin-top: 25px;
+            padding: 12px;
             background-color: #f8f9fa;
             border-radius: 5px;
             text-align: center;
-            font-size: 14pt;
+            font-size: 13pt;
             font-weight: bold;
         }
         .estado.pagado {
@@ -106,9 +106,9 @@
             border: 1px solid #f5c6cb;
         }
         .footer {
-            margin-top: 50px;
+            margin-top: 30px;
             text-align: center;
-            font-size: 10pt;
+            font-size: 9pt;
             color: #888;
         }
         .payment-methods {
@@ -184,7 +184,8 @@
     <table class="invoice-details">
         <tr>
             <td class="client-info">
-                <strong>Facturado a:</strong> {{ factura.cliente.nombre }} {{ factura.cliente.apellido }}<br>
+                <strong>Facturado a:</strong><br>
+                {{ factura.cliente.nombre }} {{ factura.cliente.apellido }}<br>
                 <strong>Teléfono:</strong> {{ factura.cliente.telefono|default:"N/A" }}<br>
                 <strong>Vereda:</strong> {{ factura.cliente.vereda|default:"N/A" }}
             </td>
@@ -201,7 +202,7 @@
             <tr>
                 <th>Descripción del Servicio</th>
                 <th class="right">Periodo</th>
-                <th class="right">Subtotal</th>
+                <th class="right">Total</th>
             </tr>
         </thead>
         <tbody>
