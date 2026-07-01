@@ -9,6 +9,8 @@ done
 
 echo "se empieza a aplicar migraciones"
 chown -R $(stat -c '%u:%g' /app) /app/.venv /app/.uv-cache 2>/dev/null || true
+uv run python manage.py migrate_schemas --shared
+uv run python manage.py migrate_schemas --tenant
 
 echo "generando los archivo estaticos... calmado"
 uv run python manage.py collectstatic --noinput --verbosity 0

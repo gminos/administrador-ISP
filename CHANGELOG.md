@@ -4,6 +4,11 @@ Todas las novedades, cambios y correcciones del proyecto Administrador ISP será
 
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/), y este proyecto se adhiere a [Versionamiento Semántico (SemVer)](https://semver.org/lang/es/).
 
+## [2.1.5] - 2026-06-30
+
+### Corregido
+- **Entrypoint de Docker (Migraciones):** Se parcheó un bug crítico en `entrypoint.sh` donde las migraciones no se estaban ejecutando al inicializar los contenedores. Se agregaron los comandos obligatorios de `django-tenants` (`migrate_schemas --shared` y `migrate_schemas --tenant`) para asegurar que cualquier base de datos en blanco despliegue todas las tablas automáticamente antes de iniciar Gunicorn, evitando el error 500 "relation does not exist".
+
 ## [2.1.4] - 2026-06-30
 
 ### Corregido
