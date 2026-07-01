@@ -95,7 +95,6 @@ TENANT_APPS = [
     "facturacion.apps.FacturacionConfig",
     "base.apps.BaseConfig",
     "redes.apps.RedesConfig",
-    "debug_toolbar",
 ]
 
 INSTALLED_APPS = list(SHARED_APPS) + [app for app in TENANT_APPS if app not in SHARED_APPS]
@@ -110,7 +109,6 @@ DATABASE_ROUTERS = (
 MIDDLEWARE = [
     "django_tenants.middleware.main.TenantMainMiddleware",
     "nucleo_admin.middleware.TenantSuspensionMiddleware",
-    "debug_toolbar.middleware.DebugToolbarMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -393,6 +391,13 @@ UNFOLD = {
 CELERY_BROKER_URL = os.getenv("REDIS_URL", "redis://redis:6379/0")
 CELERY_RESULT_BACKEND = os.getenv("REDIS_URL", "redis://redis:6379/0")
 CELERY_TIMEZONE = TIME_ZONE
+
+# Default configuration (from env or defaults)
+USE_TZ = True
+
+if DEBUG:
+    INSTALLED_APPS.append("debug_toolbar")
+    MIDDLEWARE.insert(2, "debug_toolbar.middleware.DebugToolbarMiddleware")
 
 # Email Configuration
 EMAIL_BACKEND = os.getenv("EMAIL_BACKEND", "django.core.mail.backends.console.EmailBackend" if DEBUG else "django.core.mail.backends.smtp.EmailBackend")

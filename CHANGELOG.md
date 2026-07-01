@@ -4,6 +4,11 @@ Todas las novedades, cambios y correcciones del proyecto Administrador ISP será
 
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/), y este proyecto se adhiere a [Versionamiento Semántico (SemVer)](https://semver.org/lang/es/).
 
+## [2.1.7] - 2026-06-30
+
+### Corregido
+- **Seguridad / Rendimiento (Debug Toolbar):** Se solucionó una fuga de información y rendimiento en producción donde el panel `django-debug-toolbar` se inyectaba en las páginas incluso si `DJANGO_DEBUG` estaba en `false`. El módulo se removió de las listas quemadas (`TENANT_APPS` y `MIDDLEWARE`) y ahora se carga dinámicamente solo si `DEBUG` es verdadero.
+
 ## [2.1.6] - 2026-06-30
 
 ### Cambiado
