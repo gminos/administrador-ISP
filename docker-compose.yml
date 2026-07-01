@@ -23,6 +23,7 @@ services:
       - "127.0.0.1:8000:8000"
     environment:
       POSTGRES_HOST: db
+      RUN_MIGRATIONS: "true"
     depends_on:
       - db
     restart: always

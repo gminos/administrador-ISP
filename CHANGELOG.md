@@ -4,6 +4,11 @@ Todas las novedades, cambios y correcciones del proyecto Administrador ISP será
 
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/), y este proyecto se adhiere a [Versionamiento Semántico (SemVer)](https://semver.org/lang/es/).
 
+## [2.3.3] - 2026-07-01
+
+### Arreglado
+- **Infraestructura (Docker):** Se solucionó una condición de carrera (race condition) en el arranque de la base de datos PostgreSQL que causaba que los contenedores de Celery (Worker y Beat) colapsaran (`DuplicateTable`). Ahora, las migraciones de Django se ejecutan exclusivamente en el contenedor `web` mediante la variable condicional `RUN_MIGRATIONS=true` en los archivos `docker-compose.yml` y `docker-compose.dev.yml`.
+
 ## [2.3.2] - 2026-07-01
 
 ### Arreglado
