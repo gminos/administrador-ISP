@@ -4,6 +4,11 @@ Todas las novedades, cambios y correcciones del proyecto Administrador ISP será
 
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/), y este proyecto se adhiere a [Versionamiento Semántico (SemVer)](https://semver.org/lang/es/).
 
+## [2.2.0] - 2026-06-30
+
+### Añadido
+- **WhatsApp API (Multipage PDF):** Se implementó una lógica de concatenación vertical usando la librería `Pillow` en el servicio de WhatsApp. Esto asegura que si una factura o comprobante de pago abarca múltiples páginas, todas las hojas se fusionarán en una sola imagen (tipo pergamino) de manera transparente, evitando descartar datos de los cargos de los clientes.
+
 ## [2.1.9] - 2026-06-30
 
 ### Corregido

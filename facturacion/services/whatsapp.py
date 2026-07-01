@@ -6,9 +6,21 @@ from pdf2image import convert_from_bytes
 from pywa.errors import WhatsAppError
 from django.db import connection
 from pywa import WhatsApp
+from PIL import Image
 import weasyprint
 import logging
 import io
+
+def _unir_imagenes_vertical(images):
+    if len(images) == 1:
+        return images[0]
+    widths, heights = zip(*(i.size for i in images))
+    combined = Image.new('RGB', (max(widths), sum(heights)))
+    y_offset = 0
+    for img in images:
+        combined.paste(img, (0, y_offset))
+        y_offset += img.size[1]
+    return combined
 
 def enviar_factura_cliente(factura: Factura) -> bool:
     tenant = connection.tenant
@@ -38,7 +50,8 @@ def enviar_factura_cliente(factura: Factura) -> bool:
             raise ValueError("Error al convertir PDF a imagen")
 
         img_byte_arr = io.BytesIO()
-        images[0].save(img_byte_arr, format='JPEG')
+        final_image = _unir_imagenes_vertical(images)
+        final_image.save(img_byte_arr, format='JPEG')
         jpg_bytes = img_byte_arr.getvalue()
 
         print("Subiendo imagen a los servidores de WhatsApp...")
@@ -109,7 +122,8 @@ def enviar_comprobante_pago(transaccion: Transaccion) -> bool:
             raise ValueError("Error al convertir PDF a imagen")
 
         img_byte_arr = io.BytesIO()
-        images[0].save(img_byte_arr, format='JPEG')
+        final_image = _unir_imagenes_vertical(images)
+        final_image.save(img_byte_arr, format='JPEG')
         jpg_bytes = img_byte_arr.getvalue()
 
         media_id = wa.upload_media(
