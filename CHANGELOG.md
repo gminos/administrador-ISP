@@ -4,6 +4,12 @@ Todas las novedades, cambios y correcciones del proyecto Administrador ISP será
 
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/), y este proyecto se adhiere a [Versionamiento Semántico (SemVer)](https://semver.org/lang/es/).
 
+## [2.1.8] - 2026-06-30
+
+### Cambiado
+- **Correos Electrónicos (UX/UI):** Se actualizó la paleta de colores de la plantilla HTML `bienvenida_isp.html` para coincidir con la identidad corporativa de NucleoISP (azul/índigo profundo `#4f46e5`). Se removió la firma genérica duplicada.
+- **Correos Electrónicos (Fix):** Se implementó un identificador invisible dinámico (`timestamp` UNIX) al final de los correos del sistema para evitar que clientes como Gmail colapsen el pie de página bajo la etiqueta de "Contenido recortado" (`[...]`) en hilos de correos múltiples.
+
 ## [2.1.7] - 2026-06-30
 
 ### Corregido

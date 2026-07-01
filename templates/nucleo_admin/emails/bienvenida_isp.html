@@ -22,7 +22,7 @@
             margin-bottom: 40px;
         }
         .header {
-            background-color: #059669;
+            background-color: #4f46e5;
             color: #ffffff;
             padding: 30px 40px;
             text-align: center;
@@ -40,7 +40,7 @@
         }
         .button {
             display: inline-block;
-            background-color: #059669;
+            background-color: #4f46e5;
             color: #ffffff;
             text-decoration: none;
             padding: 12px 24px;
@@ -76,32 +76,30 @@
         <div class="header">
             <h1>Bienvenido a NucleoISP</h1>
         </div>
-        
+
         <div class="content">
             <p>Hola Administrador de <strong>{{ nombre_empresa }}</strong>,</p>
-            
+
             <p>Tu entorno corporativo ha sido creado exitosamente. Ya puedes acceder al panel de control de tu empresa utilizando las siguientes credenciales temporales:</p>
-            
+
             <div class="credentials">
                 <p><strong>Usuario / Email:</strong> {{ email_destino }}</p>
                 <p><strong>Contraseña Temporal:</strong> {{ password_temporal }}</p>
             </div>
-            
+
             <p class="warning">Por tu seguridad, te recomendamos cambiar esta contraseña inmediatamente al ingresar al panel por primera vez.</p>
-            
+
             <div class="button-container">
                 <a href="{{ url_panel }}" class="button" style="color: #ffffff;">Ir a mi Panel de Control</a>
             </div>
-            
+
             <p>Si la URL del botón no funciona, copia y pega el siguiente enlace en tu navegador:</p>
             <p><a href="{{ url_panel }}">{{ url_panel }}</a></p>
-            
-            <p>Saludos cordiales,<br>El equipo de NucleoISP</p>
         </div>
-        
+
         <div class="footer">
-            <p>Este es un correo generado automáticamente. Por favor no respondas a este mensaje.</p>
-            <p>&copy; 2026 NucleoISP. Todos los derechos reservados.</p>
+            <p>Este es un correo generado automáticamente. Por favor no respondas a este mensaje.<br>
+            &copy; 2026 NucleoISP. Todos los derechos reservados.</p>
         </div>
     </div>
 </body>
