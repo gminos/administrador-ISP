@@ -4,6 +4,12 @@ Todas las novedades, cambios y correcciones del proyecto Administrador ISP será
 
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/), y este proyecto se adhiere a [Versionamiento Semántico (SemVer)](https://semver.org/lang/es/).
 
+## [2.1.4] - 2026-06-30
+
+### Corregido
+- **Infraestructura Nginx/Docker:** Se corrigió un error crítico arquitectónico en el proxy inverso y en la orquestación de Docker que impedía la persistencia y carga de archivos subidos por el usuario (logos de inquilinos). Se creó el volumen `media_data` en Docker Compose y se mapeó a la ruta `/media/` en `nginx.conf`.
+- **Seguridad Web:** Se añadieron cabeceras X-Forwarded-Proto al Proxy Inverso para proteger contra ataques CSRF y permitir que Django construya URIs absolutas correctas detrás de una terminación SSL (HTTPS). Adicionalmente, se configuraron cabeceras HTTP Upgrade para soporte de WebSockets y timeouts optimizados.
+
 ## [2.1.3] - 2026-06-30
 
 ### Cambiado
