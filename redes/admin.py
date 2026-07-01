@@ -1,11 +1,11 @@
-from .mikrotik_cliente import obtener_desconectados
+from .mikrotik_cliente import obtener_desconectados, obtener_conectados
 from django.contrib import admin, messages
 from unfold.admin import ModelAdmin
 from .models import Router
 
 @admin.register(Router)
 class RouterAdmin(ModelAdmin):
-    actions = ["action_ver_desconectados", "action_generar_script_vpn"]
+    actions = ["action_ver_desconectados", "action_ver_conectados", "action_generar_script_vpn"]
     list_display = ('nombre_identificador', 'ip', 'ip_vpn', 'puerto_api', 'activo')
     search_fields = ('nombre_identificador', 'ip', 'ip_vpn')
     list_filter = ('activo',)
@@ -45,6 +45,20 @@ class RouterAdmin(ModelAdmin):
                     self.message_user(request, f"{router.nombre_identificador}: Hay {cantidad} usuarios desconectados -> {nombres}", messages.WARNING)
                 else:
                     self.message_user(request, f"{router.nombre_identificador}: Todos los usuarios habilitados están conectados.", messages.SUCCESS)
+            else:
+                self.message_user(request, f"Error conectando a {router.nombre_identificador}: {respuesta}", messages.ERROR)
+
+    @admin.action(description="Mikrotik: Ver usuarios conectados")
+    def action_ver_conectados(self, request, queryset):
+        for router in queryset:
+            exito, respuesta = obtener_conectados(router)
+            if exito:
+                cantidad = len(respuesta)
+                if cantidad > 0:
+                    nombres = ", ".join(respuesta)
+                    self.message_user(request, f"{router.nombre_identificador}: Hay {cantidad} usuarios conectados -> {nombres}", messages.SUCCESS)
+                else:
+                    self.message_user(request, f"{router.nombre_identificador}: No hay usuarios conectados en este momento.", messages.WARNING)
             else:
                 self.message_user(request, f"Error conectando a {router.nombre_identificador}: {respuesta}", messages.ERROR)
 

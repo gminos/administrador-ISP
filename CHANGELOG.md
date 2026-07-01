@@ -4,6 +4,13 @@ Todas las novedades, cambios y correcciones del proyecto Administrador ISP será
 
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/), y este proyecto se adhiere a [Versionamiento Semántico (SemVer)](https://semver.org/lang/es/).
 
+## [2.3.0] - 2026-07-01
+
+### Añadido
+- **Panel de Administración (Routers):** Se integró una nueva acción personalizada ("Mikrotik: Ver usuarios conectados") que permite consultar en tiempo real el listado y la cantidad de sesiones activas directamente desde la API de Mikrotik (`/ppp/active`).
+- **Lógica de Red (Mikrotik):** Se implementó la función `obtener_conectados` en el core de interacción con Mikrotik (`redes/mikrotik_cliente.py`).
+- **Infraestructura:** Se añadió el mapeo del volumen `./redes:/app/redes` en el archivo `docker-compose.yml` para los servicios `web` y `celery`, garantizando la correcta sincronización de código en el entorno de producción.
+
 ## [2.2.1] - 2026-07-01
 
 ### Cambiado

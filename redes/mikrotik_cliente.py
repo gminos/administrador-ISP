@@ -140,6 +140,18 @@ def obtener_desconectados(router):
         logger.error(f"Error obteniendo desconectados en {router.ip}: {str(e)}")
         return False, str(e)
 
+def obtener_conectados(router):
+    try:
+        connection = _conectar(router)
+        api = connection.get_api()
+        activos = api.get_resource('/ppp/active').get()
+        connection.disconnect()
+        usuarios_conectados = [a.get('name') for a in activos]
+        return True, usuarios_conectados
+    except Exception as e:
+        logger.error(f"Error obteniendo conectados en {router.ip}: {str(e)}")
+        return False, str(e)
+
 def sincronizar_perfil_ppp(router, plan_nombre, megas):
     try:
         connection = _conectar(router)
