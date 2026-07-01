@@ -4,6 +4,12 @@ Todas las novedades, cambios y correcciones del proyecto Administrador ISP será
 
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/), y este proyecto se adhiere a [Versionamiento Semántico (SemVer)](https://semver.org/lang/es/).
 
+## [2.1.9] - 2026-06-30
+
+### Corregido
+- **Base de Datos (Migraciones):** Se aplicaron y generaron las migraciones correspondientes a la base de datos para reflejar el cambio estructural de los campos `DateField` (de `timezone.now` a `timezone.localdate`). Esto asegura que la integridad de esquema concuerde con el código fuente.
+- **Zonas Horarias (Facturación):** Se reparó el desfase de horas UTC en transacciones y facturas.
+
 ## [2.1.8] - 2026-06-30
 
 ### Cambiado

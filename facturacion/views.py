@@ -125,7 +125,7 @@ class PortalCajaView(View):
             cliente=cliente,
             monto_total=monto_recibido,
             metodo_pago=metodo,
-            fecha_pago=timezone.now().date()
+            fecha_pago=timezone.localdate()
         )
 
         monto_restante = monto_recibido

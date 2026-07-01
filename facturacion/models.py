@@ -127,7 +127,7 @@ class Cargo(models.Model):
         choices=TIPO_CARGO_CHOICES, max_length=15, default="mensualidad"
     )
     descripcion = models.CharField(max_length=255, blank=True)
-    fecha_emision = models.DateField(default=timezone.now)
+    fecha_emision = models.DateField(default=timezone.localdate)
     fecha_vencimiento = models.DateField(null=True, blank=True)
     monto_total = models.DecimalField(max_digits=10 ,decimal_places=2)
     saldo_pendiente = models.DecimalField(max_digits=10, decimal_places=2)
