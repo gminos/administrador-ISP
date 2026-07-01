@@ -4,6 +4,11 @@ Todas las novedades, cambios y correcciones del proyecto Administrador ISP será
 
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/), y este proyecto se adhiere a [Versionamiento Semántico (SemVer)](https://semver.org/lang/es/).
 
+## [2.3.1] - 2026-07-01
+
+### Arreglado
+- **Instalaciones:** Se eliminó la propiedad `null=True` del campo `router` en la base de datos y se aplicó protección en cascada (`on_delete=models.PROTECT`). Esto obliga a que toda instalación tenga un router asignado para garantizar la creación automática de usuarios PPPoE y evita borrar routers que tengan instalaciones activas.
+
 ## [2.3.0] - 2026-07-01
 
 ### Añadido
